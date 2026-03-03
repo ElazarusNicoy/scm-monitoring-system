@@ -41,8 +41,35 @@
                         <i class="fas fa-tasks"></i>
                     </div>
                     <div class="card-content">
-                        <h3 id="activeCount">0</h3>
+                        <div class="card-header-row">
+                            <h3 id="forApprovalCount">0</h3>
+                            <i class="fas fa-info-circle card-info-icon" data-tooltip="The transaction has just been submitted or has just been approved by the previous approver."></i>
+                        </div>
                         <p>For Approval</p>
+                    </div>
+                </div>
+                <div class="summary-card card-pending">
+                    <div class="card-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-header-row">
+                            <h3 id="pendingCount">0</h3>
+                            <i class="fas fa-info-circle card-info-icon" data-tooltip="The transaction has been waiting for approval for more than 1 day, or was disapproved and is waiting to be corrected and resubmitted."></i>
+                        </div>
+                        <p>Pending</p>
+                    </div>
+                </div>
+                <div class="summary-card card-additional-input">
+                    <div class="card-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-header-row">
+                            <h3 id="additionalInputCount">0</h3>
+                            <i class="fas fa-info-circle card-info-icon" data-tooltip="The transaction is with the current approver and needs to provide additional details before approving it."></i>
+                        </div>
+                        <p>For Additional Input</p>
                     </div>
                 </div>
                 <div class="summary-card card-completed">
@@ -50,17 +77,35 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="card-content">
-                        <h3 id="completedCount">0</h3>
-                        <p>Completed Transactions</p>
+                        <div class="card-header-row">
+                            <h3 id="completedCount">0</h3>
+                            <i class="fas fa-info-circle card-info-icon" data-tooltip="The transaction has passed all approval steps."></i>
+                        </div>
+                        <p>Transaction Complete</p>
                     </div>
                 </div>
-                <div class="summary-card card-pending">
+                <div class="summary-card card-normal">
+                    <div class="card-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-header-row">
+                            <h3 id="normalCount">0</h3>
+                            <i class="fas fa-info-circle card-info-icon" data-tooltip="Transactions within normal SLA timeframe based on transaction type."></i>
+                        </div>
+                        <p>Normal</p>
+                    </div>
+                </div>
+                <div class="summary-card card-warning">
                     <div class="card-icon">
                         <i class="fas fa-exclamation-triangle"></i>
                     </div>
                     <div class="card-content">
-                        <h3 id="agingCount">0</h3>
-                        <p>Pending</p>
+                        <div class="card-header-row">
+                            <h3 id="warningCount">0</h3>
+                            <i class="fas fa-info-circle card-info-icon" data-tooltip="Transactions approaching SLA deadline based on transaction type."></i>
+                        </div>
+                        <p>Warning</p>
                     </div>
                 </div>
                 <div class="summary-card card-critical">
@@ -68,7 +113,10 @@
                         <i class="fas fa-fire"></i>
                     </div>
                     <div class="card-content">
-                        <h3 id="criticalCount">0</h3>
+                        <div class="card-header-row">
+                            <h3 id="criticalCount">0</h3>
+                            <i class="fas fa-info-circle card-info-icon" data-tooltip="Transactions that have exceeded SLA deadline based on transaction type."></i>
+                        </div>
                         <p>Critical</p>
                     </div>
                 </div>
