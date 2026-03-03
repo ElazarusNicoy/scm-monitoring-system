@@ -1,217 +1,179 @@
 // SLA Rules for different transaction types
 const SLA_RULES = {
-    'RCP': { // Request Check Preparation
-        normal: 14,
-        warning: 20,
-        critical: 21
-    },
-    'PR': { // Purchase Requisition
-        normal: 14,
-        warning: 20,
-        critical: 21
-    },
-    'MAS': { // Movement Approval Sheet
-        normal: 4,
-        warning: 10,
-        critical: 11
-    },
-    'POACR': { // Purchase Order Amendment/Cancellation Request
-        normal: 4,
-        warning: 10,
-        critical: 11
-    },
-    'WOAF': { // Work Order Amendment Form
-        normal: 4,
-        warning: 10,
-        critical: 11
-    }
+    'RCP': { normal: 14, warning: 20, critical: 21 },
+    'PR': { normal: 14, warning: 20, critical: 21 },
+    'MAS': { normal: 4, warning: 10, critical: 11 },
+    'POACR': { normal: 4, warning: 10, critical: 11 },
+    'WOAF': { normal: 4, warning: 10, critical: 11 }
 };
 
-// Sample transaction data with new status system
+// Workflow routes for each transaction type
+const WORKFLOW_ROUTES = {
+    'RCP': [
+        'Requestor',
+        'Check By',
+        'Confirm By',
+        'Note By',
+        'Initial Approver',
+        'Final Approver',
+        'Senior Accounting',
+        'Finance',
+        'VOP Processing',
+        'Payment Processing',
+        'Request Transaction Completed'
+    ],
+    'PR': [
+        'Requestor',
+        'Department Approver 1',
+        'Department Approver 2',
+        'Department Approver 3',
+        'Request For Quotation',
+        'Budget Checking',
+        'Budget Approver 1',
+        'Budget Approver 2',
+        'Purchase Order Issuance',
+        'Request Transaction Completed'
+    ],
+    'MAS': [
+        'Requestor',
+        'Check By',
+        'Department Manager Approver',
+        'Stockroom Warehouse Owner',
+        'Inventory Control',
+        'Inventory Control Manager Approver',
+        'Cost Accounting',
+        'Encode By',
+        'Request Transaction Completed'
+    ],
+    'POACR': [
+        'Requestor',
+        'Superior of the Requestor',
+        'SCM Managers Approver',
+        'VP Operation',
+        'EVP COO',
+        'Encode By',
+        'Request Transaction Completed'
+    ],
+    'WOAF': [
+        'Requestor',
+        'QC Approver',
+        'BBA Approver',
+        'PPC Approver',
+        'Encode By',
+        'Request Transaction Completed'
+    ]
+};
+
+// Function to get SharePoint URL based on transaction type
+function getSharePointURL(transactionType, transactionName) {
+    const baseURL = 'http://sharepoint/sites/hqservices';
+    const urlMap = {
+        'RCP': `${baseURL}/RCP/${transactionName}.xml`,
+        'PR': `${baseURL}/Purchase%20Requisition/${transactionName}.xml`,
+        'MAS': `${baseURL}/Movement%20Approval%20Sheet/${transactionName}.xml`,
+        'POACR': `${baseURL}/PO%20Amend%Cancel%Request/${transactionName}.xml`,
+        'WOAF': `${baseURL}/Work%20Order%20Amendment%20Form/${transactionName}.xml`
+    };
+    return urlMap[transactionType] || '#';
+}
+
+// Sample transaction data
 const sampleTransactions = [
     {
         id: 'TXN-2024-001',
-        poNumber: 'PO-45678',
+        transactionName: 'P2-03-12345',
         transactionType: 'RCP',
-        vendor: 'ABC Suppliers Inc.',
-        amount: 125000.00,
-        currentStage: 'Approval',
+        currentStage: 'Initial Approver',
+        currentPIC: 'John Smith',
         status: 'for-approval',
         agingDays: 2,
-        priority: 'medium',
         submittedDate: '2024-02-28',
         lastUpdated: '2024-03-01',
-        approver: 'John Smith',
-        requestor: 'Jane Doe',
-        description: 'Office supplies procurement - Request Check Preparation',
-        workflow: [
-            { stage: 'Submission', date: '2024-02-28', status: 'completed', user: 'Jane Doe' },
-            { stage: 'Review', date: '2024-02-29', status: 'completed', user: 'Mike Johnson' },
-            { stage: 'Approval', date: '2024-03-01', status: 'current', user: 'John Smith' },
-            { stage: 'Processing', date: null, status: 'pending', user: 'TBD' },
-            { stage: 'Completed', date: null, status: 'pending', user: 'TBD' }
-        ]
+        requestor: 'Jane Doe'
     },
     {
         id: 'TXN-2024-002',
-        poNumber: 'PO-45679',
+        transactionName: 'PR-12346',
         transactionType: 'PR',
-        vendor: 'XYZ Technologies',
-        amount: 450000.00,
-        currentStage: 'Review',
+        currentStage: 'Budget Approver 1',
+        currentPIC: 'Sarah Williams',
         status: 'pending',
         agingDays: 16,
-        priority: 'high',
         submittedDate: '2024-02-14',
         lastUpdated: '2024-02-29',
-        approver: 'Sarah Williams',
-        requestor: 'Tom Brown',
-        description: 'IT equipment purchase - Purchase Requisition',
-        workflow: [
-            { stage: 'Submission', date: '2024-02-14', status: 'completed', user: 'Tom Brown' },
-            { stage: 'Review', date: '2024-02-29', status: 'current', user: 'Sarah Williams' },
-            { stage: 'Approval', date: null, status: 'pending', user: 'TBD' },
-            { stage: 'Processing', date: null, status: 'pending', user: 'TBD' },
-            { stage: 'Completed', date: null, status: 'pending', user: 'TBD' }
-        ]
+        requestor: 'Tom Brown'
     },
     {
         id: 'TXN-2024-003',
-        poNumber: 'PO-45680',
+        transactionName: 'MAS2026-03-03-224500',
         transactionType: 'MAS',
-        vendor: 'Global Logistics Ltd.',
-        amount: 89500.00,
-        currentStage: 'Processing',
+        currentStage: 'Cost Accounting',
+        currentPIC: 'David Lee',
         status: 'for-additional-input',
         agingDays: 12,
-        priority: 'high',
         submittedDate: '2024-02-18',
         lastUpdated: '2024-03-01',
-        approver: 'David Lee',
-        requestor: 'Alice Chen',
-        description: 'Shipping and logistics services - Movement Approval Sheet',
-        workflow: [
-            { stage: 'Submission', date: '2024-02-18', status: 'completed', user: 'Alice Chen' },
-            { stage: 'Review', date: '2024-02-22', status: 'completed', user: 'Bob Wilson' },
-            { stage: 'Approval', date: '2024-02-26', status: 'completed', user: 'David Lee' },
-            { stage: 'Processing', date: '2024-03-01', status: 'current', user: 'Emma Davis' },
-            { stage: 'Completed', date: null, status: 'pending', user: 'TBD' }
-        ]
+        requestor: 'Alice Chen'
     },
     {
         id: 'TXN-2024-004',
-        poNumber: 'PO-45681',
+        transactionName: 'PR-12347',
         transactionType: 'PR',
-        vendor: 'Premium Office Furniture',
-        amount: 215000.00,
-        currentStage: 'Completed',
+        currentStage: 'Request Transaction Completed',
+        currentPIC: 'System',
         status: 'completed',
         agingDays: 15,
-        priority: 'low',
         submittedDate: '2024-02-10',
         lastUpdated: '2024-02-25',
-        approver: 'Lisa Anderson',
-        requestor: 'Mark Taylor',
-        description: 'Office furniture for new branch - Purchase Requisition',
-        workflow: [
-            { stage: 'Submission', date: '2024-02-10', status: 'completed', user: 'Mark Taylor' },
-            { stage: 'Review', date: '2024-02-12', status: 'completed', user: 'Nancy White' },
-            { stage: 'Approval', date: '2024-02-15', status: 'completed', user: 'Lisa Anderson' },
-            { stage: 'Processing', date: '2024-02-20', status: 'completed', user: 'Oscar Martinez' },
-            { stage: 'Completed', date: '2024-02-25', status: 'completed', user: 'System' }
-        ]
+        requestor: 'Mark Taylor'
     },
     {
         id: 'TXN-2024-005',
-        poNumber: 'PO-45682',
+        transactionName: 'P5-03-12346',
         transactionType: 'RCP',
-        vendor: 'Tech Solutions Pro',
-        amount: 675000.00,
-        currentStage: 'Submission',
+        currentStage: 'Requestor',
+        currentPIC: 'Peter Garcia',
         status: 'for-approval',
         agingDays: 1,
-        priority: 'medium',
         submittedDate: '2024-03-01',
         lastUpdated: '2024-03-01',
-        approver: 'Pending Assignment',
-        requestor: 'Peter Garcia',
-        description: 'Software licensing renewal - Request Check Preparation',
-        workflow: [
-            { stage: 'Submission', date: '2024-03-01', status: 'current', user: 'Peter Garcia' },
-            { stage: 'Review', date: null, status: 'pending', user: 'TBD' },
-            { stage: 'Approval', date: null, status: 'pending', user: 'TBD' },
-            { stage: 'Processing', date: null, status: 'pending', user: 'TBD' },
-            { stage: 'Completed', date: null, status: 'pending', user: 'TBD' }
-        ]
+        requestor: 'Peter Garcia'
     },
     {
         id: 'TXN-2024-006',
-        poNumber: 'PO-45683',
+        transactionName: '24500',
         transactionType: 'POACR',
-        vendor: 'Industrial Supplies Co.',
-        amount: 340000.00,
-        currentStage: 'Review',
+        currentStage: 'SCM Managers Approver',
+        currentPIC: 'Rachel Green',
         status: 'pending',
         agingDays: 6,
-        priority: 'high',
         submittedDate: '2024-02-24',
         lastUpdated: '2024-03-01',
-        approver: 'Rachel Green',
-        requestor: 'Quinn Roberts',
-        description: 'Manufacturing materials - PO Amendment Request',
-        workflow: [
-            { stage: 'Submission', date: '2024-02-24', status: 'completed', user: 'Quinn Roberts' },
-            { stage: 'Review', date: '2024-03-01', status: 'current', user: 'Rachel Green' },
-            { stage: 'Approval', date: null, status: 'pending', user: 'TBD' },
-            { stage: 'Processing', date: null, status: 'pending', user: 'TBD' },
-            { stage: 'Completed', date: null, status: 'pending', user: 'TBD' }
-        ]
+        requestor: 'Quinn Roberts'
     },
     {
         id: 'TXN-2024-007',
-        poNumber: 'PO-45684',
+        transactionName: 'WOEF2026-03-03-224500',
         transactionType: 'WOAF',
-        vendor: 'Marketing Solutions Inc.',
-        amount: 95000.00,
-        currentStage: 'Approval',
+        currentStage: 'BBA Approver',
+        currentPIC: 'Steven King',
         status: 'for-additional-input',
         agingDays: 4,
-        priority: 'medium',
         submittedDate: '2024-02-26',
         lastUpdated: '2024-03-01',
-        approver: 'Steven King',
-        requestor: 'Tina Moore',
-        description: 'Marketing campaign materials - Work Order Amendment',
-        workflow: [
-            { stage: 'Submission', date: '2024-02-26', status: 'completed', user: 'Tina Moore' },
-            { stage: 'Review', date: '2024-02-28', status: 'completed', user: 'Uma Patel' },
-            { stage: 'Approval', date: '2024-03-01', status: 'current', user: 'Steven King' },
-            { stage: 'Processing', date: null, status: 'pending', user: 'TBD' },
-            { stage: 'Completed', date: null, status: 'pending', user: 'TBD' }
-        ]
+        requestor: 'Tina Moore'
     },
     {
         id: 'TXN-2024-008',
-        poNumber: 'PO-45685',
+        transactionName: 'P6-02-12348',
         transactionType: 'RCP',
-        vendor: 'Energy Systems Ltd.',
-        amount: 520000.00,
-        currentStage: 'Processing',
+        currentStage: 'Payment Processing',
+        currentPIC: 'Victor Chen',
         status: 'for-approval',
         agingDays: 22,
-        priority: 'high',
         submittedDate: '2024-02-08',
         lastUpdated: '2024-03-02',
-        approver: 'Victor Chen',
-        requestor: 'Wendy Liu',
-        description: 'Power backup systems - Request Check Preparation',
-        workflow: [
-            { stage: 'Submission', date: '2024-02-08', status: 'completed', user: 'Wendy Liu' },
-            { stage: 'Review', date: '2024-02-10', status: 'completed', user: 'Xavier Ross' },
-            { stage: 'Approval', date: '2024-02-15', status: 'completed', user: 'Victor Chen' },
-            { stage: 'Processing', date: '2024-03-02', status: 'current', user: 'Yolanda Martinez' },
-            { stage: 'Completed', date: null, status: 'pending', user: 'TBD' }
-        ]
+        requestor: 'Wendy Liu'
     }
 ];
 
@@ -237,8 +199,7 @@ function initializeApp() {
 
 // Get SLA level based on transaction type and aging days
 function getSLALevel(transactionType, agingDays) {
-    const rules = SLA_RULES[transactionType] || SLA_RULES['RCP']; // Default to RCP if type not found
-    
+    const rules = SLA_RULES[transactionType] || SLA_RULES['RCP'];
     if (agingDays <= rules.normal) return 'normal';
     if (agingDays <= rules.warning) return 'warning';
     return 'critical';
@@ -251,7 +212,6 @@ function updateDashboardSummary() {
     const additionalInputCount = currentTransactions.filter(t => t.status === 'for-additional-input').length;
     const completedCount = currentTransactions.filter(t => t.status === 'completed').length;
     
-    // Count SLA levels for non-completed transactions
     const activeTransactions = currentTransactions.filter(t => t.status !== 'completed');
     const normalCount = activeTransactions.filter(t => getSLALevel(t.transactionType, t.agingDays) === 'normal').length;
     const warningCount = activeTransactions.filter(t => getSLALevel(t.transactionType, t.agingDays) === 'warning').length;
@@ -282,29 +242,20 @@ function updateCurrentTime() {
 
 // Setup event listeners
 function setupEventListeners() {
-    // Search functionality
     document.getElementById('searchInput').addEventListener('input', applyFilters);
-    
-    // Filter dropdowns
     document.getElementById('statusFilter').addEventListener('change', applyFilters);
     document.getElementById('agingFilter').addEventListener('change', applyFilters);
     document.getElementById('stageFilter').addEventListener('change', applyFilters);
-    
-    // Refresh button
     document.getElementById('refreshBtn').addEventListener('click', refreshData);
     
-    // View toggle
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             switchView(this.dataset.view);
         });
     });
     
-    // Pagination
     document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
     document.getElementById('nextPage').addEventListener('click', () => changePage(1));
-    
-    // Modal close
     document.getElementById('closeModal').addEventListener('click', closeModal);
     document.getElementById('transactionModal').addEventListener('click', function(e) {
         if (e.target === this) closeModal();
@@ -319,25 +270,21 @@ function applyFilters() {
     const stageFilter = document.getElementById('stageFilter').value;
 
     filteredTransactions = currentTransactions.filter(transaction => {
-        // Search filter
         const matchesSearch = searchTerm === '' || 
-            transaction.id.toLowerCase().includes(searchTerm) ||
-            transaction.requestor.toLowerCase().includes(searchTerm) ||
+            transaction.transactionName.toLowerCase().includes(searchTerm) ||
+            transaction.currentStage.toLowerCase().includes(searchTerm) ||
             transaction.status.toLowerCase().includes(searchTerm) ||
-            transaction.approver.toLowerCase().includes(searchTerm);
+            transaction.currentPIC.toLowerCase().includes(searchTerm);
 
-        // Status filter
         const matchesStatus = statusFilter === 'all' || transaction.status === statusFilter;
 
-        // Aging filter (SLA-based)
         let matchesAging = true;
         if (agingFilter !== 'all') {
             const slaLevel = getSLALevel(transaction.transactionType, transaction.agingDays);
             matchesAging = slaLevel === agingFilter;
         }
 
-        // Stage filter
-        const matchesStage = stageFilter === 'all' || transaction.currentStage.toLowerCase() === stageFilter.toLowerCase();
+        const matchesStage = stageFilter === 'all' || transaction.currentStage.toLowerCase().includes(stageFilter.toLowerCase());
 
         return matchesSearch && matchesStatus && matchesAging && matchesStage;
     });
@@ -354,7 +301,6 @@ function refreshData() {
     icon.style.animation = 'spin 1s linear';
     
     setTimeout(() => {
-        // Simulate data refresh
         currentTransactions = [...sampleTransactions];
         applyFilters();
         updateDashboardSummary();
@@ -412,24 +358,20 @@ function renderTableView(transactions) {
     const tbody = document.getElementById('transactionsTableBody');
     
     if (transactions.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 2rem;">No transactions found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No transactions found</td></tr>';
         return;
     }
 
     tbody.innerHTML = transactions.map(transaction => {
         const slaLevel = getSLALevel(transaction.transactionType, transaction.agingDays);
+        const sharePointURL = getSharePointURL(transaction.transactionType, transaction.transactionName);
         return `
         <tr>
-            <td><strong>${transaction.id}</strong></td>
-            <td>${transaction.poNumber}</td>
-            <td>${transaction.vendor}</td>
-            <td>$${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+            <td><a href="${sharePointURL}" target="_blank" class="transaction-link" title="Open in SharePoint">${transaction.transactionName}</a></td>
             <td>${transaction.currentStage}</td>
+            <td>${transaction.currentPIC}</td>
             <td><span class="status-badge status-${transaction.status}">${getStatusDisplayName(transaction.status)}</span></td>
             <td><span class="aging-indicator aging-${slaLevel}">${transaction.agingDays} days (${transaction.transactionType})</span></td>
-            <td><span class="priority-badge priority-${transaction.priority}">
-                <i class="fas fa-${getPriorityIcon(transaction.priority)}"></i> ${transaction.priority}
-            </span></td>
             <td>
                 <div class="action-buttons">
                     <button class="btn-action btn-view" onclick="viewTransactionDetails('${transaction.id}')">
@@ -452,42 +394,29 @@ function renderCardView(transactions) {
 
     container.innerHTML = transactions.map(transaction => {
         const slaLevel = getSLALevel(transaction.transactionType, transaction.agingDays);
+        const sharePointURL = getSharePointURL(transaction.transactionType, transaction.transactionName);
         return `
         <div class="transaction-card">
             <div class="card-header">
-                <div class="card-id">${transaction.id}</div>
+                <div class="card-id"><a href="${sharePointURL}" target="_blank" class="transaction-link">${transaction.transactionName}</a></div>
                 <span class="status-badge status-${transaction.status}">${getStatusDisplayName(transaction.status)}</span>
             </div>
             <div class="card-body">
                 <div class="card-row">
-                    <span class="card-label">PO Number:</span>
-                    <span class="card-value">${transaction.poNumber}</span>
-                </div>
-                <div class="card-row">
                     <span class="card-label">Type:</span>
                     <span class="card-value">${transaction.transactionType}</span>
-                </div>
-                <div class="card-row">
-                    <span class="card-label">Vendor:</span>
-                    <span class="card-value">${transaction.vendor}</span>
-                </div>
-                <div class="card-row">
-                    <span class="card-label">Amount:</span>
-                    <span class="card-value">$${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div class="card-row">
                     <span class="card-label">Current Stage:</span>
                     <span class="card-value">${transaction.currentStage}</span>
                 </div>
                 <div class="card-row">
-                    <span class="card-label">SLA Status:</span>
-                    <span class="aging-indicator aging-${slaLevel}">${transaction.agingDays} days - ${slaLevel.toUpperCase()}</span>
+                    <span class="card-label">Current PIC:</span>
+                    <span class="card-value">${transaction.currentPIC}</span>
                 </div>
                 <div class="card-row">
-                    <span class="card-label">Priority:</span>
-                    <span class="priority-badge priority-${transaction.priority}">
-                        <i class="fas fa-${getPriorityIcon(transaction.priority)}"></i> ${transaction.priority}
-                    </span>
+                    <span class="card-label">SLA Status:</span>
+                    <span class="aging-indicator aging-${slaLevel}">${transaction.agingDays} days - ${slaLevel.toUpperCase()}</span>
                 </div>
             </div>
             <div class="card-footer">
@@ -532,6 +461,9 @@ function viewTransactionDetails(transactionId) {
 
     const slaLevel = getSLALevel(transaction.transactionType, transaction.agingDays);
     const slaRules = SLA_RULES[transaction.transactionType];
+    const sharePointURL = getSharePointURL(transaction.transactionType, transaction.transactionName);
+    const workflowRoute = WORKFLOW_ROUTES[transaction.transactionType];
+    const currentStageIndex = workflowRoute.indexOf(transaction.currentStage);
     
     const modalBody = document.getElementById('modalBody');
     
@@ -540,34 +472,24 @@ function viewTransactionDetails(transactionId) {
             <h3><i class="fas fa-info-circle"></i> Transaction Information</h3>
             <div class="detail-grid">
                 <div class="detail-item">
-                    <span class="detail-label">Transaction ID</span>
-                    <span class="detail-value">${transaction.id}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">PO Number</span>
-                    <span class="detail-value">${transaction.poNumber}</span>
+                    <span class="detail-label">Transaction Name</span>
+                    <span class="detail-value"><a href="${sharePointURL}" target="_blank" class="transaction-link">${transaction.transactionName}</a></span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Transaction Type</span>
                     <span class="detail-value">${transaction.transactionType}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">Vendor</span>
-                    <span class="detail-value">${transaction.vendor}</span>
+                    <span class="detail-label">Current Stage</span>
+                    <span class="detail-value">${transaction.currentStage}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">Amount</span>
-                    <span class="detail-value">$${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                    <span class="detail-label">Current PIC</span>
+                    <span class="detail-value">${transaction.currentPIC}</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Status</span>
                     <span class="detail-value"><span class="status-badge status-${transaction.status}">${getStatusDisplayName(transaction.status)}</span></span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Priority</span>
-                    <span class="detail-value"><span class="priority-badge priority-${transaction.priority}">
-                        <i class="fas fa-${getPriorityIcon(transaction.priority)}"></i> ${transaction.priority}
-                    </span></span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">SLA Status</span>
@@ -576,14 +498,6 @@ function viewTransactionDetails(transactionId) {
                 <div class="detail-item">
                     <span class="detail-label">Requestor</span>
                     <span class="detail-value">${transaction.requestor}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Current Approver</span>
-                    <span class="detail-value">${transaction.approver}</span>
-                </div>
-                <div class="detail-item" style="grid-column: 1 / -1;">
-                    <span class="detail-label">Description</span>
-                    <span class="detail-value">${transaction.description}</span>
                 </div>
             </div>
         </div>
@@ -623,22 +537,26 @@ function viewTransactionDetails(transactionId) {
         <div class="detail-section">
             <h3><i class="fas fa-project-diagram"></i> Workflow Progress</h3>
             <div class="workflow-timeline">
-                ${transaction.workflow.map(stage => `
+                ${workflowRoute.map((stage, index) => {
+                    let status = 'pending';
+                    if (index < currentStageIndex) status = 'completed';
+                    else if (index === currentStageIndex) status = 'current';
+                    
+                    return `
                     <div class="timeline-item">
-                        <div class="timeline-marker ${stage.status}"></div>
+                        <div class="timeline-marker ${status}"></div>
                         <div class="timeline-content">
                             <div class="timeline-stage">
-                                <i class="fas fa-${getStageIcon(stage.stage)}"></i> ${stage.stage}
-                                ${stage.status === 'completed' ? '<i class="fas fa-check-circle" style="color: var(--success-color); margin-left: 0.5rem;"></i>' : ''}
-                                ${stage.status === 'current' ? '<i class="fas fa-spinner" style="color: var(--warning-color); margin-left: 0.5rem;"></i>' : ''}
+                                ${stage}
+                                ${status === 'completed' ? '<i class="fas fa-check-circle" style="color: var(--success-color); margin-left: 0.5rem;"></i>' : ''}
+                                ${status === 'current' ? '<i class="fas fa-spinner" style="color: var(--warning-color); margin-left: 0.5rem;"></i>' : ''}
                             </div>
                             <div class="timeline-date">
-                                ${stage.date ? `Completed: ${stage.date}` : 'Pending'}
-                                ${stage.user ? ` | User: ${stage.user}` : ''}
+                                ${status === 'completed' ? 'Completed' : status === 'current' ? 'In Progress' : 'Pending'}
                             </div>
                         </div>
                     </div>
-                `).join('')}
+                `}).join('')}
             </div>
         </div>
     `;
@@ -649,27 +567,6 @@ function viewTransactionDetails(transactionId) {
 // Close modal
 function closeModal() {
     document.getElementById('transactionModal').classList.remove('active');
-}
-
-// Helper functions
-function getPriorityIcon(priority) {
-    const icons = {
-        low: 'arrow-down',
-        medium: 'minus',
-        high: 'arrow-up'
-    };
-    return icons[priority] || 'minus';
-}
-
-function getStageIcon(stage) {
-    const icons = {
-        'Submission': 'file-upload',
-        'Review': 'search',
-        'Approval': 'check-square',
-        'Processing': 'cog',
-        'Completed': 'check-circle'
-    };
-    return icons[stage] || 'circle';
 }
 
 // Add CSS animation for refresh button

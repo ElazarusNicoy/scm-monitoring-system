@@ -27,6 +27,19 @@ Designing
 
     /*ongoing code review, check the added components synch and checkout with the documentation paper | 3/3/2026 10:00pm*/
 
+    /*vanilla html, css, js with minimal external dependencies
+
+    css: font awesome 6.4.0
+    https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css
+
+    responsive grid system
+    material design principles from google
+    modern saas dashboard patterns
+
+    no framework was used to keep the project lightweight and fast | 3/3/2026 11:00pm*/
+
+    /*ongoing code review, i think done for the  Workflow Tracking Module, more details can be updated soon, tomorrow proceed to other modules creation: Aging and Risk Classification Module | 3/3/2026 11:30pm*/
+
     • Aging and Risk Classification Module
     - automatically retrieve aging data from database and
     - classify transactions such allows

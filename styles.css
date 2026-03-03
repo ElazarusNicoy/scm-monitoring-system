@@ -468,6 +468,18 @@ body {
     background-color: var(--light-bg);
 }
 
+.transaction-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.transaction-link:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
 /* Status Badges */
 .status-badge {
     display: inline-block;

@@ -127,7 +127,7 @@
                 <div class="filters-container">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="searchInput" placeholder="Search by Transaction ID, Requestor, Current Status, or Current Approver...">
+                        <input type="text" id="searchInput" placeholder="Search by Transaction Name, Current Stage, Status, or Current Approver...">
                     </div>
                     <div class="filter-group">
                         <label for="statusFilter">Status:</label>
@@ -152,9 +152,13 @@
                         <label for="stageFilter">Stage:</label>
                         <select id="stageFilter">
                             <option value="all">All Stages</option>
-                            <option value="submission">Submission</option>
-                            <option value="review">Review</option>
-                            <option value="approval">Approval</option>
+                            <option value="requestor">Requestor</option>
+                            <option value="check-by">Check By</option>
+                            <option value="confirm-by">Confirm By</option>
+                            <option value="note-by">Note By</option>
+                            <option value="approver">Approver</option>
+                            <option value="accounting">Accounting</option>
+                            <option value="finance">Finance</option>
                             <option value="processing">Processing</option>
                             <option value="completed">Completed</option>
                         </select>
@@ -184,14 +188,11 @@
                     <table class="transactions-table">
                         <thead>
                             <tr>
-                                <th>Transaction ID</th>
-                                <th>PO Number</th>
-                                <th>Vendor</th>
-                                <th>Amount</th>
+                                <th>Transaction Name</th>
                                 <th>Current Stage</th>
+                                <th>Current PIC</th>
                                 <th>Status</th>
                                 <th>Aging (Days)</th>
-                                <th>Priority</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
