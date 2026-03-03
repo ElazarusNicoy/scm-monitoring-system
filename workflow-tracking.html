@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCM Monitoring System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> SCM Monitoring System</h1>
+                <div class="header-info">
+                    <span class="current-time" id="currentTime"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="workflow">
+                <i class="fas fa-stream"></i> Workflow Tracking
+            </button>
+            <button class="nav-tab" data-tab="alerts">
+                <i class="fas fa-bell"></i> Alerts
+            </button>
+            <button class="nav-tab" data-tab="reports">
+                <i class="fas fa-file-alt"></i> Reports
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Summary Cards -->
+            <section class="dashboard-summary">
+                <div class="summary-card card-for-approval">
+                    <div class="card-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="activeCount">0</h3>
+                        <p>For Approval</p>
+                    </div>
+                </div>
+                <div class="summary-card card-completed">
+                    <div class="card-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="completedCount">0</h3>
+                        <p>Completed Transactions</p>
+                    </div>
+                </div>
+                <div class="summary-card card-pending">
+                    <div class="card-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="agingCount">0</h3>
+                        <p>Pending</p>
+                    </div>
+                </div>
+                <div class="summary-card card-critical">
+                    <div class="card-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="criticalCount">0</h3>
+                        <p>Critical</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filters and Search -->
+            <section class="filters-section">
+                <div class="filters-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search by Transaction ID, Requestor, Current Status, or Current Approver...">
+                    </div>
+                    <div class="filter-group">
+                        <label for="statusFilter">Status:</label>
+                        <select id="statusFilter">
+                            <option value="all">All</option>
+                            <option value="for-approval">For Approval</option>
+                            <option value="completed">Completed</option>
+                            <option value="pending">Pending</option>
+                            <option value="for-additional-input">For Additional Input</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="agingFilter">Aging:</label>
+                        <select id="agingFilter">
+                            <option value="all">All</option>
+                            <option value="normal">Normal</option>
+                            <option value="warning">Warning</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="stageFilter">Stage:</label>
+                        <select id="stageFilter">
+                            <option value="all">All Stages</option>
+                            <option value="submission">Submission</option>
+                            <option value="review">Review</option>
+                            <option value="approval">Approval</option>
+                            <option value="processing">Processing</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <button class="btn-refresh" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </section>
+
+            <!-- Transactions Table -->
+            <section class="transactions-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-list"></i> Transaction List</h2>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="table">
+                            <i class="fas fa-table"></i> Table View
+                        </button>
+                        <button class="view-btn" data-view="card">
+                            <i class="fas fa-th-large"></i> Card View
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table View -->
+                <div class="table-container" id="tableView">
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>PO Number</th>
+                                <th>Vendor</th>
+                                <th>Amount</th>
+                                <th>Current Stage</th>
+                                <th>Status</th>
+                                <th>Aging (Days)</th>
+                                <th>Priority</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTableBody">
+                            <!-- Transactions will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Card View -->
+                <div class="cards-container hidden" id="cardView">
+                    <!-- Transaction cards will be populated here -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button class="pagination-btn" id="prevPage">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <span class="pagination-info">
+                        Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+                    </span>
+                    <button class="pagination-btn" id="nextPage">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Transaction Detail Modal -->
+        <div class="modal" id="transactionModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-info-circle"></i> Transaction Details</h2>
+                    <button class="modal-close" id="closeModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Transaction details will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

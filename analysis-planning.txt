@@ -1,0 +1,81 @@
+3/2/2026 - 9:45pm - 10:07pm
+Analysis and Planning
+• examined the current supply chain workflow, 
+
+Request Check Preparation (RCP)
+requestor → check by → confirm by → note by → initial approver → final approver → senior accounting → finance → VOP (Verification of Payee) processing → Payment Processing → Request Transaction Completed
+
+Purchase Requisition (PR)
+requestor → department approver 1 → department approver 2 → department approver 3 → Request For Quotation → Budget Checking → Budget approver 1 → Budget approver 2 → Purchase Order Issuance → Request Transaction Completed
+
+Movement Approval Sheet (MAS)
+requestor → check by → department manager approver → stockroom warehouse owner → inventory control → inventory control manager approver → cost accounting → encode by →Request Transaction Completed
+
+Purchase Order Amendment/Cancellation Request
+requestor → superior of the requestor → scm managers approver → vp operation → evp coo → encode by → Request Transaction Completed
+
+Work Order Amendment Form
+requestor → qc approver → bba approver → ppc approver → encode by (the one who check and book the details in the system) → Request Transaction Completed
+
+Terminology to be used in the system
+• For Approval
+- The transaction has just been submitted or has just been approved by the previous approver.
+
+• Pending
+- The transaction has been waiting for approval for more than 1 day.
+- The transaction was disapproved and is waiting to be corrected and resubmitted.
+
+• For Additional Input
+- The transaction is with the current approver and needs to provide additional details before approving it.
+
+• Transaction Complete
+- The transaction has passed all approval steps.
+
+Define SLA rules:
+Request Check Preparation (RCP)
+Normal: pending for less than 15 days
+Warning: pending for 15 days to 20 days
+Critical: pending for 21 days or more
+
+Purchase Requisition (PR)
+Normal: pending for less than 15 days
+Warning: pending for 15 days to 20 days
+Critical: pending for 21 days or more
+
+
+Movement Approval Sheet (MAS)
+Normal: pending for less than 5 days
+Warning: pending for 5 days to 10 days
+Critical: pending for 11 days or more
+
+
+Purchase Order Amendment/Cancellation Request
+Normal: pending for less than 5 days
+Warning: pending for 5 days to 10 days
+Critical: pending for 11 days or more
+
+Work Order Amendment Form
+Normal: pending for less than 5 days
+Warning: pending for 5 days to 10 days
+Critical: pending for 11 days or more
+
+
+Frontend: 
+• HTML
+• CSS
+• JavaScript
+
+Backend:
+• Python
+
+Database:
+• MySQL
+
+wireframing:
+• Canva
+
+Mockup:
+• CodePen
+
+3/3/2026: 10pm
+code review of the html, css, js
