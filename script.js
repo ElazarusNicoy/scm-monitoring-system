@@ -1,18 +1,49 @@
-// Sample transaction data
+// SLA Rules for different transaction types
+const SLA_RULES = {
+    'RCP': { // Request Check Preparation
+        normal: 14,
+        warning: 20,
+        critical: 21
+    },
+    'PR': { // Purchase Requisition
+        normal: 14,
+        warning: 20,
+        critical: 21
+    },
+    'MAS': { // Movement Approval Sheet
+        normal: 4,
+        warning: 10,
+        critical: 11
+    },
+    'POACR': { // Purchase Order Amendment/Cancellation Request
+        normal: 4,
+        warning: 10,
+        critical: 11
+    },
+    'WOAF': { // Work Order Amendment Form
+        normal: 4,
+        warning: 10,
+        critical: 11
+    }
+};
+
+// Sample transaction data with new status system
 const sampleTransactions = [
     {
         id: 'TXN-2024-001',
         poNumber: 'PO-45678',
+        transactionType: 'RCP',
         vendor: 'ABC Suppliers Inc.',
         amount: 125000.00,
         currentStage: 'Approval',
-        status: 'active',
+        status: 'for-approval',
         agingDays: 2,
         priority: 'medium',
         submittedDate: '2024-02-28',
         lastUpdated: '2024-03-01',
         approver: 'John Smith',
-        description: 'Office supplies procurement',
+        requestor: 'Jane Doe',
+        description: 'Office supplies procurement - Request Check Preparation',
         workflow: [
             { stage: 'Submission', date: '2024-02-28', status: 'completed', user: 'Jane Doe' },
             { stage: 'Review', date: '2024-02-29', status: 'completed', user: 'Mike Johnson' },
@@ -24,18 +55,20 @@ const sampleTransactions = [
     {
         id: 'TXN-2024-002',
         poNumber: 'PO-45679',
+        transactionType: 'PR',
         vendor: 'XYZ Technologies',
         amount: 450000.00,
         currentStage: 'Review',
-        status: 'active',
-        agingDays: 5,
+        status: 'pending',
+        agingDays: 16,
         priority: 'high',
-        submittedDate: '2024-02-25',
+        submittedDate: '2024-02-14',
         lastUpdated: '2024-02-29',
         approver: 'Sarah Williams',
-        description: 'IT equipment purchase',
+        requestor: 'Tom Brown',
+        description: 'IT equipment purchase - Purchase Requisition',
         workflow: [
-            { stage: 'Submission', date: '2024-02-25', status: 'completed', user: 'Tom Brown' },
+            { stage: 'Submission', date: '2024-02-14', status: 'completed', user: 'Tom Brown' },
             { stage: 'Review', date: '2024-02-29', status: 'current', user: 'Sarah Williams' },
             { stage: 'Approval', date: null, status: 'pending', user: 'TBD' },
             { stage: 'Processing', date: null, status: 'pending', user: 'TBD' },
@@ -45,18 +78,20 @@ const sampleTransactions = [
     {
         id: 'TXN-2024-003',
         poNumber: 'PO-45680',
+        transactionType: 'MAS',
         vendor: 'Global Logistics Ltd.',
         amount: 89500.00,
         currentStage: 'Processing',
-        status: 'active',
-        agingDays: 9,
+        status: 'for-additional-input',
+        agingDays: 12,
         priority: 'high',
-        submittedDate: '2024-02-20',
+        submittedDate: '2024-02-18',
         lastUpdated: '2024-03-01',
         approver: 'David Lee',
-        description: 'Shipping and logistics services',
+        requestor: 'Alice Chen',
+        description: 'Shipping and logistics services - Movement Approval Sheet',
         workflow: [
-            { stage: 'Submission', date: '2024-02-20', status: 'completed', user: 'Alice Chen' },
+            { stage: 'Submission', date: '2024-02-18', status: 'completed', user: 'Alice Chen' },
             { stage: 'Review', date: '2024-02-22', status: 'completed', user: 'Bob Wilson' },
             { stage: 'Approval', date: '2024-02-26', status: 'completed', user: 'David Lee' },
             { stage: 'Processing', date: '2024-03-01', status: 'current', user: 'Emma Davis' },
@@ -66,6 +101,7 @@ const sampleTransactions = [
     {
         id: 'TXN-2024-004',
         poNumber: 'PO-45681',
+        transactionType: 'PR',
         vendor: 'Premium Office Furniture',
         amount: 215000.00,
         currentStage: 'Completed',
@@ -75,7 +111,8 @@ const sampleTransactions = [
         submittedDate: '2024-02-10',
         lastUpdated: '2024-02-25',
         approver: 'Lisa Anderson',
-        description: 'Office furniture for new branch',
+        requestor: 'Mark Taylor',
+        description: 'Office furniture for new branch - Purchase Requisition',
         workflow: [
             { stage: 'Submission', date: '2024-02-10', status: 'completed', user: 'Mark Taylor' },
             { stage: 'Review', date: '2024-02-12', status: 'completed', user: 'Nancy White' },
@@ -87,16 +124,18 @@ const sampleTransactions = [
     {
         id: 'TXN-2024-005',
         poNumber: 'PO-45682',
+        transactionType: 'RCP',
         vendor: 'Tech Solutions Pro',
         amount: 675000.00,
         currentStage: 'Submission',
-        status: 'pending',
+        status: 'for-approval',
         agingDays: 1,
         priority: 'medium',
         submittedDate: '2024-03-01',
         lastUpdated: '2024-03-01',
         approver: 'Pending Assignment',
-        description: 'Software licensing renewal',
+        requestor: 'Peter Garcia',
+        description: 'Software licensing renewal - Request Check Preparation',
         workflow: [
             { stage: 'Submission', date: '2024-03-01', status: 'current', user: 'Peter Garcia' },
             { stage: 'Review', date: null, status: 'pending', user: 'TBD' },
@@ -108,16 +147,18 @@ const sampleTransactions = [
     {
         id: 'TXN-2024-006',
         poNumber: 'PO-45683',
+        transactionType: 'POACR',
         vendor: 'Industrial Supplies Co.',
         amount: 340000.00,
         currentStage: 'Review',
-        status: 'active',
+        status: 'pending',
         agingDays: 6,
         priority: 'high',
         submittedDate: '2024-02-24',
         lastUpdated: '2024-03-01',
         approver: 'Rachel Green',
-        description: 'Manufacturing materials',
+        requestor: 'Quinn Roberts',
+        description: 'Manufacturing materials - PO Amendment Request',
         workflow: [
             { stage: 'Submission', date: '2024-02-24', status: 'completed', user: 'Quinn Roberts' },
             { stage: 'Review', date: '2024-03-01', status: 'current', user: 'Rachel Green' },
@@ -129,20 +170,22 @@ const sampleTransactions = [
     {
         id: 'TXN-2024-007',
         poNumber: 'PO-45684',
+        transactionType: 'WOAF',
         vendor: 'Marketing Solutions Inc.',
         amount: 95000.00,
         currentStage: 'Approval',
-        status: 'rejected',
+        status: 'for-additional-input',
         agingDays: 4,
-        priority: 'low',
+        priority: 'medium',
         submittedDate: '2024-02-26',
         lastUpdated: '2024-03-01',
         approver: 'Steven King',
-        description: 'Marketing campaign materials',
+        requestor: 'Tina Moore',
+        description: 'Marketing campaign materials - Work Order Amendment',
         workflow: [
             { stage: 'Submission', date: '2024-02-26', status: 'completed', user: 'Tina Moore' },
             { stage: 'Review', date: '2024-02-28', status: 'completed', user: 'Uma Patel' },
-            { stage: 'Approval', date: '2024-03-01', status: 'rejected', user: 'Steven King' },
+            { stage: 'Approval', date: '2024-03-01', status: 'current', user: 'Steven King' },
             { stage: 'Processing', date: null, status: 'pending', user: 'TBD' },
             { stage: 'Completed', date: null, status: 'pending', user: 'TBD' }
         ]
@@ -150,20 +193,22 @@ const sampleTransactions = [
     {
         id: 'TXN-2024-008',
         poNumber: 'PO-45685',
+        transactionType: 'RCP',
         vendor: 'Energy Systems Ltd.',
         amount: 520000.00,
         currentStage: 'Processing',
-        status: 'active',
-        agingDays: 3,
-        priority: 'medium',
-        submittedDate: '2024-02-27',
+        status: 'for-approval',
+        agingDays: 22,
+        priority: 'high',
+        submittedDate: '2024-02-08',
         lastUpdated: '2024-03-02',
         approver: 'Victor Chen',
-        description: 'Power backup systems',
+        requestor: 'Wendy Liu',
+        description: 'Power backup systems - Request Check Preparation',
         workflow: [
-            { stage: 'Submission', date: '2024-02-27', status: 'completed', user: 'Wendy Liu' },
-            { stage: 'Review', date: '2024-02-28', status: 'completed', user: 'Xavier Ross' },
-            { stage: 'Approval', date: '2024-03-01', status: 'completed', user: 'Victor Chen' },
+            { stage: 'Submission', date: '2024-02-08', status: 'completed', user: 'Wendy Liu' },
+            { stage: 'Review', date: '2024-02-10', status: 'completed', user: 'Xavier Ross' },
+            { stage: 'Approval', date: '2024-02-15', status: 'completed', user: 'Victor Chen' },
             { stage: 'Processing', date: '2024-03-02', status: 'current', user: 'Yolanda Martinez' },
             { stage: 'Completed', date: null, status: 'pending', user: 'TBD' }
         ]
@@ -190,16 +235,34 @@ function initializeApp() {
     setInterval(updateCurrentTime, 1000);
 }
 
+// Get SLA level based on transaction type and aging days
+function getSLALevel(transactionType, agingDays) {
+    const rules = SLA_RULES[transactionType] || SLA_RULES['RCP']; // Default to RCP if type not found
+    
+    if (agingDays <= rules.normal) return 'normal';
+    if (agingDays <= rules.warning) return 'warning';
+    return 'critical';
+}
+
 // Update dashboard summary cards
 function updateDashboardSummary() {
-    const activeCount = currentTransactions.filter(t => t.status === 'active').length;
+    const forApprovalCount = currentTransactions.filter(t => t.status === 'for-approval').length;
+    const pendingCount = currentTransactions.filter(t => t.status === 'pending').length;
+    const additionalInputCount = currentTransactions.filter(t => t.status === 'for-additional-input').length;
     const completedCount = currentTransactions.filter(t => t.status === 'completed').length;
-    const agingCount = currentTransactions.filter(t => t.agingDays >= 4 && t.status !== 'completed').length;
-    const criticalCount = currentTransactions.filter(t => t.agingDays >= 8 && t.status !== 'completed').length;
+    
+    // Count SLA levels for non-completed transactions
+    const activeTransactions = currentTransactions.filter(t => t.status !== 'completed');
+    const normalCount = activeTransactions.filter(t => getSLALevel(t.transactionType, t.agingDays) === 'normal').length;
+    const warningCount = activeTransactions.filter(t => getSLALevel(t.transactionType, t.agingDays) === 'warning').length;
+    const criticalCount = activeTransactions.filter(t => getSLALevel(t.transactionType, t.agingDays) === 'critical').length;
 
-    document.getElementById('activeCount').textContent = activeCount;
+    document.getElementById('forApprovalCount').textContent = forApprovalCount;
+    document.getElementById('pendingCount').textContent = pendingCount;
+    document.getElementById('additionalInputCount').textContent = additionalInputCount;
     document.getElementById('completedCount').textContent = completedCount;
-    document.getElementById('agingCount').textContent = agingCount;
+    document.getElementById('normalCount').textContent = normalCount;
+    document.getElementById('warningCount').textContent = warningCount;
     document.getElementById('criticalCount').textContent = criticalCount;
 }
 
@@ -259,17 +322,19 @@ function applyFilters() {
         // Search filter
         const matchesSearch = searchTerm === '' || 
             transaction.id.toLowerCase().includes(searchTerm) ||
-            transaction.vendor.toLowerCase().includes(searchTerm) ||
-            transaction.poNumber.toLowerCase().includes(searchTerm);
+            transaction.requestor.toLowerCase().includes(searchTerm) ||
+            transaction.status.toLowerCase().includes(searchTerm) ||
+            transaction.approver.toLowerCase().includes(searchTerm);
 
         // Status filter
         const matchesStatus = statusFilter === 'all' || transaction.status === statusFilter;
 
-        // Aging filter
+        // Aging filter (SLA-based)
         let matchesAging = true;
-        if (agingFilter === 'normal') matchesAging = transaction.agingDays <= 3;
-        else if (agingFilter === 'warning') matchesAging = transaction.agingDays >= 4 && transaction.agingDays <= 7;
-        else if (agingFilter === 'critical') matchesAging = transaction.agingDays >= 8;
+        if (agingFilter !== 'all') {
+            const slaLevel = getSLALevel(transaction.transactionType, transaction.agingDays);
+            matchesAging = slaLevel === agingFilter;
+        }
 
         // Stage filter
         const matchesStage = stageFilter === 'all' || transaction.currentStage.toLowerCase() === stageFilter.toLowerCase();
@@ -331,6 +396,17 @@ function renderTransactions() {
     updatePagination();
 }
 
+// Get status display name
+function getStatusDisplayName(status) {
+    const statusNames = {
+        'for-approval': 'For Approval',
+        'pending': 'Pending',
+        'for-additional-input': 'For Additional Input',
+        'completed': 'Transaction Complete'
+    };
+    return statusNames[status] || status;
+}
+
 // Render table view
 function renderTableView(transactions) {
     const tbody = document.getElementById('transactionsTableBody');
@@ -340,15 +416,17 @@ function renderTableView(transactions) {
         return;
     }
 
-    tbody.innerHTML = transactions.map(transaction => `
+    tbody.innerHTML = transactions.map(transaction => {
+        const slaLevel = getSLALevel(transaction.transactionType, transaction.agingDays);
+        return `
         <tr>
             <td><strong>${transaction.id}</strong></td>
             <td>${transaction.poNumber}</td>
             <td>${transaction.vendor}</td>
             <td>$${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
             <td>${transaction.currentStage}</td>
-            <td><span class="status-badge status-${transaction.status}">${transaction.status}</span></td>
-            <td><span class="aging-indicator aging-${getAgingClass(transaction.agingDays)}">${transaction.agingDays} days</span></td>
+            <td><span class="status-badge status-${transaction.status}">${getStatusDisplayName(transaction.status)}</span></td>
+            <td><span class="aging-indicator aging-${slaLevel}">${transaction.agingDays} days (${transaction.transactionType})</span></td>
             <td><span class="priority-badge priority-${transaction.priority}">
                 <i class="fas fa-${getPriorityIcon(transaction.priority)}"></i> ${transaction.priority}
             </span></td>
@@ -360,7 +438,7 @@ function renderTableView(transactions) {
                 </div>
             </td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 // Render card view
@@ -372,16 +450,22 @@ function renderCardView(transactions) {
         return;
     }
 
-    container.innerHTML = transactions.map(transaction => `
+    container.innerHTML = transactions.map(transaction => {
+        const slaLevel = getSLALevel(transaction.transactionType, transaction.agingDays);
+        return `
         <div class="transaction-card">
             <div class="card-header">
                 <div class="card-id">${transaction.id}</div>
-                <span class="status-badge status-${transaction.status}">${transaction.status}</span>
+                <span class="status-badge status-${transaction.status}">${getStatusDisplayName(transaction.status)}</span>
             </div>
             <div class="card-body">
                 <div class="card-row">
                     <span class="card-label">PO Number:</span>
                     <span class="card-value">${transaction.poNumber}</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">Type:</span>
+                    <span class="card-value">${transaction.transactionType}</span>
                 </div>
                 <div class="card-row">
                     <span class="card-label">Vendor:</span>
@@ -396,8 +480,8 @@ function renderCardView(transactions) {
                     <span class="card-value">${transaction.currentStage}</span>
                 </div>
                 <div class="card-row">
-                    <span class="card-label">Aging:</span>
-                    <span class="aging-indicator aging-${getAgingClass(transaction.agingDays)}">${transaction.agingDays} days</span>
+                    <span class="card-label">SLA Status:</span>
+                    <span class="aging-indicator aging-${slaLevel}">${transaction.agingDays} days - ${slaLevel.toUpperCase()}</span>
                 </div>
                 <div class="card-row">
                     <span class="card-label">Priority:</span>
@@ -415,7 +499,7 @@ function renderCardView(transactions) {
                 </button>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 // Update pagination
@@ -446,6 +530,9 @@ function viewTransactionDetails(transactionId) {
     const transaction = currentTransactions.find(t => t.id === transactionId);
     if (!transaction) return;
 
+    const slaLevel = getSLALevel(transaction.transactionType, transaction.agingDays);
+    const slaRules = SLA_RULES[transaction.transactionType];
+    
     const modalBody = document.getElementById('modalBody');
     
     modalBody.innerHTML = `
@@ -461,6 +548,10 @@ function viewTransactionDetails(transactionId) {
                     <span class="detail-value">${transaction.poNumber}</span>
                 </div>
                 <div class="detail-item">
+                    <span class="detail-label">Transaction Type</span>
+                    <span class="detail-value">${transaction.transactionType}</span>
+                </div>
+                <div class="detail-item">
                     <span class="detail-label">Vendor</span>
                     <span class="detail-value">${transaction.vendor}</span>
                 </div>
@@ -470,7 +561,7 @@ function viewTransactionDetails(transactionId) {
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Status</span>
-                    <span class="detail-value"><span class="status-badge status-${transaction.status}">${transaction.status}</span></span>
+                    <span class="detail-value"><span class="status-badge status-${transaction.status}">${getStatusDisplayName(transaction.status)}</span></span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Priority</span>
@@ -479,8 +570,12 @@ function viewTransactionDetails(transactionId) {
                     </span></span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">Aging</span>
-                    <span class="detail-value"><span class="aging-indicator aging-${getAgingClass(transaction.agingDays)}">${transaction.agingDays} days</span></span>
+                    <span class="detail-label">SLA Status</span>
+                    <span class="detail-value"><span class="aging-indicator aging-${slaLevel}">${transaction.agingDays} days - ${slaLevel.toUpperCase()}</span></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Requestor</span>
+                    <span class="detail-value">${transaction.requestor}</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Current Approver</span>
@@ -489,6 +584,24 @@ function viewTransactionDetails(transactionId) {
                 <div class="detail-item" style="grid-column: 1 / -1;">
                     <span class="detail-label">Description</span>
                     <span class="detail-value">${transaction.description}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <h3><i class="fas fa-clock"></i> SLA Information</h3>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Normal SLA</span>
+                    <span class="detail-value">≤ ${slaRules.normal} days</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Warning SLA</span>
+                    <span class="detail-value">${slaRules.normal + 1} - ${slaRules.warning} days</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Critical SLA</span>
+                    <span class="detail-value">≥ ${slaRules.critical} days</span>
                 </div>
             </div>
         </div>
@@ -518,7 +631,6 @@ function viewTransactionDetails(transactionId) {
                                 <i class="fas fa-${getStageIcon(stage.stage)}"></i> ${stage.stage}
                                 ${stage.status === 'completed' ? '<i class="fas fa-check-circle" style="color: var(--success-color); margin-left: 0.5rem;"></i>' : ''}
                                 ${stage.status === 'current' ? '<i class="fas fa-spinner" style="color: var(--warning-color); margin-left: 0.5rem;"></i>' : ''}
-                                ${stage.status === 'rejected' ? '<i class="fas fa-times-circle" style="color: var(--danger-color); margin-left: 0.5rem;"></i>' : ''}
                             </div>
                             <div class="timeline-date">
                                 ${stage.date ? `Completed: ${stage.date}` : 'Pending'}
@@ -540,12 +652,6 @@ function closeModal() {
 }
 
 // Helper functions
-function getAgingClass(days) {
-    if (days <= 3) return 'normal';
-    if (days <= 7) return 'warning';
-    return 'critical';
-}
-
 function getPriorityIcon(priority) {
     const icons = {
         low: 'arrow-down',
