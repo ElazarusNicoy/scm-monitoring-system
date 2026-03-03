@@ -148,15 +148,27 @@ body {
     box-shadow: var(--shadow-lg);
 }
 
-.card-active {
+.card-for-approval {
     border-left-color: var(--info-color);
+}
+
+.card-pending {
+    border-left-color: var(--warning-color);
+}
+
+.card-additional-input {
+    border-left-color: #8b5cf6;
 }
 
 .card-completed {
     border-left-color: var(--success-color);
 }
 
-.card-aging {
+.card-normal {
+    border-left-color: var(--success-color);
+}
+
+.card-warning {
     border-left-color: var(--warning-color);
 }
 
@@ -174,9 +186,19 @@ body {
     border-radius: 12px;
 }
 
-.card-active .card-icon {
+.card-for-approval .card-icon {
     background-color: rgba(59, 130, 246, 0.1);
     color: var(--info-color);
+}
+
+.card-pending .card-icon {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: var(--warning-color);
+}
+
+.card-additional-input .card-icon {
+    background-color: rgba(139, 92, 246, 0.1);
+    color: #8b5cf6;
 }
 
 .card-completed .card-icon {
@@ -184,7 +206,12 @@ body {
     color: var(--success-color);
 }
 
-.card-aging .card-icon {
+.card-normal .card-icon {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+}
+
+.card-warning .card-icon {
     background-color: rgba(245, 158, 11, 0.1);
     color: var(--warning-color);
 }
@@ -194,15 +221,75 @@ body {
     color: var(--danger-color);
 }
 
+.card-header-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
 .card-content h3 {
     font-size: 2rem;
     font-weight: 700;
-    margin-bottom: 0.25rem;
 }
 
 .card-content p {
     color: var(--text-secondary);
     font-size: 0.95rem;
+}
+
+.card-info-icon {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    cursor: help;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.card-info-icon:hover {
+    color: var(--primary-color);
+}
+
+.card-info-icon::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background-color: var(--dark-bg);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    white-space: normal;
+    width: 250px;
+    text-align: left;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1000;
+    box-shadow: var(--shadow-lg);
+    line-height: 1.4;
+}
+
+.card-info-icon::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--dark-bg);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.card-info-icon:hover::after,
+.card-info-icon:hover::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-12px);
 }
 
 /* Filters Section */
@@ -388,17 +475,11 @@ body {
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 600;
-    text-transform: uppercase;
 }
 
-.status-active {
+.status-for-approval {
     background-color: rgba(59, 130, 246, 0.1);
     color: var(--info-color);
-}
-
-.status-completed {
-    background-color: rgba(16, 185, 129, 0.1);
-    color: var(--success-color);
 }
 
 .status-pending {
@@ -406,9 +487,14 @@ body {
     color: var(--warning-color);
 }
 
-.status-rejected {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: var(--danger-color);
+.status-for-additional-input {
+    background-color: rgba(139, 92, 246, 0.1);
+    color: #8b5cf6;
+}
+
+.status-completed {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
 }
 
 /* Priority Badges */
