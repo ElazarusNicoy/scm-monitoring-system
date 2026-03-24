@@ -9,12 +9,6 @@ Backend:
 Database:
 • MySQL
 
-wireframing:
-• Canva
-
-Mockup:
-• CodePen
-
 Designing
 
 • The user interface of the modules:

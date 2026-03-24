@@ -202,8 +202,8 @@ async function loadTransactionsFromAPI() {
         const response = await fetch('http://localhost:5000/api/transactions');
         const data = await response.json();
 
-        if (XPathResult.success) {
-            console.log(`Loaded ${result.count} transactions from database`)
+        if (data.success) {
+            console.log(`Loaded ${data.count} transactions from database`)
             return result.data.map(transaction => ({
                 // Map your database columns to the format your dashboard expects
                 transactionId: transaction.transactionNumber || 'N/A',
@@ -215,13 +215,28 @@ async function loadTransactionsFromAPI() {
                 description: `${transaction.requestor || 'Unknown'} - ${transaction.source || 'Transaction'}`
             }));
         } else {
-            console.error('API Errror:', result.error);
+            console.error('API Error:', data.error);
             return [];
         }
     } catch (error) {
         console.error('Failed to load data from API:', error);
         // Return empty array if API fails
         return [];
+    }
+}
+
+// Helper function to map database status to your dashboard status
+function mapStatus(dbStatus) {
+    if (!dbStatus) return 'pending';
+// Dashboard:
+// For Approval
+// Pending
+// For Additional Input
+// Transaction Complete
+    const statusMap = {
+        'approved': 'completed',
+        'pending': 'for-approval',
+        'rejected'
     }
 }
 

@@ -69,13 +69,14 @@ Backend:
 • Python
 
 Database:
-• MySQL
+• MSSQL
 
-wireframing:
-• Canva
-
-Mockup:
-• CodePen
 
 3/3/2026: 10pm
 code review of the html, css, js
+
+3/18: Adding test data to mysql (changed to mssql)
+
+
+3/22: create a stored procedure to insert data to the database
+(as the program for that is at the office, so for testing, stored procedure will be used)
