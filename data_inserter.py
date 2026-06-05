@@ -25,8 +25,8 @@ APPROVERS = [
 ]
 STATUSES = [
     'For QC Approval', 'For BBA Approval', 'For PPC Approval',
-    'For Booker Approval', 'Disapproved, For Resubmission', 'For Booker Approval',
-    'For PPC Approval', 'Completed'
+    'For Booker Approval', 'Disapproved, For Resubmission',
+    'Completed'
 ]
 
 
