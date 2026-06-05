@@ -29,6 +29,72 @@ STATUSES = [
     'Completed'
 ]
 
+# WOAF approval flow
+WORKFLOW_FLOW = ['For QC Approval', 'For BBA Approval', 'For PPC Approval', 'For Booker Approval', 'Completed']
+
+
+def fetch_random_existing_transaction(conn):
+    """Fetch a random existing transaction (transactionNumber, requestor, currentFormStatus).
+
+    Returns a dict or None if none found.
+    """
+    try:
+        cur = conn.cursor()
+        # ORDER BY NEWID() randomizes rows in SQL Server
+        cur.execute("SELECT TOP 1 transactionNumber, requestor, currentFormStatus FROM all_transactions WHERE transactionNumber IS NOT NULL ORDER BY NEWID()")
+        row = cur.fetchone()
+        cur.close()
+        if row:
+            return {'TransactionNumber': row[0], 'Requestor': row[1], 'CurrentFormStatus': row[2]}
+        return None
+    except Exception as e:
+        print('Could not fetch an existing transaction:', e)
+        try:
+            cur.close()
+        except Exception:
+            pass
+        return None
+
+
+def next_status_after(current_status: str) -> str:
+    """Given a current status, decide the next status in the workflow or a disapproval/resubmission.
+
+    Behavior:
+    - Normally advance to the next stage in WORKFLOW_FLOW
+    - With some probability, a stage can become 'Disapproved, For Resubmission'
+    - If current status is 'Disapproved, For Resubmission', next is 'For QC Approval' (resubmission)
+    """
+    if not current_status:
+        return 'For QC Approval'
+
+    low = 0.15  # probability of disapproval at any non-final stage
+
+    # If currently disapproved, simulate resubmission back to QC
+    if current_status.lower().startswith('disapproved'):
+        return 'For QC Approval'
+
+    # If completed, no next step; keep as completed
+    if current_status.lower() == 'completed' or current_status == 'Completed':
+        return 'Completed'
+
+    # Find index in workflow
+    try:
+        idx = WORKFLOW_FLOW.index(current_status)
+    except ValueError:
+        # unknown status: start from QC
+        idx = 0
+
+    # If we're at the last stage, stay completed
+    if idx >= len(WORKFLOW_FLOW) - 1:
+        return 'Completed'
+
+    # Decide if disapproved
+    if random.random() < low:
+        return 'Disapproved, For Resubmission'
+
+    # Otherwise advance to next stage
+    return WORKFLOW_FLOW[idx + 1]
+
 
 def make_transaction_number(prefix='WOAF') -> str:
     now = datetime.now()
@@ -57,7 +123,7 @@ def create_connection():
         conn = pyodbc.connect(conn_str, autocommit=False)
         return conn
     except Exception as e:
-        print('❌ Failed to connect to database:')
+        print('Failed to connect to database:')
         print(e)
         return None
 
@@ -102,7 +168,7 @@ def insert_test_transaction(conn: pyodbc.Connection,
         print(f"✓ Inserted: {transaction_number} | {requestor} | {current_status}")
         return True
     except Exception as e:
-        print('❌ Insert failed:')
+        print('Insert failed:')
         print(e)
         try:
             conn.rollback()
@@ -154,7 +220,55 @@ def run_loop(mode: str, count: Optional[int], delay_seconds: Optional[int]):
     inserted = 0
     try:
         while True:
-            record = generate_sample_record()
+            # Decide whether to create a new transaction or update an existing one
+            # New transaction probability
+            create_new_prob = 0.6
+            if random.random() < create_new_prob:
+                # Create a new transaction starting at QC
+                record = generate_sample_record()
+                record['CurrentFormStatus'] = 'For QC Approval'
+                record['ResubmittedDate'] = None
+                record['CompletedDate'] = None
+                record['LastModifiedBy'] = record['Requestor']
+                record['LastModifiedDate'] = record['SubmittedDate']
+                txn_number = record['TransactionNumber']
+                print(f"Creating NEW transaction {txn_number} (QC)")
+            else:
+                # Pick an existing transaction and advance its status
+                existing = fetch_random_existing_transaction(conn)
+                if existing:
+                    txn_number = existing['TransactionNumber']
+                    cur_status = existing['CurrentFormStatus'] or 'For QC Approval'
+                    new_status = next_status_after(cur_status)
+                    print(f"Updating existing {txn_number}: {cur_status} -> {new_status}")
+
+                    # Build a record that simulates the update
+                    record = {
+                        'TransactionNumber': txn_number,
+                        'Requestor': existing.get('Requestor') or random.choice(REQUESTORS),
+                        'SubmittedDate': random_timestamp(60),
+                        'CurrentApproverPIC': random.choice(APPROVERS),
+                        'CurrentFormStatus': new_status,
+                        'ResubmittedDate': None,
+                        'CompletedDate': None,
+                        'LastModifiedBy': existing.get('Requestor') or 'system',
+                        'LastModifiedDate': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    }
+
+                    if new_status == 'Disapproved, For Resubmission':
+                        record['ResubmittedDate'] = (datetime.now() + timedelta(days=random.randint(1,5))).strftime('%Y-%m-%d %H:%M:%S')
+                        # After disapproval, we'll set LastModifiedBy to the approver
+                        record['LastModifiedBy'] = record['CurrentApproverPIC']
+                    if new_status == 'Completed':
+                        record['CompletedDate'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                else:
+                    # No existing transaction found; create new instead
+                    record = generate_sample_record()
+                    record['CurrentFormStatus'] = 'For QC Approval'
+                    txn_number = record['TransactionNumber']
+                    print('No existing txn to update; creating new txn', txn_number)
+
+            # Insert (or append history) by calling the stored procedure
             insert_test_transaction(
                 conn,
                 record['TransactionNumber'],
