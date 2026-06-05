@@ -98,6 +98,7 @@ def next_status_after(current_status: str) -> str:
 
 def make_transaction_number(prefix='WOAF') -> str:
     now = datetime.now()
+    # Format: WOAFYYYY-MM-DD-HHMMSS (e.g. WOAF2026-03-20-081523)
     return f"{prefix}{now.strftime('%Y-%m-%d-%H%M%S')}"
 
 
@@ -226,12 +227,14 @@ def run_loop(mode: str, count: Optional[int], delay_seconds: Optional[int]):
             if random.random() < create_new_prob:
                 # Create a new transaction starting at QC
                 record = generate_sample_record()
+                # Ensure transaction number is generated at insertion time with requested format
+                txn_number = make_transaction_number('WOAF')
+                record['TransactionNumber'] = txn_number
                 record['CurrentFormStatus'] = 'For QC Approval'
                 record['ResubmittedDate'] = None
                 record['CompletedDate'] = None
                 record['LastModifiedBy'] = record['Requestor']
                 record['LastModifiedDate'] = record['SubmittedDate']
-                txn_number = record['TransactionNumber']
                 print(f"Creating NEW transaction {txn_number} (QC)")
             else:
                 # Pick an existing transaction and advance its status
