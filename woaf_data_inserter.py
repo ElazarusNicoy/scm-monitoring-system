@@ -34,8 +34,10 @@ BOOKER_APPROVERS = [
 
 def choose_approver_for_status(status: str) -> str:
     """Return an approver userid appropriate for the given workflow status."""
+    # combined fallback pool
+    fallback_pool = QC_APPROVERS + BBA_APPROVERS + PPC_APPROVERS + BOOKER_APPROVERS
     if not status:
-        return random.choice(APPROVERS)
+        return random.choice(fallback_pool)
     s = status.lower()
     if 'qc' in s:
         return random.choice(QC_APPROVERS)
@@ -46,7 +48,7 @@ def choose_approver_for_status(status: str) -> str:
     if 'booker' in s:
         return random.choice(BOOKER_APPROVERS)
     # fallback
-    return random.choice(APPROVERS)
+    return random.choice(fallback_pool)
 STATUSES = [
     'For QC Approval', 'For BBA Approval', 'For PPC Approval',
     'For Booker Approval', 'Disapproved, For Resubmission',
@@ -214,8 +216,8 @@ def generate_sample_record() -> dict:
     txn_no = make_transaction_number('WOAF')
     requestor = random.choice(REQUESTORS)
     submitted = random_timestamp(30)
-    approver = choose_approver_for_status(status)
     status = random.choice(STATUSES)
+    approver = choose_approver_for_status(status)
 
     # Randomly include resubmitted or completed dates depending on status
     resub = None
@@ -261,6 +263,8 @@ def run_loop(mode: str, count: Optional[int], delay_seconds: Optional[int]):
                 txn_number = make_transaction_number('WOAF')
                 record['TransactionNumber'] = txn_number
                 record['CurrentFormStatus'] = 'For QC Approval'
+                # assign the QC approver for initial action
+                record['CurrentApproverPIC'] = choose_approver_for_status('For QC Approval')
                 record['ResubmittedDate'] = None
                 record['CompletedDate'] = None
                 record['LastModifiedBy'] = record['Requestor']
@@ -279,26 +283,29 @@ def run_loop(mode: str, count: Optional[int], delay_seconds: Optional[int]):
                     # When reusing an existing transactionNumber, do NOT modify the original
                     # requestor or submittedDate — insert a new history row that preserves
                     # those fields but changes approver, status and last modified info.
+                    # Approver who performed the action is the approver for the current status
+                    approver_prev = choose_approver_for_status(cur_status)
+                    # Approver for the next stage (who will receive the txn) is based on new_status
+                    approver_next = choose_approver_for_status(new_status)
+
                     record = {
                         'TransactionNumber': txn_number,
                         'Requestor': existing.get('Requestor') or random.choice(REQUESTORS),
                         'SubmittedDate': existing.get('SubmittedDate') or random_timestamp(60),
-                        'CurrentApproverPIC': choose_approver_for_status(new_status),
+                        'CurrentApproverPIC': approver_next,
                         'CurrentFormStatus': new_status,
                         'ResubmittedDate': None,
                         'CompletedDate': None,
-                        'LastModifiedBy': None,
+                        'LastModifiedBy': approver_prev,
                         'LastModifiedDate': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     }
 
-                    # LastModifiedBy should reflect the approver performing the action
-                    record['LastModifiedBy'] = record['CurrentApproverPIC']
-
                     if new_status == 'Disapproved, For Resubmission':
+                        # Disapproval recorded by approver_prev, resubmitted date scheduled
                         record['ResubmittedDate'] = (datetime.now() + timedelta(days=random.randint(1,5))).strftime('%Y-%m-%d %H:%M:%S')
-                        # After disapproval, we'll set LastModifiedBy to the approver
-                        record['LastModifiedBy'] = record['CurrentApproverPIC']
+                        record['LastModifiedBy'] = approver_prev
                     if new_status == 'Completed':
+                        # Completion recorded by approver_prev
                         record['CompletedDate'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 else:
                     # No existing transaction found; create new instead
