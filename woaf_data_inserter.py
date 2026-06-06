@@ -41,16 +41,22 @@ def fetch_random_existing_transaction(conn):
     try:
         cur = conn.cursor()
         # ORDER BY NEWID() randomizes rows in SQL Server
-        cur.execute("SELECT TOP 1 transactionNumber, requestor, currentFormStatus FROM all_transactions WHERE transactionNumber IS NOT NULL ORDER BY NEWID()")
+        # Also fetch submittedDate so new history rows can reuse it
+        cur.execute("SELECT TOP 1 transactionNumber, requestor, submittedDate, currentFormStatus FROM sp_woaf WHERE transactionNumber IS NOT NULL ORDER BY NEWID()")
         row = cur.fetchone()
         cur.close()
         if row:
-            return {'TransactionNumber': row[0], 'Requestor': row[1], 'CurrentFormStatus': row[2]}
+            # submittedDate may be a datetime; convert to string if needed
+            submitted = row[2]
+            if hasattr(submitted, 'strftime'):
+                submitted = submitted.strftime('%Y-%m-%d %H:%M:%S')
+            return {'TransactionNumber': row[0], 'Requestor': row[1], 'SubmittedDate': submitted, 'CurrentFormStatus': row[3]}
         return None
     except Exception as e:
         print('Could not fetch an existing transaction:', e)
         try:
-            cur.close()
+            if 'cur' in locals():
+                cur.close()
         except Exception:
             pass
         return None
@@ -246,17 +252,23 @@ def run_loop(mode: str, count: Optional[int], delay_seconds: Optional[int]):
                     print(f"Updating existing {txn_number}: {cur_status} -> {new_status}")
 
                     # Build a record that simulates the update
+                    # When reusing an existing transactionNumber, do NOT modify the original
+                    # requestor or submittedDate — insert a new history row that preserves
+                    # those fields but changes approver, status and last modified info.
                     record = {
                         'TransactionNumber': txn_number,
                         'Requestor': existing.get('Requestor') or random.choice(REQUESTORS),
-                        'SubmittedDate': random_timestamp(60),
+                        'SubmittedDate': existing.get('SubmittedDate') or random_timestamp(60),
                         'CurrentApproverPIC': random.choice(APPROVERS),
                         'CurrentFormStatus': new_status,
                         'ResubmittedDate': None,
                         'CompletedDate': None,
-                        'LastModifiedBy': existing.get('Requestor') or 'system',
+                        'LastModifiedBy': None,
                         'LastModifiedDate': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     }
+
+                    # LastModifiedBy should reflect the approver performing the action
+                    record['LastModifiedBy'] = record['CurrentApproverPIC']
 
                     if new_status == 'Disapproved, For Resubmission':
                         record['ResubmittedDate'] = (datetime.now() + timedelta(days=random.randint(1,5))).strftime('%Y-%m-%d %H:%M:%S')
