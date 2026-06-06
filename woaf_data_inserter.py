@@ -18,11 +18,35 @@ REQUESTORS = [
     'javer.valino','marcielo.abalos','markciril.jamon', 'luisfrancis.liporada'
     , 'joy.balsomo'
 ]
-APPROVERS = [
-    'qc.manager.jones', 'bba.supervisor.chen', 'ppc.director.lee',
-    'booker.director.lee', 'ppc.supervisor.chen', 'bba.manager.jones',
-    'qc.supervisor.chen', 'booker.kim', 'qc.analyst.park', 'booker.hernandez'
+# Specific approver pools per stage
+QC_APPROVERS = [
+    'qc.manager.jones', 'qc.supervisor.chen', 'qc.analyst.park', 'qc.admin.rodriguez'
 ]
+BBA_APPROVERS = [
+    'bba.supervisor.chen', 'bba.manager.jones', 'bba.coordinator.thompson'
+]
+PPC_APPROVERS = [
+    'ppc.director.lee', 'ppc.supervisor.chen', 'ppc.manager.jones'
+]
+BOOKER_APPROVERS = [
+    'booker.director.lee', 'booker.kim', 'booker.hernandez'
+]
+
+def choose_approver_for_status(status: str) -> str:
+    """Return an approver userid appropriate for the given workflow status."""
+    if not status:
+        return random.choice(APPROVERS)
+    s = status.lower()
+    if 'qc' in s:
+        return random.choice(QC_APPROVERS)
+    if 'bba' in s:
+        return random.choice(BBA_APPROVERS)
+    if 'ppc' in s:
+        return random.choice(PPC_APPROVERS)
+    if 'booker' in s:
+        return random.choice(BOOKER_APPROVERS)
+    # fallback
+    return random.choice(APPROVERS)
 STATUSES = [
     'For QC Approval', 'For BBA Approval', 'For PPC Approval',
     'For Booker Approval', 'Disapproved, For Resubmission',
@@ -190,7 +214,7 @@ def generate_sample_record() -> dict:
     txn_no = make_transaction_number('WOAF')
     requestor = random.choice(REQUESTORS)
     submitted = random_timestamp(30)
-    approver = random.choice(APPROVERS)
+    approver = choose_approver_for_status(status)
     status = random.choice(STATUSES)
 
     # Randomly include resubmitted or completed dates depending on status
@@ -259,7 +283,7 @@ def run_loop(mode: str, count: Optional[int], delay_seconds: Optional[int]):
                         'TransactionNumber': txn_number,
                         'Requestor': existing.get('Requestor') or random.choice(REQUESTORS),
                         'SubmittedDate': existing.get('SubmittedDate') or random_timestamp(60),
-                        'CurrentApproverPIC': random.choice(APPROVERS),
+                        'CurrentApproverPIC': choose_approver_for_status(new_status),
                         'CurrentFormStatus': new_status,
                         'ResubmittedDate': None,
                         'CompletedDate': None,
