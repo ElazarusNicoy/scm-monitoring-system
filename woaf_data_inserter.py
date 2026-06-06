@@ -170,32 +170,40 @@ def insert_test_transaction(conn: pyodbc.Connection,
                             resubmitted_date: Optional[str],
                             completed_date: Optional[str],
                             last_modified_by: str,
-                            last_modified_date: str) -> bool:
+                            last_modified_date: str,
+                            dry_run: bool = False) -> bool:
     """Call stored procedure InsertTestData_WOAF with provided params.
 
     Assumptions:
     - Stored procedure `InsertTestData_WOAF` exists and accepts parameters used below.
     - If your proc has different parameter names/order, adjust the SQL string.
     """
+    sql = (
+        "EXEC InsertTestData_WOAF "
+        "@TransactionNumber = ?, @Requestor = ?, @SubmittedDate = ?, "
+        "@CurrentApproverPIC = ?, @CurrentFormStatus = ?, @ResubmittedDate = ?, "
+        "@CompletedDate = ?, @LastModifiedBy = ?, @LastModifiedDate = ?"
+    )
+    params = (
+        transaction_number,
+        requestor,
+        submitted_date,
+        current_approver,
+        current_status,
+        resubmitted_date,
+        completed_date,
+        last_modified_by,
+        last_modified_date
+    )
+
+    if dry_run:
+        print('\n[DRY RUN] Would execute:')
+        print('SQL:', sql)
+        print('Params:', params)
+        return True
+
     cursor = conn.cursor()
     try:
-        sql = (
-            "EXEC InsertTestData_WOAF "
-            "@TransactionNumber = ?, @Requestor = ?, @SubmittedDate = ?, "
-            "@CurrentApproverPIC = ?, @CurrentFormStatus = ?, @ResubmittedDate = ?, "
-            "@CompletedDate = ?, @LastModifiedBy = ?, @LastModifiedDate = ?"
-        )
-        params = (
-            transaction_number,
-            requestor,
-            submitted_date,
-            current_approver,
-            current_status,
-            resubmitted_date,
-            completed_date,
-            last_modified_by,
-            last_modified_date
-        )
         cursor.execute(sql, params)
         conn.commit()
         print(f"✓ Inserted: {transaction_number} | {requestor} | {current_status}")
@@ -244,11 +252,13 @@ def generate_sample_record() -> dict:
     }
 
 
-def run_loop(mode: str, count: Optional[int], delay_seconds: Optional[int]):
-    conn = create_connection()
-    if conn is None:
-        print('Aborting: cannot connect to database.')
-        return
+def run_loop(mode: str, count: Optional[int], delay_seconds: Optional[int], dry_run: bool = False):
+    conn = None
+    if not dry_run:
+        conn = create_connection()
+        if conn is None:
+            print('Aborting: cannot connect to database.')
+            return
 
     inserted = 0
     try:
@@ -325,7 +335,8 @@ def run_loop(mode: str, count: Optional[int], delay_seconds: Optional[int]):
                 record['ResubmittedDate'],
                 record['CompletedDate'],
                 record['LastModifiedBy'],
-                record['LastModifiedDate']
+                record['LastModifiedDate'],
+                dry_run=dry_run
             )
             inserted += 1
 
@@ -348,7 +359,8 @@ def run_loop(mode: str, count: Optional[int], delay_seconds: Optional[int]):
         print('\nInterrupted by user. Stopping.')
     finally:
         try:
-            conn.close()
+            if conn:
+                conn.close()
         except Exception:
             pass
 
@@ -358,8 +370,9 @@ if __name__ == '__main__':
     parser.add_argument('--mode', choices=['once', 'minute', 'hourly', 'daily'], default='once', help='When to insert records')
     parser.add_argument('--count', type=int, default=1, help='How many records to insert (total). If omitted, will run indefinitely for periodic modes.')
     parser.add_argument('--delay', type=int, default=None, help='Override sleep delay in seconds for periodic modes (useful for testing).')
+    parser.add_argument('--dry-run', action='store_true', help='Print SQL and params without executing inserts')
 
     args = parser.parse_args()
 
-    print(f"Mode: {args.mode} | Count: {args.count} | Delay override: {args.delay}")
-    run_loop(args.mode, args.count, args.delay)
+    print(f"Mode: {args.mode} | Count: {args.count} | Delay override: {args.delay} | dry_run: {args.dry_run}")
+    run_loop(args.mode, args.count, args.delay, dry_run=args.dry_run)
