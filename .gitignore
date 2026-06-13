@@ -1,3 +1,4 @@
-*.txt
+analysis-planning.txt
+designing.txt
 __pycache__
 .env
