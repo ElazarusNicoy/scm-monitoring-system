@@ -128,11 +128,10 @@ document.addEventListener('DOMContentLoaded', function() {
 // page load
 function initializeApp() {
     loadTransactionsFromAPI(); // Load from database first
+    refreshCriticalCount(); // Load critical count from backend
     setupEventListeners();
     updateCurrentTime();
     setInterval(updateCurrentTime, 1000);
-    
-    // Start periodic polling for critical count (every 30 seconds)
     startCriticalCountPolling();
 }
 
@@ -164,12 +163,6 @@ async function loadTransactionsFromAPI() {
             // Update global state with API data
             currentTransactions = apiTransactions;
             filteredTransactions = apiTransactions;
-            
-            // Update critical count directly from backend summary if available
-            if (data.summary && data.summary.criticalCount !== undefined) {
-                backendCriticalCount = data.summary.criticalCount;
-                document.getElementById('criticalCount').textContent = backendCriticalCount;
-            }
             
             // Re-render the dashboard
             applyFilters();
@@ -364,9 +357,12 @@ function refreshData() {
     const icon = refreshBtn.querySelector('i');
     
     icon.style.animation = 'spin 1s linear';
-    
-    // Reload from API
-    loadTransactionsFromAPI().then(() => {
+
+    //Explicit call on refresh
+    Promise.all([
+        loadTransactionsFromAPI(), 
+        refreshCriticalCount()
+    ]).then(() => {
         applyFilters();
         icon.style.animation = '';
     });
