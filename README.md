@@ -11,13 +11,14 @@ The Workflow Tracking Module is the first module of the SCM Monitoring System, d
 ### 📊 Dashboard Summary
 - **Active Transactions**: Real-time count of ongoing transactions
 - **Completed Transactions**: Total completed transactions
-- **Aging Transactions**: Transactions requiring attention (4+ days)
-- **Critical Alerts**: High-priority aging transactions (8+ days)
+- **Aging Transactions**: Transactions requiring attention 
+- **Critical Alerts**: High-priority aging transactions 
 
 ### 🔍 Advanced Filtering & Search
 - **Search**: Find transactions by ID, Vendor, or PO Number
 - **Status Filter**: Filter by Active, Completed, Pending, or Rejected
-- **Aging Filter**: Filter by Normal (0-3 days), Warning (4-7 days), or Critical (8+ days)
+- **Aging Filter**: Filter by Normal , Warning , or Critical 
+*The aging days depends on the sla threshold for each transaction type
 - **Stage Filter**: Filter by workflow stage (Submission, Review, Approval, Processing, Completed)
 
 ### 📋 Dual View Modes
@@ -35,9 +36,9 @@ The Workflow Tracking Module is the first module of the SCM Monitoring System, d
 - User and timestamp tracking for each stage
 
 ### ⚠️ Aging Monitoring
-- **Normal (0-3 days)**: Green indicator
-- **Warning (4-7 days)**: Orange indicator
-- **Critical (8+ days)**: Red indicator with pulse animation
+- **Normal**: Green indicator
+- **Warning**: Orange indicator
+- **Critical**: Red indicator with pulse animation
 
 ### 🎯 Priority Management
 - **Low Priority**: Green badge with down arrow
@@ -70,21 +71,53 @@ scm-monitoring-system/
 ## Getting Started
 
 ### Prerequisites
-- A modern web browser (Chrome, Firefox, Safari, Edge)
-- No server or build tools required - runs directly in the browser
+- A modern web browser (Chrome, Firefox, Edge)
+- Python 3+ installed on your machine
 
 ### Installation
 
 1. Clone or download the repository to your local machine
 2. Navigate to the project directory
-3. Open `workflow-tracking.html` in your web browser
+
+### Running the Application
+
+> ⚠️ **Important**: You must start the API server first before opening the HTML file.
+
+**Step 1 — Start the API Server**
+
+Open a terminal in the project directory and run:
 
 ```bash
-# If using a local server (optional)
-# Navigate to the project directory and run:
-python -m http.server 8000
-# Then open http://localhost:8000/workflow-tracking.html
+python display_data_api.py
 ```
+
+Wait until you see the server is running (e.g., `Running on http://localhost:5000`).
+
+**Step 2 — Open the Application**
+
+Once the API server is running, open the HTML file in your browser:
+
+```bash
+# Open directly
+start workflow-tracking.html
+```
+
+**Step 3 — Stopping the Server**
+
+When done, go back to the terminal running the API and press:
+
+```
+Ctrl + C
+```
+
+### Quick Start Summary
+
+| Step | Command | Description |
+|------|---------|-------------|
+| 1 | `python display_data_api.py` | Start the API server |
+| 2 | Open `workflow-tracking.html` | Launch the application |
+| 3 | `Ctrl + C` | Stop the API server when done |
+
 
 ### Usage
 
