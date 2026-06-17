@@ -95,7 +95,7 @@ def get_transactions():
         return []
 
 
-def get_mas_critical_transactions_count():
+def get_critical_transactions_count():
     """
     Get the count of critical transactions from the database.
     Uses context manager to ensure proper connection cleanup.
@@ -108,14 +108,23 @@ def get_mas_critical_transactions_count():
             cursor = conn.cursor()
             
             query = """
-                SELECT COUNT(*) AS CriticalTransactionsCount
-                FROM [SP_TRANSACTIONS].[dbo].[mas_transactions_with_threshold]
-                WHERE [thresholdStatus] = 'Critical'
+                SELECT
+    (
+        SELECT COUNT(*)
+        FROM mas_transactions_with_threshold
+        WHERE thresholdStatus = 'Critical'
+    )
+    +
+    (
+        SELECT COUNT(*)
+        FROM rcp_transactions_with_threshold
+        WHERE thresholdStatus = 'Critical'
+    ) AS CriticalCount;
             """
             cursor.execute(query)
             
             row = cursor.fetchone()
-            count = row.CriticalTransactionsCount if row else 0
+            count = row.CriticalCount if row else 0
             
             cursor.close()
             return count
