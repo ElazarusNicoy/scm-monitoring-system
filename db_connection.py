@@ -155,7 +155,66 @@ def get_critical_transactions_count():
         print(f"Unexpected error in get_critical_transactions_count: {e}")
         return 0
 
+def get_warning_transactions_count():
+    """
+    Get the count of warning transactions from the database.
+    Uses context manager to ensure proper connection cleanup.
 
+    Returns:
+        int: Count of warning transactions, 0 on error.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            query = """
+                 SELECT
+            (
+                SELECT COUNT(*)
+                FROM mas_transactions_with_threshold
+                WHERE thresholdStatus = 'Warning'
+            )
+            +
+            (
+                SELECT COUNT(*)
+                FROM rcp_transactions_with_threshold
+                WHERE thresholdStatus = 'Warning'
+            )
+            +
+            (
+                SELECT COUNT(*)
+                FROM poacr_transactions_with_threshold
+                WHERE thresholdStatus = 'Warning'
+            )
+            +
+            (
+                SELECT COUNT(*)
+                FROM pr_transactions_with_threshold
+                WHERE thresholdStatus = 'Warning'
+            )
+            +
+            (
+                SELECT COUNT(*)
+                FROM woaf_transactions_with_threshold
+                WHERE thresholdStatus = 'Warning'
+            )
+            AS WarningCount;
+            """
+            cursor.execute(query)
+            
+            row = cursor.fetchone()
+            count = row.WarningCount if row else 0
+            
+            cursor.close()
+            return count
+            
+    except odbc.Error as e:
+        print(f"Database query error in get_warning_transactions_count: {e}")
+        return 0
+    except Exception as e:
+        print(f"Unexpected error in get_warning_transactions_count: {e}")
+        return 0
+    
 def test_connection():
     """
     Test the database connection and return status info.
