@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
-from db_connection import get_transactions, get_critical_transactions_count
+from db_connection import get_transactions, get_critical_transactions_count, get_warning_transactions_count
 import os
 
 app = Flask(__name__)
@@ -66,6 +66,25 @@ def get_critical_count():
             'success': False,
             'error': str(e)
         }), 500
+
+@app.route('/api/warning-count')
+def get_warning_count():
+    """Dedicated endpoint for warning transaction count.
+
+    Returns only the warning count.
+    """
+    try:
+        warning_count = get_warning_transactions_count()
+
+        return jsonify({
+            'success': True,
+            'warningCount': warning_count
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
     
 if __name__ == '__main__':
     print("Starting API server...")
@@ -73,4 +92,5 @@ if __name__ == '__main__':
     print("API endpoints:")
     print("  - http://localhost:5000/api/transactions (full data)")
     print("  - http://localhost:5000/api/critical-count (critical count only)")
+    print("  - http://localhost:5000/api/warning-count (warning count only)")
     app.run(debug=True, port=5000)
