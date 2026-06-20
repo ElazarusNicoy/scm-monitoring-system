@@ -108,24 +108,37 @@ def get_critical_transactions_count():
             cursor = conn.cursor()
             
             query = """
-                SELECT
-    (
-        SELECT COUNT(*)
-        FROM mas_transactions_with_threshold
-        WHERE thresholdStatus = 'Critical'
-    )
-    +
-    (
-        SELECT COUNT(*)
-        FROM rcp_transactions_with_threshold
-        WHERE thresholdStatus = 'Critical'
-    )
-    +
-    (
-        SELECT COUNT(*)
-        FROM poacr_transactions_with_threshold
-        WHERE thresholdStatus = 'Critical'
-    ) AS CriticalCount;
+                 SELECT
+            (
+                SELECT COUNT(*)
+                FROM mas_transactions_with_threshold
+                WHERE thresholdStatus = 'Critical'
+            )
+            +
+            (
+                SELECT COUNT(*)
+                FROM rcp_transactions_with_threshold
+                WHERE thresholdStatus = 'Critical'
+            )
+            +
+            (
+                SELECT COUNT(*)
+                FROM poacr_transactions_with_threshold
+                WHERE thresholdStatus = 'Critical'
+            )
+            +
+            (
+                SELECT COUNT(*)
+                FROM pr_transactions_with_threshold
+                WHERE thresholdStatus = 'Critical'
+            )
+            +
+            (
+                SELECT COUNT(*)
+                FROM woaf_transactions_with_threshold
+                WHERE thresholdStatus = 'Critical'
+            )
+            AS CriticalCount;
             """
             cursor.execute(query)
             
