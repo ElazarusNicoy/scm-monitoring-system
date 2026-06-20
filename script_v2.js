@@ -115,10 +115,14 @@ const sampleTransactions = [
 let currentTransactions = [...sampleTransactions];
 let filteredTransactions = [...sampleTransactions];
 let backendCriticalCount = 0;
+let backendWarningCount = 0;
+let backendNormalCount = 0;
 let currentPage = 1;
 const itemsPerPage = 10;
 let currentView = 'table';
 let criticalCountPollingInterval = null;
+let warningCountPollingInterval = null;
+let normalCountPollingInterval = null;
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -129,10 +133,14 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeApp() {
     loadTransactionsFromAPI(); // Load from database first
     refreshCriticalCount(); // Load critical count from backend
+    refreshWarningCount(); // Load warning count from backend
+    refreshNormalCount(); // Load normal count from backend
     setupEventListeners();
     updateCurrentTime();
     setInterval(updateCurrentTime, 1000);
     startCriticalCountPolling();
+    startWarningCountPolling();
+    startNormalCountPolling();
 }
 
 // Load transactions from API (Approach 1: REST API Endpoint)
@@ -218,6 +226,78 @@ function stopCriticalCountPolling() {
         clearInterval(criticalCountPollingInterval);
         criticalCountPollingInterval = null;
         console.log('✓ Critical count polling stopped');
+    }
+}
+
+async function refreshWarningCount() {
+    try {
+        const response = await fetch('http://localhost:5000/api/warning-count');
+        const data = await response.json();
+        
+        if (data.success) {
+            backendWarningCount = data.warningCount;
+            document.getElementById('warningCount').textContent = backendWarningCount;
+            console.log(`✓ Warning count refreshed: ${backendWarningCount}`);
+        } else {
+            console.warn('⚠️ Warning count API error:', data.error);
+        }
+    } catch (error) {
+        console.warn('⚠️ Warning count API not available:', error.message);
+    }
+}
+
+// Start periodic polling for warning count
+function startWarningCountPolling() {
+    // Poll every 30 seconds to keep warning count up-to-date
+    if (warningCountPollingInterval) {
+        clearInterval(warningCountPollingInterval);
+    }
+    warningCountPollingInterval = setInterval(refreshWarningCount, 30000);
+    console.log('✓ Warning count polling started (every 30 seconds)');
+}
+
+// Stop periodic polling (useful if needed)
+function stopWarningCountPolling() {
+    if (warningCountPollingInterval) {
+        clearInterval(warningCountPollingInterval);
+        warningCountPollingInterval = null;
+        console.log('✓ Warning count polling stopped');
+    }
+}
+
+async function refreshNormalCount() {
+    try {
+        const response = await fetch('http://localhost:5000/api/normal-count');
+        const data = await response.json();
+        
+        if (data.success) {
+            backendNormalCount = data.normalCount;
+            document.getElementById('normalCount').textContent = backendNormalCount;
+            console.log(`✓ Normal count refreshed: ${backendNormalCount}`);
+        } else {
+            console.warn('⚠️ Normal count API error:', data.error);
+        }
+    } catch (error) {
+        console.warn('⚠️ Normal count API not available:', error.message);
+    }
+}
+
+// Start periodic polling for normal count
+function startNormalCountPolling() {
+    // Poll every 30 seconds to keep normal count up-to-date
+    if (normalCountPollingInterval) {
+        clearInterval(normalCountPollingInterval);
+    }
+    normalCountPollingInterval = setInterval(refreshNormalCount, 30000);
+    console.log('✓ Normal count polling started (every 30 seconds)');
+}
+
+// Stop periodic polling (useful if needed)
+function stopNormalCountPolling() {
+    if (normalCountPollingInterval) {
+        clearInterval(normalCountPollingInterval);
+        normalCountPollingInterval = null;
+        console.log('✓ Normal count polling stopped');
     }
 }
 

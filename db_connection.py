@@ -214,7 +214,67 @@ def get_warning_transactions_count():
     except Exception as e:
         print(f"Unexpected error in get_warning_transactions_count: {e}")
         return 0
-    
+
+def get_normal_transactions_count():
+    """
+    Get the count of normal transactions from the database.
+    Uses context manager to ensure proper connection cleanup.
+
+    Returns:
+        int: Count of normal transactions, 0 on error.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            query = """
+                 SELECT
+            (
+                SELECT COUNT(*)
+                FROM mas_transactions_with_threshold
+                WHERE thresholdStatus = 'Normal'
+            )
+            +
+            (
+                SELECT COUNT(*)
+                FROM rcp_transactions_with_threshold
+                WHERE thresholdStatus = 'Normal'
+            )
+            +
+            (
+                SELECT COUNT(*)
+                FROM poacr_transactions_with_threshold
+                WHERE thresholdStatus = 'Normal'
+            )
+            +
+            (
+                SELECT COUNT(*)
+                FROM pr_transactions_with_threshold
+                WHERE thresholdStatus = 'Normal'
+            )
+            +
+            (
+                SELECT COUNT(*)
+                FROM woaf_transactions_with_threshold
+                WHERE thresholdStatus = 'Normal'
+            )
+            AS NormalCount;
+            """
+            cursor.execute(query)
+
+            row = cursor.fetchone()
+            count = row.NormalCount if row else 0
+
+            cursor.close()
+            return count
+
+    except odbc.Error as e:
+        print(f"Database query error in get_normal_transactions_count: {e}")
+        return 0
+    except Exception as e:
+        print(f"Unexpected error in get_normal_transactions_count: {e}")
+        return 0
+
 def test_connection():
     """
     Test the database connection and return status info.
