@@ -185,6 +185,40 @@ def get_normal_transactions_count():
         print(f"Unexpected error in get_normal_transactions_count: {e}")
         return 0
 
+def get_forApproval_transactions_count():
+    """
+    Get the count of 'For Approval' transactions from the database.
+
+    A transaction is considered 'For Approval' when it has been newly submitted
+    or just approved by the previous approver — meaning its last modified date
+    is today. These are fresh transactions that are immediately ready for the
+    next approver's action.
+
+    Returns:
+        int: Count of for-approval transactions, 0 on error.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            query = """
+                 SELECT * FROM ForApproval_transactions_count_view
+            """
+            cursor.execute(query)
+
+            row = cursor.fetchone()
+            count = row.ForApprovalCount if row else 0
+
+            cursor.close()
+            return count
+
+    except odbc.Error as e:
+        print(f"Database query error in get_forApproval_transactions_count: {e}")
+        return 0
+    except Exception as e:
+        print(f"Unexpected error in get_forApproval_transactions_count: {e}")
+        return 0
+
 def test_connection():
     """
     Test the database connection and return status info.
