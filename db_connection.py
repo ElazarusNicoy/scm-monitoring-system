@@ -108,37 +108,7 @@ def get_critical_transactions_count():
             cursor = conn.cursor()
             
             query = """
-                 SELECT
-            (
-                SELECT COUNT(*)
-                FROM mas_transactions_with_threshold
-                WHERE thresholdStatus = 'Critical'
-            )
-            +
-            (
-                SELECT COUNT(*)
-                FROM rcp_transactions_with_threshold
-                WHERE thresholdStatus = 'Critical'
-            )
-            +
-            (
-                SELECT COUNT(*)
-                FROM poacr_transactions_with_threshold
-                WHERE thresholdStatus = 'Critical'
-            )
-            +
-            (
-                SELECT COUNT(*)
-                FROM pr_transactions_with_threshold
-                WHERE thresholdStatus = 'Critical'
-            )
-            +
-            (
-                SELECT COUNT(*)
-                FROM woaf_transactions_with_threshold
-                WHERE thresholdStatus = 'Critical'
-            )
-            AS CriticalCount;
+                 SELECT * FROM critical_transactions_count_view
             """
             cursor.execute(query)
             
@@ -168,37 +138,7 @@ def get_warning_transactions_count():
             cursor = conn.cursor()
             
             query = """
-                 SELECT
-            (
-                SELECT COUNT(*)
-                FROM mas_transactions_with_threshold
-                WHERE thresholdStatus = 'Warning'
-            )
-            +
-            (
-                SELECT COUNT(*)
-                FROM rcp_transactions_with_threshold
-                WHERE thresholdStatus = 'Warning'
-            )
-            +
-            (
-                SELECT COUNT(*)
-                FROM poacr_transactions_with_threshold
-                WHERE thresholdStatus = 'Warning'
-            )
-            +
-            (
-                SELECT COUNT(*)
-                FROM pr_transactions_with_threshold
-                WHERE thresholdStatus = 'Warning'
-            )
-            +
-            (
-                SELECT COUNT(*)
-                FROM woaf_transactions_with_threshold
-                WHERE thresholdStatus = 'Warning'
-            )
-            AS WarningCount;
+                 SELECT * FROM warning_transactions_count_view
             """
             cursor.execute(query)
             
@@ -228,37 +168,7 @@ def get_normal_transactions_count():
             cursor = conn.cursor()
 
             query = """
-                 SELECT
-            (
-                SELECT COUNT(*)
-                FROM mas_transactions_with_threshold
-                WHERE thresholdStatus = 'Normal'
-            )
-            +
-            (
-                SELECT COUNT(*)
-                FROM rcp_transactions_with_threshold
-                WHERE thresholdStatus = 'Normal'
-            )
-            +
-            (
-                SELECT COUNT(*)
-                FROM poacr_transactions_with_threshold
-                WHERE thresholdStatus = 'Normal'
-            )
-            +
-            (
-                SELECT COUNT(*)
-                FROM pr_transactions_with_threshold
-                WHERE thresholdStatus = 'Normal'
-            )
-            +
-            (
-                SELECT COUNT(*)
-                FROM woaf_transactions_with_threshold
-                WHERE thresholdStatus = 'Normal'
-            )
-            AS NormalCount;
+                 SELECT * FROM normal_transactions_count_view
             """
             cursor.execute(query)
 
