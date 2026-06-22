@@ -218,6 +218,122 @@ def get_forApproval_transactions_count():
     except Exception as e:
         print(f"Unexpected error in get_forApproval_transactions_count: {e}")
         return 0
+    
+def get_Pending_transactions_count():
+    """
+    Get the count of 'Pending' transactions from the database.
+
+    A transaction is considered 'Pending' under either of these conditions:
+    - More than 1 day has passed since the last modification date, meaning
+      it has been sitting with the current approver without any action.
+    - The transaction was disapproved and is waiting to be corrected
+      and resubmitted by the requestor.
+
+    Queries the Pending_transactions_count_view database view.
+
+    Returns:
+        int: Count of pending transactions, 0 on error.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            query = """
+                 SELECT * FROM Pending_transactions_count_view
+            """
+            cursor.execute(query)
+
+            row = cursor.fetchone()
+            count = row.PendingCount if row else 0
+
+            cursor.close()
+            return count
+
+    except odbc.Error as e:
+        print(f"Database query error in get_Pending_transactions_count: {e}")
+        return 0
+    except Exception as e:
+        print(f"Unexpected error in get_Pending_transactions_count: {e}")
+        return 0
+		
+def get_ForAdditionalInput_transactions_count():
+    """
+    Get the count of 'ForAdditionalInput' transactions from the database.
+
+    A transaction is considered 'For Additional Input' when it requires the
+    current approver to provide supplementary details before it can proceed
+    to the next stage. This applies to transactions currently at the following
+    stages:
+    - For PO Issuance
+    - Request for Quotation
+    - For VOP Processing
+    - Payment Processing
+
+    Queries the ForAdditionalInput_transactions_count_view database view.
+
+    Returns:
+        int: Count of ForAdditionalInput transactions, 0 on error.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            query = """
+                 SELECT * FROM ForAdditionalInput_transactions_count_view
+            """
+            cursor.execute(query)
+
+            row = cursor.fetchone()
+            count = row.ForAdditionalInputCount if row else 0
+
+            cursor.close()
+            return count
+
+    except odbc.Error as e:
+        print(f"Database query error in get_ForAdditionalInput_transactions_count: {e}")
+        return 0
+    except Exception as e:
+        print(f"Unexpected error in get_ForAdditionalInput_transactions_count: {e}")
+        return 0
+		
+def get_Complete_transactions_count():
+    """
+    Get the count of 'Complete' transactions from the database.
+
+    A transaction is considered 'Complete' when all of the following
+    conditions are met:
+    - The form status is marked as Completed.
+    - The current PIC (Person in Charge) approver field is blank,
+      indicating no further approvals are required.
+    - The completed date is not null, confirming the transaction
+      has been formally closed.
+
+    Queries the Completed_transactions_count_view database view.
+
+    Returns:
+        int: Count of Complete transactions, 0 on error.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            query = """
+                 SELECT * FROM Completed_transactions_count_view
+            """
+            cursor.execute(query)
+
+            row = cursor.fetchone()
+            count = row.CompleteCount if row else 0
+
+            cursor.close()
+            return count
+
+    except odbc.Error as e:
+        print(f"Database query error in get_Complete_transactions_count: {e}")
+        return 0
+    except Exception as e:
+        print(f"Unexpected error in get_Complete_transactions_count: {e}")
+        return 0
 
 def test_connection():
     """
