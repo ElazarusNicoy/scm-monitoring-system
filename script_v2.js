@@ -425,15 +425,15 @@ function stopForAdditionalInputCountPolling() {
     }
 }
 
-async function refreshCompletedTransactionCount() {
+async function refreshCompletedCount() {
     try {
-        const response = await fetch('http://localhost:5000/api/completed-transaction-count');
+        const response = await fetch('http://localhost:5000/api/completed-count');
         const data = await response.json();
         
         if (data.success) {
-            backendCompletedTransactionCount = data.completedTransactionCount;
-            document.getElementById('completedTransactionCount').textContent = backendCompletedTransactionCount;
-            console.log(`Completed Transaction count refreshed: ${backendCompletedTransactionCount}`);
+            backendCompletedCount = data.completedCount;
+            document.getElementById('completedCount').textContent = backendCompletedCount;
+            console.log(`Completed Transaction count refreshed: ${backendCompletedCount}`);
         } else {
             console.warn('Completed Transaction count API error:', data.error);
         }
@@ -443,20 +443,20 @@ async function refreshCompletedTransactionCount() {
 }
 
 // Start periodic polling for Completed Transaction count
-function startCompletedTransactionCountPolling() {
+function startCompletedCountPolling() {
     // Poll every 30 seconds to keep Completed Transaction count up-to-date
-    if (completedTransactionCountPollingInterval) {
-        clearInterval(completedTransactionCountPollingInterval);
+    if (completedCountPollingInterval) {
+        clearInterval(completedCountPollingInterval);
     }
-    completedTransactionCountPollingInterval = setInterval(refreshCompletedTransactionCount, 30000);
+    completedCountPollingInterval = setInterval(refreshCompletedCount, 30000);
     console.log('Completed Transaction count polling started (every 30 seconds)');
 }
 
 // Stop periodic polling (useful if needed)
-function stopCompletedTransactionCountPolling() {
-    if (completedTransactionCountPollingInterval) {
-        clearInterval(completedTransactionCountPollingInterval);
-        completedTransactionCountPollingInterval = null;
+function stopCompletedCountPolling() {
+    if (completedCountPollingInterval) {
+        clearInterval(completedCountPollingInterval);
+        completedCountPollingInterval = null;
         console.log('Completed Transaction count polling stopped');
     }
 }
