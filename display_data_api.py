@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from db_connection import get_transactions, get_critical_transactions_count, get_warning_transactions_count, get_normal_transactions_count
-from db_connection import get_forApproval_transactions_count, get_pending_transactions_count, get_forAdditionalInput_transactions_count, get_transactionComplete_transactions_count
+from db_connection import get_forApproval_transactions_count, get_pending_transactions_count, get_forAdditionalInput_transactions_count, get_Complete_transactions_count
 import os
 
 app = Flask(__name__)
@@ -105,7 +105,82 @@ def get_normal_count():
             'success': False,
             'error': str(e)
         }), 500
+
+@app.route('/api/forApproval-count')
+def get_forApproval_count():
+    """Dedicated endpoint for for-approval transaction count.
+
+    Returns only the for-approval count.
+    """
+    try:
+        forApproval_count = get_forApproval_transactions_count()
+
+        return jsonify({
+            'success': True,
+            'forApprovalCount': forApproval_count
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/pending-count')
+def get_pending_count():
+    """Dedicated endpoint for pending transaction count.
+
+    Returns only the pending count.
+    """
+    try:
+        pending_count = get_pending_transactions_count()
+
+        return jsonify({
+            'success': True,
+            'pendingCount': pending_count
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
     
+@app.route('/api/forAdditionalInput-count')
+def get_forAdditionalInput_count():
+    """Dedicated endpoint for for-additional-input transaction count.
+
+    Returns only the for-additional-input count.
+    """
+    try:
+        forAdditionalInput_count = get_forAdditionalInput_transactions_count()
+
+        return jsonify({
+            'success': True,
+            'forAdditionalInputCount': forAdditionalInput_count
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/completed-count')
+def get_completed_count():
+    """Dedicated endpoint for completed transaction count.
+
+    Returns only the completed count.
+    """
+    try:
+        completed_count = get_Complete_transactions_count()
+
+        return jsonify({
+            'success': True,
+            'completedCount': completed_count
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 if __name__ == '__main__':
     print("Starting API server...")
     print("Application will be available at http://localhost:5000")
@@ -114,4 +189,8 @@ if __name__ == '__main__':
     print("  - http://localhost:5000/api/critical-count (critical count only)")
     print("  - http://localhost:5000/api/warning-count (warning count only)")
     print("  - http://localhost:5000/api/normal-count (normal count only)")
+    print("  - http://localhost:5000/api/forApproval-count (for-approval count only)")
+    print("  - http://localhost:5000/api/pending-count (pending count only)")
+    print("  - http://localhost:5000/api/forAdditionalInput-count (for-additional-input count only)")
+    print("  - http://localhost:5000/api/completed-count (completed count only)")
     app.run(debug=True, port=5000)
