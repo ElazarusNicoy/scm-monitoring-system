@@ -135,13 +135,20 @@ function initializeApp() {
     refreshCriticalCount(); // Load critical count from backend
     refreshWarningCount(); // Load warning count from backend
     refreshNormalCount(); // Load normal count from backend
+    refreshForApprovalCount(); // Load for approval count from backend
+    refreshPendingCount(); // Load pending count from backend
+    refreshForAdditionalInputCount(); // Load for additional input count from backend
+    refreshCompletedCount(); // Load completed count from backend
     setupEventListeners();
     updateCurrentTime();
     setInterval(updateCurrentTime, 1000);
     startCriticalCountPolling();
     startWarningCountPolling();
     startNormalCountPolling();
-    
+    startForApprovalCountPolling();
+    startPendingCountPolling();
+    startForAdditionalInputCountPolling();
+    startCompletedCountPolling();
 }
 
 // Load transactions from API (Approach 1: REST API Endpoint)
@@ -302,6 +309,149 @@ function stopNormalCountPolling() {
     }
 }
 
+async function refreshForApprovalCount() {
+    try {
+        const response = await fetch('http://localhost:5000/api/forApproval-count');
+        const data = await response.json();
+        
+        if (data.success) {
+            backendForApprovalCount = data.forApprovalCount;
+            document.getElementById('forApprovalCount').textContent = backendForApprovalCount;
+            console.log(`For Approval count refreshed: ${backendForApprovalCount}`);
+        } else {
+            console.warn('For Approval count API error:', data.error);
+        }
+    } catch (error) {
+        console.warn('For Approval count API not available:', error.message);
+    }
+}
+
+// Start periodic polling for For Approval count
+function startForApprovalCountPolling() {
+    // Poll every 30 seconds to keep For Approval count up-to-date
+    if (forApprovalCountPollingInterval) {
+        clearInterval(forApprovalCountPollingInterval);
+    }
+    forApprovalCountPollingInterval = setInterval(refreshForApprovalCount, 30000);
+    console.log('For Approval count polling started (every 30 seconds)');
+}
+
+// Stop periodic polling (useful if needed)
+function stopForApprovalCountPolling() {
+    if (forApprovalCountPollingInterval) {
+        clearInterval(forApprovalCountPollingInterval);
+        forApprovalCountPollingInterval = null;
+        console.log('For Approval count polling stopped');
+    }
+}
+
+async function refreshPendingCount() {
+    try {
+        const response = await fetch('http://localhost:5000/api/pending-count');
+        const data = await response.json();
+        
+        if (data.success) {
+            backendPendingCount = data.pendingCount;
+            document.getElementById('pendingCount').textContent = backendPendingCount;
+            console.log(`Pending count refreshed: ${backendPendingCount}`);
+        } else {
+            console.warn('Pending count API error:', data.error);
+        }
+    } catch (error) {
+        console.warn('Pending count API not available:', error.message);
+    }
+}
+
+// Start periodic polling for Pending count
+function startPendingCountPolling() {
+    // Poll every 30 seconds to keep Pending count up-to-date
+    if (pendingCountPollingInterval) {
+        clearInterval(pendingCountPollingInterval);
+    }
+    pendingCountPollingInterval = setInterval(refreshPendingCount, 30000);
+    console.log('Pending count polling started (every 30 seconds)');
+}
+
+// Stop periodic polling (useful if needed)
+function stopPendingCountPolling() {
+    if (pendingCountPollingInterval) {
+        clearInterval(pendingCountPollingInterval);
+        pendingCountPollingInterval = null;
+        console.log('Pending count polling stopped');
+    }
+}
+
+async function refreshForAdditionalInputCount() {
+    try {
+        const response = await fetch('http://localhost:5000/api/for-additional-input-count');
+        const data = await response.json();
+        
+        if (data.success) {
+            backendForAdditionalInputCount = data.forAdditionalInputCount;
+            document.getElementById('forAdditionalInputCount').textContent = backendForAdditionalInputCount;
+            console.log(`For Additional Input count refreshed: ${backendForAdditionalInputCount}`);
+        } else {
+            console.warn('For Additional Input count API error:', data.error);
+        }
+    } catch (error) {
+        console.warn('For Additional Input count API not available:', error.message);
+    }
+}
+
+// Start periodic polling for For Additional Input count
+function startForAdditionalInputCountPolling() {
+    // Poll every 30 seconds to keep For Additional Input count up-to-date
+    if (forAdditionalInputCountPollingInterval) {
+        clearInterval(forAdditionalInputCountPollingInterval);
+    }
+    forAdditionalInputCountPollingInterval = setInterval(refreshForAdditionalInputCount, 30000);
+    console.log('For Additional Input count polling started (every 30 seconds)');
+}
+
+// Stop periodic polling (useful if needed)
+function stopForAdditionalInputCountPolling() {
+    if (forAdditionalInputCountPollingInterval) {
+        clearInterval(forAdditionalInputCountPollingInterval);
+        forAdditionalInputCountPollingInterval = null;
+        console.log('For Additional Input count polling stopped');
+    }
+}
+
+async function refreshCompletedTransactionCount() {
+    try {
+        const response = await fetch('http://localhost:5000/api/completed-transaction-count');
+        const data = await response.json();
+        
+        if (data.success) {
+            backendCompletedTransactionCount = data.completedTransactionCount;
+            document.getElementById('completedTransactionCount').textContent = backendCompletedTransactionCount;
+            console.log(`Completed Transaction count refreshed: ${backendCompletedTransactionCount}`);
+        } else {
+            console.warn('Completed Transaction count API error:', data.error);
+        }
+    } catch (error) {
+        console.warn('Completed Transaction count API not available:', error.message);
+    }
+}
+
+// Start periodic polling for Completed Transaction count
+function startCompletedTransactionCountPolling() {
+    // Poll every 30 seconds to keep Completed Transaction count up-to-date
+    if (completedTransactionCountPollingInterval) {
+        clearInterval(completedTransactionCountPollingInterval);
+    }
+    completedTransactionCountPollingInterval = setInterval(refreshCompletedTransactionCount, 30000);
+    console.log('Completed Transaction count polling started (every 30 seconds)');
+}
+
+// Stop periodic polling (useful if needed)
+function stopCompletedTransactionCountPolling() {
+    if (completedTransactionCountPollingInterval) {
+        clearInterval(completedTransactionCountPollingInterval);
+        completedTransactionCountPollingInterval = null;
+        console.log('Completed Transaction count polling stopped');
+    }
+}
 // Update your existing functions to use API data
 async function initializeDashboard() {
     console.log('Initializing dashboard...');
