@@ -141,6 +141,7 @@ function initializeApp() {
     startCriticalCountPolling();
     startWarningCountPolling();
     startNormalCountPolling();
+    
 }
 
 // Load transactions from API (Approach 1: REST API Endpoint)
