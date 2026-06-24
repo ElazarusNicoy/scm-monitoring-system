@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from db_connection import get_transactions, get_critical_transactions_count, get_warning_transactions_count, get_normal_transactions_count
+from db_connection import get_forApproval_transactions_count, get_pending_transactions_count, get_forAdditionalInput_transactions_count, get_transactionComplete_transactions_count
 import os
 
 app = Flask(__name__)
