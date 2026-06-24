@@ -151,7 +151,7 @@ async function loadTransactionsFromAPI() {
         const data = await response.json();
 
         if (data.success) {
-            console.log(`✓ Loaded ${data.count} transactions from database`);
+            console.log(`Loaded ${data.count} transactions from database`);
             
             // The database view now provides simplified, ready-to-display data
             const apiTransactions = data.data.map(transaction => ({
@@ -182,7 +182,7 @@ async function loadTransactionsFromAPI() {
             throw new Error('API returned error');
         }
     } catch (error) {
-        console.warn('⚠️ API not available:', error.message);
+        console.warn('API not available:', error.message);
         currentTransactions = [];
         filteredTransactions = [];
         applyFilters();
@@ -201,12 +201,12 @@ async function refreshCriticalCount() {
         if (data.success) {
             backendCriticalCount = data.criticalCount;
             document.getElementById('criticalCount').textContent = backendCriticalCount;
-            console.log(`✓ Critical count refreshed: ${backendCriticalCount}`);
+            console.log(`Critical count refreshed: ${backendCriticalCount}`);
         } else {
-            console.warn('⚠️ Critical count API error:', data.error);
+            console.warn('Critical count API error:', data.error);
         }
     } catch (error) {
-        console.warn('⚠️ Critical count API not available:', error.message);
+        console.warn('Critical count API not available:', error.message);
     }
 }
 
@@ -217,7 +217,7 @@ function startCriticalCountPolling() {
         clearInterval(criticalCountPollingInterval);
     }
     criticalCountPollingInterval = setInterval(refreshCriticalCount, 30000);
-    console.log('✓ Critical count polling started (every 30 seconds)');
+    console.log('Critical count polling started (every 30 seconds)');
 }
 
 // Stop periodic polling (useful if needed)
@@ -225,7 +225,7 @@ function stopCriticalCountPolling() {
     if (criticalCountPollingInterval) {
         clearInterval(criticalCountPollingInterval);
         criticalCountPollingInterval = null;
-        console.log('✓ Critical count polling stopped');
+        console.log('Critical count polling stopped');
     }
 }
 
@@ -237,12 +237,12 @@ async function refreshWarningCount() {
         if (data.success) {
             backendWarningCount = data.warningCount;
             document.getElementById('warningCount').textContent = backendWarningCount;
-            console.log(`✓ Warning count refreshed: ${backendWarningCount}`);
+            console.log(`Warning count refreshed: ${backendWarningCount}`);
         } else {
-            console.warn('⚠️ Warning count API error:', data.error);
+            console.warn('Warning count API error:', data.error);
         }
     } catch (error) {
-        console.warn('⚠️ Warning count API not available:', error.message);
+        console.warn('Warning count API not available:', error.message);
     }
 }
 
@@ -253,7 +253,7 @@ function startWarningCountPolling() {
         clearInterval(warningCountPollingInterval);
     }
     warningCountPollingInterval = setInterval(refreshWarningCount, 30000);
-    console.log('✓ Warning count polling started (every 30 seconds)');
+    console.log('Warning count polling started (every 30 seconds)');
 }
 
 // Stop periodic polling (useful if needed)
@@ -261,7 +261,7 @@ function stopWarningCountPolling() {
     if (warningCountPollingInterval) {
         clearInterval(warningCountPollingInterval);
         warningCountPollingInterval = null;
-        console.log('✓ Warning count polling stopped');
+        console.log('Warning count polling stopped');
     }
 }
 
@@ -273,12 +273,12 @@ async function refreshNormalCount() {
         if (data.success) {
             backendNormalCount = data.normalCount;
             document.getElementById('normalCount').textContent = backendNormalCount;
-            console.log(`✓ Normal count refreshed: ${backendNormalCount}`);
+            console.log(`Normal count refreshed: ${backendNormalCount}`);
         } else {
-            console.warn('⚠️ Normal count API error:', data.error);
+            console.warn('Normal count API error:', data.error);
         }
     } catch (error) {
-        console.warn('⚠️ Normal count API not available:', error.message);
+        console.warn('Normal count API not available:', error.message);
     }
 }
 
@@ -289,7 +289,7 @@ function startNormalCountPolling() {
         clearInterval(normalCountPollingInterval);
     }
     normalCountPollingInterval = setInterval(refreshNormalCount, 30000);
-    console.log('✓ Normal count polling started (every 30 seconds)');
+    console.log('Normal count polling started (every 30 seconds)');
 }
 
 // Stop periodic polling (useful if needed)
@@ -297,7 +297,7 @@ function stopNormalCountPolling() {
     if (normalCountPollingInterval) {
         clearInterval(normalCountPollingInterval);
         normalCountPollingInterval = null;
-        console.log('✓ Normal count polling stopped');
+        console.log('Normal count polling stopped');
     }
 }
 
