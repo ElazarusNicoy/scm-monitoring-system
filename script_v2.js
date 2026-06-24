@@ -117,12 +117,20 @@ let filteredTransactions = [...sampleTransactions];
 let backendCriticalCount = 0;
 let backendWarningCount = 0;
 let backendNormalCount = 0;
+let backendForApprovalCount = 0;
+let backendPendingCount = 0;
+let backendForAdditionalInputCount = 0;
+let backendCompletedCount = 0;
 let currentPage = 1;
 const itemsPerPage = 10;
 let currentView = 'table';
 let criticalCountPollingInterval = null;
 let warningCountPollingInterval = null;
 let normalCountPollingInterval = null;
+let forApprovalCountPollingInterval = null;
+let pendingCountPollingInterval = null;
+let forAdditionalInputCountPollingInterval = null;
+let completedCountPollingInterval = null;
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -496,11 +504,6 @@ function showErrorMessage() {
 
 // Update dashboard summary cards
 function updateDashboardSummary() {
-    const forApprovalCount = currentTransactions.filter(t => t.status === 'for-approval').length;
-    const pendingCount = currentTransactions.filter(t => t.status === 'pending').length;
-    const additionalInputCount = currentTransactions.filter(t => t.status === 'for-additional-input').length;
-    const completedCount = currentTransactions.filter(t => t.status === 'completed').length;
-    
     const activeTransactions = currentTransactions.filter(t => t.status !== 'completed');
     const normalCount = activeTransactions.filter(t => t.agingLevel === 'normal').length;
     const warningCount = activeTransactions.filter(t => t.agingLevel === 'warning').length;
