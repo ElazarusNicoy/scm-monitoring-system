@@ -253,7 +253,7 @@ def get_Pending_transactions_count():
             cursor.execute(query)
 
             row = cursor.fetchone()
-            count = row.PendingCount if row else 0
+            count = row.PendingTransactionCount if row else 0
 
             cursor.close()
             return count
@@ -332,7 +332,7 @@ def get_Complete_transactions_count():
             cursor.execute(query)
 
             row = cursor.fetchone()
-            count = row.CompletedCount if row else 0
+            count = row.TransactionCompletedCount if row else 0 #row.column from database
 
             cursor.close()
             return count

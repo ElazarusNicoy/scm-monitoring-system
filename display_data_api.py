@@ -118,6 +118,7 @@ def get_forApproval_count():
         return jsonify({
             'success': True,
             'forApprovalCount': forApproval_count
+            
         })
     except Exception as e:
         return jsonify({
@@ -132,7 +133,7 @@ def get_pending_count():
     Returns only the pending count.
     """
     try:
-        pending_count = get_pending_transactions_count()
+        pending_count = get_Pending_transactions_count()
 
         return jsonify({
             'success': True,
