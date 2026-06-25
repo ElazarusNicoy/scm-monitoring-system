@@ -151,7 +151,7 @@ def get_forAdditionalInput_count():
     Returns only the for-additional-input count.
     """
     try:
-        forAdditionalInput_count = get_forAdditionalInput_transactions_count()
+        forAdditionalInput_count = get_ForAdditionalInput_transactions_count()
 
         return jsonify({
             'success': True,

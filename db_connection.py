@@ -207,10 +207,19 @@ def get_forApproval_transactions_count():
             cursor.execute(query)
 
             row = cursor.fetchone()
-            count = row.ForApprovalCount if row else 0
+            # ✅ Add these debug lines temporarily
+            print(f"Row returned: {row}")
+            print(f"Column names: {[col[0] for col in cursor.description]}")
+
+            count = row.ForApprovalTransactionCount if row else 0
+            print(f"ForApproval count: {count}")
 
             cursor.close()
             return count
+            # count = row.ForApprovalCount if row else 0
+
+            # cursor.close()
+            # return count
 
     except odbc.Error as e:
         print(f"Database query error in get_forApproval_transactions_count: {e}")
@@ -323,7 +332,7 @@ def get_Complete_transactions_count():
             cursor.execute(query)
 
             row = cursor.fetchone()
-            count = row.CompleteCount if row else 0
+            count = row.CompletedCount if row else 0
 
             cursor.close()
             return count

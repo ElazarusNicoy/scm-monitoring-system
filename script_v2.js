@@ -391,12 +391,12 @@ function stopPendingCountPolling() {
 
 async function refreshForAdditionalInputCount() {
     try {
-        const response = await fetch('http://localhost:5000/api/for-additional-input-count');
+        const response = await fetch('http://localhost:5000/api/forAdditionalInput-count');
         const data = await response.json();
         
         if (data.success) {
             backendForAdditionalInputCount = data.forAdditionalInputCount;
-            document.getElementById('forAdditionalInputCount').textContent = backendForAdditionalInputCount;
+            document.getElementById('additionalInputCount').textContent = backendForAdditionalInputCount;
             console.log(`For Additional Input count refreshed: ${backendForAdditionalInputCount}`);
         } else {
             console.warn('For Additional Input count API error:', data.error);
@@ -504,19 +504,13 @@ function showErrorMessage() {
 
 // Update dashboard summary cards
 function updateDashboardSummary() {
-    const activeTransactions = currentTransactions.filter(t => t.status !== 'completed');
-    const normalCount = activeTransactions.filter(t => t.agingLevel === 'normal').length;
-    const warningCount = activeTransactions.filter(t => t.agingLevel === 'warning').length;
-    // Use backend-provided critical count instead of frontend calculation
-    const criticalCount = backendCriticalCount;
-
-    document.getElementById('forApprovalCount').textContent = forApprovalCount;
-    document.getElementById('pendingCount').textContent = pendingCount;
-    document.getElementById('additionalInputCount').textContent = additionalInputCount;
-    document.getElementById('completedCount').textContent = completedCount;
-    document.getElementById('normalCount').textContent = normalCount;
-    document.getElementById('warningCount').textContent = warningCount;
-    document.getElementById('criticalCount').textContent = criticalCount;
+    document.getElementById('forApprovalCount').textContent = backendForApprovalCount;
+    document.getElementById('pendingCount').textContent = backendPendingCount;
+    document.getElementById('additionalInputCount').textContent = backendAdditionalInputCount;
+    document.getElementById('completedCount').textContent = backendCompletedCount;
+    document.getElementById('normalCount').textContent = backendNormalCount;
+    document.getElementById('warningCount').textContent = backendWarningCount;
+    document.getElementById('criticalCount').textContent = backendCriticalCount;
 }
 
 // Update current time
