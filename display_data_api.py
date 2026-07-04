@@ -2,6 +2,7 @@ from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from db_connection import get_transactions, get_critical_transactions_count, get_warning_transactions_count, get_normal_transactions_count
 from db_connection import get_forApproval_transactions_count, get_Pending_transactions_count, get_ForAdditionalInput_transactions_count, get_Complete_transactions_count
+from db_connection import get_all_transactions_list
 import os
 
 app = Flask(__name__)
@@ -182,6 +183,26 @@ def get_completed_count():
             'success': False,
             'error': str(e)
         }), 500
+    
+@app.route('/api/all_transactions_list')
+def get_all_transactions_list():
+    """Dedicated endpoint for all transactions list.
+
+    Returns the complete list of all transactions.
+    """
+    try:
+        all_transactions_list = get_all_transactions_list()
+
+        return jsonify({
+            'success': True,
+            'allTransactionList': all_transactions_list
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 if __name__ == '__main__':
     print("Starting API server...")
     print("Application will be available at http://localhost:5000")
@@ -194,4 +215,5 @@ if __name__ == '__main__':
     print("  - http://localhost:5000/api/pending-count (pending count only)")
     print("  - http://localhost:5000/api/forAdditionalInput-count (for-additional-input count only)")
     print("  - http://localhost:5000/api/completed-count (completed count only)")
+    print("  - http://localhost:5000/api/all_transactions_list (all transactions list)")
     app.run(debug=True, port=5000)

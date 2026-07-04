@@ -343,6 +343,37 @@ def get_Complete_transactions_count():
     except Exception as e:
         print(f"Unexpected error in get_Complete_transactions_count: {e}")
         return 0
+    
+def get_all_transactions_list():
+    """
+    Get a list of all transactions from the database.
+
+    Queries the All_transactions_list_view database view.
+
+    Returns:
+        list: List of all transactions, empty list on error.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            query = """
+                 SELECT [Transaction Name], [Current Stage], [Current PIC], [Status], [Aging (Days)] FROM all_transactions_list ORDER BY [Last Updated] DESC
+            """
+            cursor.execute(query)
+
+            rows = cursor.fetchall()
+            transactions = [dict(row) for row in rows] if rows else []
+
+            cursor.close()
+            return transactions
+
+    except odbc.Error as e:
+        print(f"Database query error in get_all_transactions_list: {e}")
+        return []
+    except Exception as e:
+        print(f"Unexpected error in get_all_transactions_list: {e}")
+        return []
 
 def test_connection():
     """
