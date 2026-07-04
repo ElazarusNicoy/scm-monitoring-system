@@ -362,11 +362,15 @@ def get_all_transactions_list():
             """
             cursor.execute(query)
 
+            # ✅ Get column names from cursor description
+            columns = [col[0] for col in cursor.description]
+
+            # ✅ Zip each row with column names to create proper dicts
             rows = cursor.fetchall()
-            transactions = [dict(row) for row in rows] if rows else []
+            result = [dict(zip(columns, row)) for row in rows]
 
             cursor.close()
-            return transactions
+            return result
 
     except odbc.Error as e:
         print(f"Database query error in get_all_transactions_list: {e}")
