@@ -226,7 +226,10 @@ async function loadAllTransactionsList() {
                 transactionName: t['Transaction Name'] || 'N/A',
                 currentStage: t['Current Stage'] || 'TBD',
                 currentPIC: t['Current PIC'] || 'Unassigned',
-                status: t['Status'] || 'pending',
+                status: t['Status'] || 'pending'
+                    .toLowerCase()
+                    .trim()
+                    .replace(/ /g, '-'),    
                 agingDays: t['Aging (Days)'] || 0,
             }));
 
@@ -682,10 +685,10 @@ function renderTransactions() {
 // Get status display name
 function getStatusDisplayName(status) {
     const statusNames = {
-        'for-approval': 'For Approval',
-        'pending': 'Pending',
-        'for-additional-input': 'For Additional Input',
-        'completed': 'Transaction Complete'
+        'For Approval': 'For Approval',
+        'Pending': 'Pending',
+        'For Additional Input': 'For Additional Input',
+        'Completed': 'Transaction Complete'
     };
     return statusNames[status] || status;
 }
@@ -693,6 +696,7 @@ function getStatusDisplayName(status) {
 // Render table view
 function renderTableView(transactions) {
     const tbody = document.getElementById('transactionsTableBody');
+     transactions.forEach(t => console.log('Status value:', t.status, '| Class applied:', `status-${t.status}`));
     
     if (transactions.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No transactions found</td></tr>';
