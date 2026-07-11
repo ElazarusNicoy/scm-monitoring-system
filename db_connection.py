@@ -67,7 +67,19 @@ def get_transactions():
             cursor = conn.cursor()
 
             # Select all columns from the view to ensure complete data
-            cursor.execute("SELECT * FROM [all_transactions]")
+            cursor.execute("SELECT " \
+            " [source] " \
+            " ,[transactionNumber] " \
+            " ,[requestor] " \
+            " ,[submittedDate] " \
+            " ,[currentApproverPIC] " \
+            " ,[currentFormStatus] " \
+            " ,[resubmittedDate] " \
+            " ,[completedDate] " \
+            " ,[lastModifiedBy] " \
+            " ,[lastModifiedDate] " \
+            " ,[dashboardStatus] " \
+            " FROM [all_transactions]")
 
             # Get column names from cursor description
             columns = [column[0] for column in cursor.description]
@@ -108,7 +120,9 @@ def get_critical_transactions_count():
             cursor = conn.cursor()
             
             query = """
-                 SELECT * FROM critical_transactions_count_view
+                 SELECT 
+                    CriticalCount 
+                FROM critical_transactions_count_view
             """
             cursor.execute(query)
             
@@ -138,7 +152,9 @@ def get_warning_transactions_count():
             cursor = conn.cursor()
             
             query = """
-                 SELECT * FROM warning_transactions_count_view
+                 SELECT 
+                    WarningCount 
+                FROM warning_transactions_count_view
             """
             cursor.execute(query)
             
@@ -168,7 +184,9 @@ def get_normal_transactions_count():
             cursor = conn.cursor()
 
             query = """
-                 SELECT * FROM normal_transactions_count_view
+                SELECT 
+                  NormalCount 
+                FROM normal_transactions_count_view
             """
             cursor.execute(query)
 
@@ -202,7 +220,9 @@ def get_forApproval_transactions_count():
             cursor = conn.cursor()
 
             query = """
-                 SELECT * FROM ForApproval_transactions_count_view
+                SELECT 
+                    ForApprovalTransactionCount 
+                FROM ForApproval_transactions_count_view
             """
             cursor.execute(query)
 
@@ -248,7 +268,9 @@ def get_Pending_transactions_count():
             cursor = conn.cursor()
 
             query = """
-                 SELECT * FROM Pending_transactions_count_view
+                SELECT 
+                    PendingTransactionCount  
+                FROM Pending_transactions_count_view
             """
             cursor.execute(query)
 
@@ -288,7 +310,9 @@ def get_ForAdditionalInput_transactions_count():
             cursor = conn.cursor()
 
             query = """
-                 SELECT * FROM ForAdditionalInput_transactions_count_view
+                SELECT
+                    ForAdditionalInputCount
+                FROM ForAdditionalInput_transactions_count_view
             """
             cursor.execute(query)
 
@@ -327,7 +351,9 @@ def get_Complete_transactions_count():
             cursor = conn.cursor()
 
             query = """
-                 SELECT * FROM Completed_transactions_count_view
+                SELECT 
+                    TransactionCompletedCount 
+                FROM Completed_transactions_count_view
             """
             cursor.execute(query)
 
@@ -358,7 +384,14 @@ def get_all_transactions_list():
             cursor = conn.cursor()
 
             query = """
-                 SELECT [Transaction Name], [Current Stage], [Current PIC], [Status], [Aging (Days)] FROM all_transactions_list ORDER BY [Last Updated] DESC
+                 SELECT 
+                    [Transaction Name], 
+                    [Current Stage], 
+                    [Current PIC], 
+                    [Status], 
+                    [Aging (Days)] 
+                FROM all_transactions_list 
+                ORDER BY [Last Updated] DESC
             """
             cursor.execute(query)
 
