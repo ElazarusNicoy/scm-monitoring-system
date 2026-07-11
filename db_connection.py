@@ -385,6 +385,7 @@ def get_all_transactions_list():
 
             query = """
                  SELECT 
+                    [Transaction Type],
                     [Transaction Name], 
                     [Current Stage], 
                     [Current PIC], 
