@@ -217,20 +217,16 @@ async function loadAllTransactionsList() {
 
         if (data.success) {
             console.log(`Loaded ${data.allTransactionList.length} transactions from all_transactions_list`);
+            console.log('Sample row:', data.allTransactionList[0]); //debug: see actual keys
 
-            // Map API columns to the structure renderTableView() expects
+            // Column names match exactly what the SQL SELECT returns
             const mappedTransactions = data.allTransactionList.map(t => ({
-                id: t.transactionNumber || t.TransactionNumber || 'N/A',
-                transactionName: t.transactionNumber || t.TransactionNumber || 'N/A',
-                transactionType: t.transactionType || t.TransactionType || 'N/A',
-                currentStage: t.currentStage || t.CurrentStage || 'Pending',
-                currentPIC: t.currentPIC || t.CurrentPIC || 'Unassigned',
-                status: t.status || t.Status || 'pending',
-                agingLevel: t.agingLevel || t.AgingLevel || 'normal',
-                agingDays: t.agingDays || t.AgingDays || 0,
-                submittedDate: t.submittedDate || t.SubmittedDate || '',
-                lastUpdated: t.lastUpdated || t.LastUpdated || '',
-                requestor: t.requestor || t.Requestor || 'Unknown'
+                id: t['Transaction Name'] || 'N/A',
+                transactionName: t['Transaction Name'] || 'N/A',
+                currentStage: t['Current Stage'] || 'TBD',
+                currentPIC: t['Current PIC'] || 'Unassigned',
+                status: t['Status'] || 'pending',
+                agingDays: t['Aging Days'] || 0,
             }));
 
             // Update global state
