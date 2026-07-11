@@ -139,7 +139,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // page load
 function initializeApp() {
-    loadTransactionsFromAPI(); // Load from database first
+    loadAllTransactionsList(); // Load all transactions list from API
+    // loadTransactionsFromAPI(); // Load from database first
     refreshCriticalCount(); // Load critical count from backend
     refreshWarningCount(); // Load warning count from backend
     refreshNormalCount(); // Load normal count from backend
@@ -159,51 +160,95 @@ function initializeApp() {
     startCompletedCountPolling();
 }
 
-// Load transactions from API (Approach 1: REST API Endpoint)
-async function loadTransactionsFromAPI() {
+// // Load transactions from API (Approach 1: REST API Endpoint)
+// async function loadTransactionsFromAPI() {
+//     try {
+//         console.log('Attempting to load data from API...');
+//         const response = await fetch('http://localhost:5000/api/transactions');
+//         const data = await response.json();
+
+//         if (data.success) {
+//             console.log(`Loaded ${data.count} transactions from database`);
+            
+//             // The database view now provides simplified, ready-to-display data
+//             const apiTransactions = data.data.map(transaction => ({
+//                 id: transaction.transactionNumber || transaction.id || 'N/A',
+//                 transactionName: transaction.transactionNumber || transaction.id || 'N/A',
+//                 transactionType: transaction.transactionType || 'N/A',
+//                 currentStage: transaction.currentStage || 'Pending',
+//                 currentPIC: transaction.currentPIC || 'Unassigned',
+//                 status: transaction.status || 'pending',
+//                 agingLevel: transaction.agingLevel || 'normal',
+//                 agingDays: transaction.agingDays || 0,
+//                 submittedDate: transaction.submittedDate || '',
+//                 lastUpdated: transaction.lastUpdated || '',
+//                 requestor: transaction.requestor || 'Unknown'
+//             }));
+            
+//             // Update global state with API data
+//             currentTransactions = apiTransactions;
+//             filteredTransactions = apiTransactions;
+            
+//             // Re-render the dashboard
+//             applyFilters();
+//             updateDashboardSummary();
+            
+//             return apiTransactions;
+//         } else {
+//             console.error('API Error:', data.error);
+//             throw new Error('API returned error');
+//         }
+//     } catch (error) {
+//         console.warn('API not available:', error.message);
+//         currentTransactions = [];
+//         filteredTransactions = [];
+//         applyFilters();
+//         updateDashboardSummary();
+//         return [];
+//     }
+// }
+
+// Load all transactions from /api/all_transactions_list
+async function loadAllTransactionsList() {
     try {
-        console.log('Attempting to load data from API...');
-        const response = await fetch('http://localhost:5000/api/transactions');
+        console.log('Loading all transactions list from API...');
+        const response = await fetch('http://localhost:5000/api/all_transactions_list');
         const data = await response.json();
 
         if (data.success) {
-            console.log(`Loaded ${data.count} transactions from database`);
-            
-            // The database view now provides simplified, ready-to-display data
-            const apiTransactions = data.data.map(transaction => ({
-                id: transaction.transactionNumber || transaction.id || 'N/A',
-                transactionName: transaction.transactionNumber || transaction.id || 'N/A',
-                transactionType: transaction.transactionType || 'N/A',
-                currentStage: transaction.currentStage || 'Pending',
-                currentPIC: transaction.currentPIC || 'Unassigned',
-                status: transaction.status || 'pending',
-                agingLevel: transaction.agingLevel || 'normal',
-                agingDays: transaction.agingDays || 0,
-                submittedDate: transaction.submittedDate || '',
-                lastUpdated: transaction.lastUpdated || '',
-                requestor: transaction.requestor || 'Unknown'
+            console.log(`Loaded ${data.allTransactionList.length} transactions from all_transactions_list`);
+
+            // Map API columns to the structure renderTableView() expects
+            const mappedTransactions = data.allTransactionList.map(t => ({
+                id: t.transactionNumber || t.TransactionNumber || 'N/A',
+                transactionName: t.transactionNumber || t.TransactionNumber || 'N/A',
+                transactionType: t.transactionType || t.TransactionType || 'N/A',
+                currentStage: t.currentStage || t.CurrentStage || 'Pending',
+                currentPIC: t.currentPIC || t.CurrentPIC || 'Unassigned',
+                status: t.status || t.Status || 'pending',
+                agingLevel: t.agingLevel || t.AgingLevel || 'normal',
+                agingDays: t.agingDays || t.AgingDays || 0,
+                submittedDate: t.submittedDate || t.SubmittedDate || '',
+                lastUpdated: t.lastUpdated || t.LastUpdated || '',
+                requestor: t.requestor || t.Requestor || 'Unknown'
             }));
-            
-            // Update global state with API data
-            currentTransactions = apiTransactions;
-            filteredTransactions = apiTransactions;
-            
-            // Re-render the dashboard
+
+            // Update global state
+            currentTransactions = mappedTransactions;
+            filteredTransactions = mappedTransactions;
+
+            // Re-render the table
             applyFilters();
             updateDashboardSummary();
-            
-            return apiTransactions;
+
         } else {
-            console.error('API Error:', data.error);
-            throw new Error('API returned error');
+            console.error('all_transactions_list API error:', data.error);
         }
     } catch (error) {
-        console.warn('API not available:', error.message);
+        console.warn('all_transactions_list API not available:', error.message);
         currentTransactions = [];
         filteredTransactions = [];
         applyFilters();
-        updateDashboardSummary();
-        return [];
     }
 }
 
@@ -588,8 +633,15 @@ function refreshData() {
 
     //Explicit call on refresh
     Promise.all([
-        loadTransactionsFromAPI(), 
-        refreshCriticalCount()
+        loadAllTransactionsList(),
+        // loadTransactionsFromAPI(), 
+        refreshCriticalCount(),
+        refreshWarningCount(),
+        refreshNormalCount(),
+        refreshForApprovalCount(),
+        refreshPendingCount(),
+        refreshForAdditionalInputCount(),
+        refreshCompletedCount()
     ]).then(() => {
         applyFilters();
         icon.style.animation = '';
