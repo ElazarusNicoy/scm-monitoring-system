@@ -226,10 +226,10 @@ async function loadAllTransactionsList() {
                 transactionName: t['Transaction Name'] || 'N/A',
                 currentStage: t['Current Stage'] || 'TBD',
                 currentPIC: t['Current PIC'] || 'Unassigned',
-                status: t['Status'] || 'pending'
+                status: (t['Status'] || 'pending')
                     .toLowerCase()
                     .trim()
-                    .replace(/ /g, '-'),    
+                    .replace(/\s+/g, '-'),
                 agingDays: t['Aging (Days)'] || 0,
             }));
 
@@ -685,10 +685,10 @@ function renderTransactions() {
 // Get status display name
 function getStatusDisplayName(status) {
     const statusNames = {
-        'For Approval': 'For Approval',
-        'Pending': 'Pending',
-        'For Additional Input': 'For Additional Input',
-        'Completed': 'Transaction Complete'
+        'for-approval': 'For Approval',
+        'pending': 'Pending',
+        'for-additional-input': 'For Additional Input',
+        'transaction-complete': 'Transaction Complete'
     };
     return statusNames[status] || status;
 }

@@ -185,7 +185,7 @@ def get_completed_count():
         }), 500
     
 @app.route('/api/all_transactions_list')
-def get_all_transactions_list():
+def get_all_transactions_list_endpoint():
     """Dedicated endpoint for all transactions list.
 
     Returns the complete list of all transactions.
