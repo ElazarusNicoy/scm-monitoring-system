@@ -222,11 +222,12 @@ async function loadAllTransactionsList() {
             // Column names match exactly what the SQL SELECT returns
             const mappedTransactions = data.allTransactionList.map(t => ({
                 id: t['Transaction Name'] || 'N/A',
+                transactionType: t['Transaction Type'] || 'N/A',
                 transactionName: t['Transaction Name'] || 'N/A',
                 currentStage: t['Current Stage'] || 'TBD',
                 currentPIC: t['Current PIC'] || 'Unassigned',
                 status: t['Status'] || 'pending',
-                agingDays: t['Aging Days'] || 0,
+                agingDays: t['Aging (Days)'] || 0,
             }));
 
             // Update global state
