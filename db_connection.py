@@ -387,13 +387,20 @@ def get_all_transactions_list():
                  SELECT 
                     [Transaction Type],
                     [Transaction Name], 
+                    [Requestor],
+                    [Submitted Date],
+                    [Last Updated],
                     [Current Stage], 
                     [Current PIC], 
                     [Status], 
                     [Aging (Days)] 
                 FROM all_transactions_list 
                 ORDER BY [Last Updated] DESC
+                
+                
             """
+            # ORDER BY [Last Updated] DESC
+            # ORDER BY [Status] DESC
             cursor.execute(query)
 
             # ✅ Get column names from cursor description
