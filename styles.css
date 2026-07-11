@@ -481,15 +481,15 @@ body {
 }
 
 /* Status Badges */
-.status-badge {
+/* .status-badge {
     display: inline-block;
     padding: 0.35rem 0.75rem;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 600;
-}
+} */
 
-.status-for-approval {
+/* .status-for-approval {
     background-color: rgba(59, 130, 246, 0.1);
     color: var(--info-color);
 }
@@ -507,6 +507,37 @@ body {
 .status-completed {
     background-color: rgba(16, 185, 129, 0.1);
     color: var(--success-color);
+} */
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+
+.status-for-approval {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+}
+
+.status-pending {
+    background-color: #fef9c3;
+    color: #a16207;
+}
+
+.status-for-additional-input {
+    background-color: #ede9fe;
+    color: #6d28d9;
+}
+
+.status-completed,
+.status-transaction-complete {
+    background-color: #dcfce7;
+    color: #15803d;
 }
 
 /* Priority Badges */
@@ -536,7 +567,7 @@ body {
 }
 
 /* Aging Indicator */
-.aging-indicator {
+/* .aging-indicator {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -559,6 +590,30 @@ body {
     background-color: rgba(239, 68, 68, 0.1);
     color: var(--danger-color);
     animation: pulse 2s infinite;
+} */
+
+.aging-indicator {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.aging-normal {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.aging-warning {
+    background-color: #fef9c3;
+    color: #a16207;
+}
+
+.aging-critical {
+    background-color: #fee2e2;
+    color: #b91c1c;
 }
 
 @keyframes pulse {
