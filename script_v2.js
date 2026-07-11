@@ -547,7 +547,7 @@ function showErrorMessage() {
 function updateDashboardSummary() {
     document.getElementById('forApprovalCount').textContent = backendForApprovalCount;
     document.getElementById('pendingCount').textContent = backendPendingCount;
-    document.getElementById('additionalInputCount').textContent = backendAdditionalInputCount;
+    document.getElementById('additionalInputCount').textContent = backendForAdditionalInputCount;
     document.getElementById('completedCount').textContent = backendCompletedCount;
     document.getElementById('normalCount').textContent = backendNormalCount;
     document.getElementById('warningCount').textContent = backendWarningCount;
