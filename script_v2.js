@@ -131,6 +131,7 @@ let forApprovalCountPollingInterval = null;
 let pendingCountPollingInterval = null;
 let forAdditionalInputCountPollingInterval = null;
 let completedCountPollingInterval = null;
+let slaInformationDetails = [];
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -140,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // page load
 function initializeApp() {
     loadAllTransactionsList(); // Load all transactions list from API
-    // loadTransactionsFromAPI(); // Load from database first
+    loadSLAInformationDetails(); // Load SLA information details from API
     refreshCriticalCount(); // Load critical count from backend
     refreshWarningCount(); // Load warning count from backend
     refreshNormalCount(); // Load normal count from backend
@@ -160,53 +161,21 @@ function initializeApp() {
     startCompletedCountPolling();
 }
 
-// // Load transactions from API (Approach 1: REST API Endpoint)
-// async function loadTransactionsFromAPI() {
-//     try {
-//         console.log('Attempting to load data from API...');
-//         const response = await fetch('http://localhost:5000/api/transactions');
-//         const data = await response.json();
+async function loadSLAInformationDetails() {
+    try {
+        const response = await fetch('http://localhost:5000/api/sla_information_details');
+        const data = await response.json();
 
-//         if (data.success) {
-//             console.log(`Loaded ${data.count} transactions from database`);
-            
-//             // The database view now provides simplified, ready-to-display data
-//             const apiTransactions = data.data.map(transaction => ({
-//                 id: transaction.transactionNumber || transaction.id || 'N/A',
-//                 transactionName: transaction.transactionNumber || transaction.id || 'N/A',
-//                 transactionType: transaction.transactionType || 'N/A',
-//                 currentStage: transaction.currentStage || 'Pending',
-//                 currentPIC: transaction.currentPIC || 'Unassigned',
-//                 status: transaction.status || 'pending',
-//                 agingLevel: transaction.agingLevel || 'normal',
-//                 agingDays: transaction.agingDays || 0,
-//                 submittedDate: transaction.submittedDate || '',
-//                 lastUpdated: transaction.lastUpdated || '',
-//                 requestor: transaction.requestor || 'Unknown'
-//             }));
-            
-//             // Update global state with API data
-//             currentTransactions = apiTransactions;
-//             filteredTransactions = apiTransactions;
-            
-//             // Re-render the dashboard
-//             applyFilters();
-//             updateDashboardSummary();
-            
-//             return apiTransactions;
-//         } else {
-//             console.error('API Error:', data.error);
-//             throw new Error('API returned error');
-//         }
-//     } catch (error) {
-//         console.warn('API not available:', error.message);
-//         currentTransactions = [];
-//         filteredTransactions = [];
-//         applyFilters();
-//         updateDashboardSummary();
-//         return [];
-//     }
-// }
+        if (data.success) {
+            slaInformationDetails = data.slaInformationDetails;
+            console.log('SLA Information Details loaded:', slaInformationDetails);
+        } else {
+            console.warn('SLA Information Details API error:', data.error);
+        }
+    } catch (error) {
+        console.warn('SLA Information Details API not available:', error.message);
+    }
+}
 
 // Load all transactions from /api/all_transactions_list
 async function loadAllTransactionsList() {
@@ -511,6 +480,7 @@ function stopCompletedCountPolling() {
         console.log('Completed Transaction count polling stopped');
     }
 }
+
 // Update your existing functions to use API data
 async function initializeDashboard() {
     console.log('Initializing dashboard...');
@@ -808,7 +778,9 @@ function viewTransactionDetails(transactionId) {
 
     const slaLevel = transaction.agingLevel || 'normal';
     const sharePointURL = getSharePointURL(transaction.transactionType, transaction.transactionName);
-    
+    const slaInfo = slaInformationDetails.find(
+        s => s.transactionType === transaction.transactionType
+    );
     const modalBody = document.getElementById('modalBody');
     
     modalBody.innerHTML = `
@@ -846,6 +818,36 @@ function viewTransactionDetails(transactionId) {
             </div>
         </div>
 
+         <div class="detail-section">
+            <h3><i class="fas fa-solid fa-clock"></i> SLA Information</h3>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Normal SLA</span>
+                    <span class="detail-value">
+                        <span class="aging-indicator aging-normal">
+                            ${slaInfo ? slaInfo['Normal SLA'] : 'N/A'}
+                        </span>
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Warning SLA</span>
+                    <span class="detail-value">
+                        <span class="aging-indicator aging-warning">
+                            ${slaInfo ? slaInfo['Warning SLA'] : 'N/A'}
+                        </span>
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Critical SLA</span>
+                    <span class="detail-value">
+                        <span class="aging-indicator aging-critical">
+                            ${slaInfo ? slaInfo['Critical SLA'] : 'N/A'}
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
         <div class="detail-section">
             <h3><i class="fas fa-calendar-alt"></i> Timeline</h3>
             <div class="detail-grid">
@@ -859,6 +861,8 @@ function viewTransactionDetails(transactionId) {
                 </div>
             </div>
         </div>
+
+       
     `;
 
     document.getElementById('transactionModal').classList.add('active');
