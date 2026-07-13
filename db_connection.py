@@ -404,12 +404,22 @@ def get_all_transactions_list():
             # ORDER BY [Status] DESC
             cursor.execute(query)
 
-            # ✅ Get column names from cursor description
+            # Get column names from cursor description
             columns = [col[0] for col in cursor.description]
 
-            # ✅ Zip each row with column names to create proper dicts
+            # Zip each row with column names to create proper dicts
             rows = cursor.fetchall()
-            result = [dict(zip(columns, row)) for row in rows]
+            # result = [dict(zip(columns, row)) for row in rows] # commented 7/13
+            result = []
+            for row in rows:
+                row_dict = dict(zip(columns, row))
+
+                # Format date columns to YYYY-MM-DD string
+                for date_col in ['Submitted Date', 'Last Updated']:
+                    if date_col in row_dict and row_dict[date_col] is not None:
+                        row_dict[date_col] = row_dict[date_col].strftime('%Y-%m-%d')
+
+                result.append(row_dict)
 
             cursor.close()
             return result
