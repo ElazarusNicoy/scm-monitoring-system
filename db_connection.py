@@ -393,7 +393,8 @@ def get_all_transactions_list():
                     [Current Stage], 
                     [Current PIC], 
                     [Status], 
-                    [Aging (Days)] 
+                    [Aging (Days)],
+                    [SLA Status]
                 FROM all_transactions_list 
                 ORDER BY [Last Updated] DESC
                 
