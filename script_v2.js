@@ -231,7 +231,7 @@ async function loadAllTransactionsList() {
                     .trim()
                     .replace(/\s+/g, '-'),
                 agingDays: t['Aging (Days)'] || 0,
-                agingLevel: (t['Aging Level'] || 'normal')
+                agingLevel: (t['SLA Status'] || 'normal')
                     .toLowerCase()
                     .trim(),
                 submittedDate: t['Submitted Date'] || 'N/A',  
