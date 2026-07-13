@@ -431,6 +431,43 @@ def get_all_transactions_list():
         print(f"Unexpected error in get_all_transactions_list: {e}")
         return []
 
+def get_SLA_InformationDetails():
+    """
+    Get Normal, Warning, and Critical SLA Information
+    details of each transaction type from the database.
+
+    Queries the SLA_InformationDetails
+
+    Returns:
+        string: SLA Information details.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            query = """
+                SELECT 
+                    [transactionType]
+                    ,[Normal SLA]
+                    ,[Warning SLA]
+                    ,[Critical SLA]
+                FROM [SLA_InformationDetails]
+            """
+            cursor.execute(query)
+
+            row = cursor.fetchone()
+            count = row.SLA_InformationDetails if row else 0 #row.column from database
+
+            cursor.close()
+            return count
+
+    except odbc.Error as e:
+        print(f"Database query error in get_SLA_InformationDetails: {e}")
+        return 0
+    except Exception as e:
+        print(f"Unexpected error in get_SLA_InformationDetails: {e}")
+        return 0
+
 def test_connection():
     """
     Test the database connection and return status info.
