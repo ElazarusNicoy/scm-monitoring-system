@@ -455,11 +455,13 @@ def get_SLA_InformationDetails():
             """
             cursor.execute(query)
 
-            row = cursor.fetchone()
-            count = row.SLA_InformationDetails if row else 0 #row.column from database
+            columns = [col[0] for col in cursor.description]
+
+            rows = cursor.fetchall()
+            result = [dict(zip(columns, row)) for row in rows]
 
             cursor.close()
-            return count
+            return result
 
     except odbc.Error as e:
         print(f"Database query error in get_SLA_InformationDetails: {e}")

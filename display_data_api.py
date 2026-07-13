@@ -2,7 +2,7 @@ from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from db_connection import get_transactions, get_critical_transactions_count, get_warning_transactions_count, get_normal_transactions_count
 from db_connection import get_forApproval_transactions_count, get_Pending_transactions_count, get_ForAdditionalInput_transactions_count, get_Complete_transactions_count
-from db_connection import get_all_transactions_list
+from db_connection import get_all_transactions_list, get_SLA_InformationDetails
 import os
 
 app = Flask(__name__)
@@ -202,6 +202,25 @@ def get_all_transactions_list_endpoint():
             'success': False,
             'error': str(e)
         }), 500
+    
+@app.route('/api/sla_information_details')
+def get_sla_information_details_endpoint():
+    """Dedicated endpoint for SLA information details.
+
+    Returns the SLA information details.
+    """
+    try:
+        sla_information_details = get_SLA_InformationDetails()
+
+        return jsonify({
+            'success': True,
+            'slaInformationDetails': sla_information_details
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 if __name__ == '__main__':
     print("Starting API server...")
@@ -216,4 +235,5 @@ if __name__ == '__main__':
     print("  - http://localhost:5000/api/forAdditionalInput-count (for-additional-input count only)")
     print("  - http://localhost:5000/api/completed-count (completed count only)")
     print("  - http://localhost:5000/api/all_transactions_list (all transactions list)")
+    print("  - http://localhost:5000/api/sla_information_details (SLA information details)")
     app.run(debug=True, port=5000)
