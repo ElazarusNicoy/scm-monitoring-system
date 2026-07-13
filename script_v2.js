@@ -231,6 +231,12 @@ async function loadAllTransactionsList() {
                     .trim()
                     .replace(/\s+/g, '-'),
                 agingDays: t['Aging (Days)'] || 0,
+                agingLevel: (t['Aging Level'] || 'normal')
+                    .toLowerCase()
+                    .trim(),
+                submittedDate: t['Submitted Date'] || 'N/A',  
+                lastUpdated: t['Last Updated'] || 'N/A',      
+                requestor: t['Requestor'] || 'N/A'            
             }));
 
             // Update global state
