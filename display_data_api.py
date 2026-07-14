@@ -229,11 +229,11 @@ def get_all_transactions_workflow_progress_endpoint():
     Returns the all transactions workflow progress.
     """
     try:
-        all_transactions_workflow_progress = get_SLA_InformationDetails()
+        all_transactions_workflow_progress = get_all_transactions_workflow_progress()
 
         return jsonify({
             'success': True,
-            'slaInformationDetails': all_transactions_workflow_progress
+            'allTransactionWorkflowProgress': all_transactions_workflow_progress
         })
     except Exception as e:
         return jsonify({
