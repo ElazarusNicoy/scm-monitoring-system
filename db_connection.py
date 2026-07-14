@@ -502,7 +502,16 @@ def get_all_transactions_workflow_progress():
             columns = [col[0] for col in cursor.description]
 
             rows = cursor.fetchall()
-            result = [dict(zip(columns, row)) for row in rows]
+            result = []
+            for row in rows:
+                row_dict = dict(zip(columns, row))
+
+                # ✅ Format all date columns to YYYY-MM-DD
+                for date_col in ['Submitted Date', 'Last Modified Date', 'Resubmitted Date', 'Completed Date']:
+                    if date_col in row_dict and row_dict[date_col] is not None:
+                        row_dict[date_col] = row_dict[date_col].strftime('%Y-%m-%d')
+
+                result.append(row_dict)
 
             cursor.close()
             return result
