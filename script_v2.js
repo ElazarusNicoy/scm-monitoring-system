@@ -132,6 +132,7 @@ let pendingCountPollingInterval = null;
 let forAdditionalInputCountPollingInterval = null;
 let completedCountPollingInterval = null;
 let slaInformationDetails = [];
+let allTransactionsWorkflowProgress = [];
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -142,6 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeApp() {
     loadAllTransactionsList(); // Load all transactions list from API
     loadSLAInformationDetails(); // Load SLA information details from API
+    loadWorkflowProgress(); // Load workflow progress from API
     refreshCriticalCount(); // Load critical count from backend
     refreshWarningCount(); // Load warning count from backend
     refreshNormalCount(); // Load normal count from backend
@@ -159,6 +161,31 @@ function initializeApp() {
     startPendingCountPolling();
     startForAdditionalInputCountPolling();
     startCompletedCountPolling();
+}
+
+async function loadWorkflowProgress() {
+    try {
+        const response = await fetch('http://localhost:5000/api/all_transactions_workflow_progress');
+        const data = await response.json();
+
+        console.log('Raw workflow API response:', data);         // ✅ see full response
+        console.log('Response keys:', Object.keys(data)); 
+
+        if (data.success) {
+            // ✅ Check which key actually exists
+            const workflowKey = data.allTransactionWorkflowProgress 
+                             || data.allTransactionsWorkflowProgress
+                             || data.workflowProgress
+                             || data.data
+                             || [];
+
+            allTransactionsWorkflowProgress = data.allTransactionsWorkflowProgress || [];
+            console.log('Workflow rows loaded:', allTransactionsWorkflowProgress.length);
+            console.log('Workflow sample row:', allTransactionsWorkflowProgress[0]);
+        }
+    } catch (error) {
+        console.warn('Workflow progress API not available:', error.message);
+    }
 }
 
 async function loadSLAInformationDetails() {
@@ -771,16 +798,101 @@ function changePage(direction) {
     }
 }
 
+function getTimelineIcon(workflowProgress) {
+    if (!workflowProgress) 
+        return '<i class="fas fa-circle" style="color: var(--border-color)"></i>';
+
+    const progress = workflowProgress.toLowerCase();
+
+    // ✅ Keyword-based matching — works for any transaction type
+    if (progress.includes('disapproved') || progress.includes('rejected'))
+        return '<i class="fas fa-times-circle" style="color: #ef4444"></i>';         // 🔴 Red
+
+    if (progress.includes('resubmitted'))
+        return '<i class="fas fa-redo-alt" style="color: #fbbf24"></i>';             // 🟡 Yellow
+
+    if (progress.includes('completed'))
+        return '<i class="fas fa-check-circle" style="color: var(--success-color)"></i>'; // 🟢 Green
+
+    if (progress.includes('pending') || progress.includes('for '))
+        return '<i class="fas fa-hourglass-half" style="color: #fbbf24"></i>';       // 🟡 Yellow
+
+    // ✅ Fallback for anything unrecognized
+    return '<i class="fas fa-circle-dot" style="color: var(--border-color)"></i>';   // ⚪ Grey
+}
+
+function getTimelineStatusClass(workflowProgress) {
+    if (!workflowProgress) return 'not-started';
+
+    const progress = workflowProgress.toLowerCase();
+
+    // ✅ Keyword-based — handles any progress name
+    if (progress.includes('disapproved') || progress.includes('rejected')) return 'disapproved';
+    if (progress.includes('resubmitted'))  return 'resubmitted';
+    if (progress.includes('completed'))    return 'completed';
+    if (progress.includes('pending') || progress.includes('for ')) return 'in-progress';
+
+    return 'not-started';
+}
+
+function renderWorkflowTimeline(workflowSteps) {
+    if (!workflowSteps || workflowSteps.length === 0) {
+        return '<p style="color: var(--text-secondary); font-size: 0.85rem;">No workflow data available.</p>';
+    }
+
+    return `
+        <div class="workflow-timeline">
+            ${workflowSteps.map(step => {
+                // ✅ Use 'Workflow Progress' as the displayed stage name
+                const workflowProgress = step['Workflow Progress'] || '';
+                const statusClass     = getTimelineStatusClass(workflowProgress);
+                const modifiedDate    = step['Last Modified Date'] || null;
+                const modifiedBy      = step['Last Modified By'] || 'Unassigned';
+
+                return `
+                <div class="timeline-item ${statusClass}">
+                    <div class="timeline-item-header">
+                        ${getTimelineIcon(workflowProgress)}
+                        <strong>${workflowProgress}</strong>
+                    </div>
+                    <div class="timeline-item-sub">
+                        <i class="fas fa-user" style="font-size:0.75rem"></i> ${modifiedBy}
+                        ${modifiedDate
+                            ? `&bull; <i class="fas fa-calendar" style="font-size:0.75rem"></i> ${modifiedDate}`
+                            : ''}
+                    </div>
+                </div>`;
+            }).join('')}
+        </div>
+    `;
+}
+
 // View transaction details
 function viewTransactionDetails(transactionId) {
     const transaction = currentTransactions.find(t => t.id === transactionId);
     if (!transaction) return;
 
+    // ✅ Step 1 — check what transaction was clicked
+    console.log('Transaction clicked:', transaction);
+    console.log('Transaction Name:', transaction.transactionName);
+
+    // ✅ Step 2 — check total workflow data loaded
+    console.log('Total workflow rows loaded:', allTransactionsWorkflowProgress.length);
+
+    // ✅ Step 3 — check sample row keys
+    console.log('Workflow sample row:', allTransactionsWorkflowProgress[0]);
+
+
     const slaLevel = transaction.agingLevel || 'normal';
     const sharePointURL = getSharePointURL(transaction.transactionType, transaction.transactionName);
-    const slaInfo = slaInformationDetails.find(
-        s => s.transactionType === transaction.transactionType
+    const slaInfo = slaInformationDetails.find(s => s.transactionType === transaction.transactionType);
+    const workflowSteps = allTransactionsWorkflowProgress.filter(
+        w => w['Transaction Name'] === transaction.transactionName
     );
+
+    console.log('Filtered workflow steps:', workflowSteps);
+
+
     const modalBody = document.getElementById('modalBody');
     
     modalBody.innerHTML = `
@@ -860,6 +972,11 @@ function viewTransactionDetails(transactionId) {
                     <span class="detail-value">${transaction.lastUpdated}</span>
                 </div>
             </div>
+        </div>
+
+        <div class="detail-section">
+            <h3><i class="fas fa-share-nodes"></i> Workflow Progress</h3>
+            ${renderWorkflowTimeline(workflowSteps)}
         </div>
 
        
