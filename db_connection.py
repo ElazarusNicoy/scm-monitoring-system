@@ -409,7 +409,6 @@ def get_all_transactions_list():
 
             # Zip each row with column names to create proper dicts
             rows = cursor.fetchall()
-            # result = [dict(zip(columns, row)) for row in rows] # commented 7/13
             result = []
             for row in rows:
                 row_dict = dict(zip(columns, row))
@@ -469,6 +468,51 @@ def get_SLA_InformationDetails():
     except Exception as e:
         print(f"Unexpected error in get_SLA_InformationDetails: {e}")
         return 0
+    
+def get_all_transactions_workflow_progress():
+    """
+    Get a list of all transactions's workflow progress from the database.
+
+    Queries the all_transactions_workflow_progress database view.
+
+    Returns:
+        list: List of all transaction's workflow progress, empty list on error.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            query = """
+                 SELECT 
+                    [transactionNumber]
+                    ,[requestor]
+                    ,[submittedDate]
+                    ,[currentApproverPIC]
+                    ,[currentFormStatus]
+                    ,[resubmittedDate]
+                    ,[completedDate]
+                    ,[lastModifiedBy]
+                    ,[lastModifiedDate]
+                    ,[Workflow Progress]
+                FROM all_transactions_workflow_progress
+                ORDER BY [lastModifiedDate] DESC
+            """
+            cursor.execute(query)
+
+            columns = [col[0] for col in cursor.description]
+
+            rows = cursor.fetchall()
+            result = [dict(zip(columns, row)) for row in rows]
+
+            cursor.close()
+            return result
+        
+    except odbc.Error as e:
+        print(f"Database query error in all_transactions_workflow_progress: {e}")
+        return []
+    except Exception as e:
+        print(f"Unexpected error in all_transactions_workflow_progress: {e}")
+        return []
 
 def test_connection():
     """
