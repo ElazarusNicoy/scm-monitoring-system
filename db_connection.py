@@ -484,15 +484,15 @@ def get_all_transactions_workflow_progress():
 
             query = """
                  SELECT 
-                    [transactionNumber]
-                    ,[requestor]
-                    ,[submittedDate]
-                    ,[currentApproverPIC]
-                    ,[currentFormStatus]
-                    ,[resubmittedDate]
-                    ,[completedDate]
-                    ,[lastModifiedBy]
-                    ,[lastModifiedDate]
+                    [Transaction Name]
+                    ,[Requestor]
+                    ,[Submitted Date]
+                    ,[Current PIC]
+                    ,[Current Stage]
+                    ,[Resubmitted Date]
+                    ,[Completed Date]
+                    ,[Last Modified By]
+                    ,[Last Modified Date]
                     ,[Workflow Progress]
                 FROM all_transactions_workflow_progress
                 ORDER BY [lastModifiedDate] DESC
