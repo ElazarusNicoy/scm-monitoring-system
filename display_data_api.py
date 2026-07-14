@@ -2,7 +2,7 @@ from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from db_connection import get_transactions, get_critical_transactions_count, get_warning_transactions_count, get_normal_transactions_count
 from db_connection import get_forApproval_transactions_count, get_Pending_transactions_count, get_ForAdditionalInput_transactions_count, get_Complete_transactions_count
-from db_connection import get_all_transactions_list, get_SLA_InformationDetails
+from db_connection import get_all_transactions_list, get_SLA_InformationDetails, get_all_transactions_workflow_progress
 import os
 
 app = Flask(__name__)
@@ -222,6 +222,25 @@ def get_sla_information_details_endpoint():
             'error': str(e)
         }), 500
 
+@app.route('/api/all_transactions_workflow_progress')
+def get_all_transactions_workflow_progress_endpoint():
+    """Dedicated endpoint for all transactions workflow progress.
+
+    Returns the all transactions workflow progress.
+    """
+    try:
+        all_transactions_workflow_progress = get_SLA_InformationDetails()
+
+        return jsonify({
+            'success': True,
+            'slaInformationDetails': all_transactions_workflow_progress
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 if __name__ == '__main__':
     print("Starting API server...")
     print("Application will be available at http://localhost:5000")
@@ -236,4 +255,6 @@ if __name__ == '__main__':
     print("  - http://localhost:5000/api/completed-count (completed count only)")
     print("  - http://localhost:5000/api/all_transactions_list (all transactions list)")
     print("  - http://localhost:5000/api/sla_information_details (SLA information details)")
+    print("  - http://localhost:5000/api/all_transactions_workflow_progress (all transactions workflow progress)")
+
     app.run(debug=True, port=5000)
