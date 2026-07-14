@@ -224,16 +224,15 @@ def get_sla_information_details_endpoint():
 
 @app.route('/api/all_transactions_workflow_progress')
 def get_all_transactions_workflow_progress_endpoint():
-    """Dedicated endpoint for all transactions workflow progress.
-
-    Returns the all transactions workflow progress.
-    """
     try:
-        all_transactions_workflow_progress = get_all_transactions_workflow_progress()
+        workflow_progress = get_all_transactions_workflow_progress()
+
+        print(f"Workflow rows returned: {len(workflow_progress)}")  # ✅ debug
+        print(f"Sample row: {workflow_progress[0] if workflow_progress else 'empty'}")  # ✅ debug
 
         return jsonify({
             'success': True,
-            'allTransactionWorkflowProgress': all_transactions_workflow_progress
+            'allTransactionsWorkflowProgress': workflow_progress  # ✅ note exact key name
         })
     except Exception as e:
         return jsonify({
