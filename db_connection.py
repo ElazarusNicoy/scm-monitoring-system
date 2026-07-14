@@ -495,32 +495,34 @@ def get_all_transactions_workflow_progress():
                     ,[Last Modified Date]
                     ,[Workflow Progress]
                 FROM all_transactions_workflow_progress
-                ORDER BY [lastModifiedDate] DESC
+                ORDER BY [Last Modified Date] DESC
             """
             cursor.execute(query)
 
+            # ✅ Add these debug prints
             columns = [col[0] for col in cursor.description]
+            print(f"Columns returned: {columns}")
 
             rows = cursor.fetchall()
+            print(f"Total rows fetched: {len(rows)}")          # ← check this
+            print(f"Sample row: {rows[0] if rows else 'empty'}")  # ← check this
+
             result = []
             for row in rows:
                 row_dict = dict(zip(columns, row))
-
-                # ✅ Format all date columns to YYYY-MM-DD
                 for date_col in ['Submitted Date', 'Last Modified Date', 'Resubmitted Date', 'Completed Date']:
                     if date_col in row_dict and row_dict[date_col] is not None:
                         row_dict[date_col] = row_dict[date_col].strftime('%Y-%m-%d')
-
                 result.append(row_dict)
 
             cursor.close()
             return result
-        
+
     except odbc.Error as e:
-        print(f"Database query error in all_transactions_workflow_progress: {e}")
+        print(f"Database query error in get_all_transactions_workflow_progress: {e}")
         return []
     except Exception as e:
-        print(f"Unexpected error in all_transactions_workflow_progress: {e}")
+        print(f"Unexpected error in get_all_transactions_workflow_progress: {e}")
         return []
 
 def test_connection():
