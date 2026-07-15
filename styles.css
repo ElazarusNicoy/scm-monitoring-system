@@ -610,9 +610,21 @@ body {
     color: #a16207;
 }
 
+/* Critical aging pill — pulsing glow */
 .aging-critical {
     background-color: #fee2e2;
     color: #b91c1c;
+    animation: pulse-critical 2s ease-in-out infinite;
+    font-weight: 600;
+}
+
+/* Critical row — subtle background pulse */
+tr.row-critical {
+    animation: pulse-row 2s ease-in-out infinite;
+}
+
+tr.row-critical td {
+    border-left: 3px solid #ef4444;
 }
 
 @keyframes pulse {
@@ -666,6 +678,13 @@ body {
 .transaction-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-lg);
+}
+
+/* Critical card — pulsing border glow */
+.transaction-card.card-critical-aging {
+    border-left-color: #ef4444;
+    animation: pulse-row 2s ease-in-out infinite;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
 }
 
 .card-header {
@@ -857,7 +876,7 @@ body {
     padding-bottom: 2rem;
 }
 
-.timeline-item::before {
+/* .timeline-item::before {
     content: '';
     position: absolute;
     left: -2rem;
@@ -865,6 +884,36 @@ body {
     width: 2px;
     height: 100%;
     background-color: var(--border-color);
+} */
+
+/* 🟢 completed — default */
+.timeline-item::before {
+    background-color: var(--success-color);
+    box-shadow: 0 0 0 2px var(--success-color);
+}
+
+/* 🔴 disapproved / rejected */
+.timeline-item.disapproved::before {
+    background-color: #ef4444;
+    box-shadow: 0 0 0 2px #ef4444;
+}
+
+/* 🟡 resubmitted */
+.timeline-item.resubmitted::before {
+    background-color: #fbbf24;
+    box-shadow: 0 0 0 2px #fbbf24;
+}
+
+/* 🟡 in-progress / pending */
+.timeline-item.in-progress::before {
+    background-color: #fbbf24;
+    box-shadow: 0 0 0 2px #fbbf24;
+}
+
+/* ⚪ not started */
+.timeline-item.not-started::before {
+    background-color: var(--border-color);
+    box-shadow: 0 0 0 2px var(--border-color);
 }
 
 .timeline-item:last-child::before {
@@ -962,4 +1011,23 @@ body {
     .modal-content {
         width: 95%;
     }
+}
+
+/*Pulsing animation for critical aging*/
+@keyframes pulse-critical {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(185, 28, 28, 0.4);
+    }
+    50% {
+        opacity: 0.85;
+        transform: scale(1.05);
+        box-shadow: 0 0 0 6px rgba(185, 28, 28, 0);
+    }
+}
+
+@keyframes pulse-row {
+    0%, 100% { background-color: transparent; }
+    50%       { background-color: rgba(239, 68, 68, 0.05); }
 }

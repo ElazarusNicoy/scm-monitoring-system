@@ -168,11 +168,11 @@ async function loadWorkflowProgress() {
         const response = await fetch('http://localhost:5000/api/all_transactions_workflow_progress');
         const data = await response.json();
 
-        console.log('Raw workflow API response:', data);         // ✅ see full response
+        console.log('Raw workflow API response:', data);         //see full response
         console.log('Response keys:', Object.keys(data)); 
 
         if (data.success) {
-            // ✅ Check which key actually exists
+            // Check which key actually exists
             const workflowKey = data.allTransactionWorkflowProgress 
                              || data.allTransactionsWorkflowProgress
                              || data.workflowProgress
@@ -709,13 +709,22 @@ function renderTableView(transactions) {
     tbody.innerHTML = transactions.map(transaction => {
         const slaLevel = transaction.agingLevel || 'normal';
         const sharePointURL = getSharePointURL(transaction.transactionType, transaction.transactionName);
+
+        // Add row-critical class if aging is critical
+        const rowClass = slaLevel === 'critical' ? 'row-critical' : '';
+
         return `
-        <tr>
+        <tr class="${rowClass}">
             <td><a href="${sharePointURL}" target="_blank" class="transaction-link" title="Open in SharePoint">${transaction.transactionName}</a></td>
             <td>${transaction.currentStage}</td>
             <td>${transaction.currentPIC}</td>
             <td><span class="status-badge status-${transaction.status}">${getStatusDisplayName(transaction.status)}</span></td>
-            <td><span class="aging-indicator aging-${slaLevel}">${transaction.agingDays} days (${transaction.transactionType})</span></td>
+            <td>
+                <span class="aging-indicator aging-${slaLevel}">
+                    ${slaLevel === 'critical' ? '<i class="fas fa-fire" style="margin-right:4px"></i>' : ''}
+                    ${transaction.agingDays} days
+                </span>
+            </td>
             <td>
                 <div class="action-buttons">
                     <button class="btn-action btn-view" onclick="viewTransactionDetails('${transaction.id}')">
@@ -724,7 +733,7 @@ function renderTableView(transactions) {
                 </div>
             </td>
         </tr>
-    `}).join('');
+        `}).join('');
 }
 
 // Render card view
@@ -739,10 +748,17 @@ function renderCardView(transactions) {
     container.innerHTML = transactions.map(transaction => {
         const slaLevel = transaction.agingLevel || 'normal';
         const sharePointURL = getSharePointURL(transaction.transactionType, transaction.transactionName);
+
+        // Add card-critical-aging class if aging is critical
+        const cardClass = slaLevel === 'critical' ? 'transaction-card card-critical-aging' : 'transaction-card';
+        
         return `
-        <div class="transaction-card">
+        <div class="${cardClass}">
             <div class="card-header">
-                <div class="card-id"><a href="${sharePointURL}" target="_blank" class="transaction-link">${transaction.transactionName}</a></div>
+                <div class="card-id">
+                    <a href="${sharePointURL}" target="_blank" class="transaction-link">${transaction.transactionName}</a>
+                    ${slaLevel === 'critical' ? '<i class="fas fa-fire" style="color:#ef4444; margin-left:6px" title="Critical SLA exceeded"></i>' : ''}
+                </div>
                 <span class="status-badge status-${transaction.status}">${getStatusDisplayName(transaction.status)}</span>
             </div>
             <div class="card-body">
@@ -772,7 +788,7 @@ function renderCardView(transactions) {
                 </button>
             </div>
         </div>
-    `}).join('');
+        `}).join('');
 }
 
 // Update pagination
@@ -804,7 +820,7 @@ function getTimelineIcon(workflowProgress) {
 
     const progress = workflowProgress.toLowerCase();
 
-    // ✅ Keyword-based matching — works for any transaction type
+    // Keyword-based matching — works for any transaction type
     if (progress.includes('disapproved') || progress.includes('rejected'))
         return '<i class="fas fa-times-circle" style="color: #ef4444"></i>';         // 🔴 Red
 
@@ -817,7 +833,7 @@ function getTimelineIcon(workflowProgress) {
     if (progress.includes('pending') || progress.includes('for '))
         return '<i class="fas fa-hourglass-half" style="color: #fbbf24"></i>';       // 🟡 Yellow
 
-    // ✅ Fallback for anything unrecognized
+    // Fallback for anything unrecognized
     return '<i class="fas fa-circle-dot" style="color: var(--border-color)"></i>';   // ⚪ Grey
 }
 
@@ -826,7 +842,7 @@ function getTimelineStatusClass(workflowProgress) {
 
     const progress = workflowProgress.toLowerCase();
 
-    // ✅ Keyword-based — handles any progress name
+    // Keyword-based — handles any progress name
     if (progress.includes('disapproved') || progress.includes('rejected')) return 'disapproved';
     if (progress.includes('resubmitted'))  return 'resubmitted';
     if (progress.includes('completed'))    return 'completed';
@@ -843,7 +859,7 @@ function renderWorkflowTimeline(workflowSteps) {
     return `
         <div class="workflow-timeline">
             ${workflowSteps.map(step => {
-                // ✅ Use 'Workflow Progress' as the displayed stage name
+                // Use 'Workflow Progress' as the displayed stage name
                 const workflowProgress = step['Workflow Progress'] || '';
                 const statusClass     = getTimelineStatusClass(workflowProgress);
                 const modifiedDate    = step['Last Modified Date'] || null;
@@ -872,14 +888,14 @@ function viewTransactionDetails(transactionId) {
     const transaction = currentTransactions.find(t => t.id === transactionId);
     if (!transaction) return;
 
-    // ✅ Step 1 — check what transaction was clicked
+    // Step 1 — check what transaction was clicked
     console.log('Transaction clicked:', transaction);
     console.log('Transaction Name:', transaction.transactionName);
 
-    // ✅ Step 2 — check total workflow data loaded
+    // Step 2 — check total workflow data loaded
     console.log('Total workflow rows loaded:', allTransactionsWorkflowProgress.length);
 
-    // ✅ Step 3 — check sample row keys
+    // Step 3 — check sample row keys
     console.log('Workflow sample row:', allTransactionsWorkflowProgress[0]);
 
 
