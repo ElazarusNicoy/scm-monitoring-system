@@ -6,6 +6,148 @@ A comprehensive web-based monitoring system for tracking supply chain management
 
 The Workflow Tracking Module is the first module of the SCM Monitoring System, designed to help organizations monitor transaction statuses, track approval stages, and identify aging transactions that require attention.
 
+### Process Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        USER (Browser)                           │
+│                  workflow-tracking.html                         │
+└─────────────────────┬───────────────────────────────────────────┘
+                      │  1. Opens the web page
+                      ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    FRONTEND (script_v2.js)                      │
+│                                                                 │
+│  initializeApp()                                                │
+│  ├── loadAllTransactionsList()     → fetches transaction list   │
+│  ├── loadSLAInformationDetails()   → fetches SLA thresholds     │
+│  ├── loadWorkflowProgress()        → fetches workflow history   │
+│  ├── refreshCriticalCount()        → fetches critical count     │
+│  ├── refreshWarningCount()         → fetches warning count      │
+│  ├── refreshNormalCount()          → fetches normal count       │
+│  ├── refreshForApprovalCount()     → fetches for approval count │
+│  ├── refreshPendingCount()         → fetches pending count      │
+│  ├── refreshForAdditionalInputCount() → fetches input count     │
+│  └── refreshCompletedCount()       → fetches completed count    │
+└─────────────────────┬───────────────────────────────────────────┘
+                      │  2. Sends HTTP GET requests to API
+                      ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  REST API (display_data_api.py)                 │
+│                     Flask — port 5000                           │
+│                                                                 │
+│  Endpoints:                                                     │
+│  ├── GET /api/all_transactions_list                             │
+│  ├── GET /api/sla_information_details                           │
+│  ├── GET /api/all_transactions_workflow_progress                │
+│  ├── GET /api/critical-count                                    │
+│  ├── GET /api/warning-count                                     │
+│  ├── GET /api/normal-count                                      │
+│  ├── GET /api/forApproval-count                                 │
+│  ├── GET /api/pending-count                                     │
+│  ├── GET /api/forAdditionalInput-count                          │
+│  └── GET /api/completed-count                                   │
+└─────────────────────┬───────────────────────────────────────────┘
+                      │  3. Calls database query functions
+                      ▼
+┌─────────────────────────────────────────────────────────────────┐
+│               DATABASE LAYER (db_connection.py)                 │
+│                        pyodbc                                   │
+│                                                                 │
+│  Functions:                                                     │
+│  ├── get_all_transactions_list()                                │
+│  ├── get_SLA_InformationDetails()                               │
+│  ├── get_all_transactions_workflow_progress()                   │
+│  ├── get_critical_transactions_count()                          │
+│  ├── get_warning_transactions_count()                           │
+│  ├── get_normal_transactions_count()                            │
+│  ├── get_forApproval_transactions_count()                       │
+│  ├── get_Pending_transactions_count()                           │
+│  ├── get_ForAdditionalInput_transactions_count()                │
+│  └── get_Complete_transactions_count()                          │
+└─────────────────────┬───────────────────────────────────────────┘
+                      │  4. Executes SQL queries via ODBC
+                      ▼
+┌─────────────────────────────────────────────────────────────────┐
+│           Microsoft SQL Server (SP_TRANSACTIONS)                │
+│                                                                 │
+│  Tables / Views:                                                │
+│  ├── all_transactions_list              → transaction list      │
+│  ├── all_transactions_workflow_progress → workflow history      │
+│  ├── SLA_InformationDetails             → SLA thresholds        │
+│  ├── critical_transactions_count_view   → critical count        │
+│  ├── warning_transactions_count_view    → warning count         │
+│  ├── normal_transactions_count_view     → normal count          │
+│  ├── ForApproval_transactions_count_view                        │
+│  ├── Pending_transactions_count_view                            │
+│  ├── ForAdditionalInput_transactions_count_view                 │
+│  └── Completed_transactions_count_view                          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Data Flow — Transaction List Display
+
+```
+SQL Server → db_connection.py → display_data_api.py → script_v2.js → HTML Table
+    │               │                   │                   │
+    │  Raw rows      │  list of dicts    │  JSON response    │  Mapped objects
+    │  (pyodbc)      │  (formatted       │  { success,       │  rendered into
+    │               │   dates)          │  allTransaction   │  <tr> rows
+    │               │                   │  List: [...] }    │  or cards
+```
+
+---
+
+### Polling — Auto Refresh (every 30 seconds)
+
+```
+setInterval() ──► refreshCriticalCount()        ──► /api/critical-count
+             ──► refreshWarningCount()          ──► /api/warning-count
+             ──► refreshNormalCount()           ──► /api/normal-count
+             ──► refreshForApprovalCount()      ──► /api/forApproval-count
+             ──► refreshPendingCount()          ──► /api/pending-count
+             ──► refreshForAdditionalInputCount() ──► /api/forAdditionalInput-count
+             ──► refreshCompletedCount()        ──► /api/completed-count
+```
+
+---
+
+### User Interaction Flow
+
+```
+User clicks "View" button
+        │
+        ▼
+viewTransactionDetails(transactionId)
+        │
+        ├── Find transaction in currentTransactions[]
+        ├── Find SLA info in slaInformationDetails[]
+        ├── Filter workflow steps in allTransactionsWorkflowProgress[]
+        │
+        ▼
+Render Modal with 4 sections:
+        ├── 📋 Transaction Information  (name, type, stage, PIC, status)
+        ├── 🕐 SLA Information          (normal / warning / critical thresholds)
+        ├── 📅 Timeline                 (submitted date, last updated)
+        └── 🔀 Workflow Progress        (step-by-step history with icons)
+```
+
+---
+
+### SLA Aging Classification
+
+```
+agingDays from SQL
+        │
+        ▼
+SLA Status (Aging Level)
+        ├── 🟢 Normal   → within normal SLA days     → aging-normal  (green pill)
+        ├── 🟡 Warning  → approaching SLA deadline    → aging-warning (yellow pill + pulse)
+        └── 🔴 Critical → exceeded SLA deadline       → aging-critical (red pill + pulse animation)
+```
+
 ## Features
 
 ### 📊 Dashboard Summary
