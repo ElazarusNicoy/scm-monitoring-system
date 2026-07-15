@@ -9,7 +9,7 @@ The Workflow Tracking Module is the first module of the SCM Monitoring System, d
 ## Features
 
 ### 📊 Dashboard Summary
-- **Active Transactions**: Real-time count of ongoing transactions
+- **Active Transactions**: Real-time count of ongoing transactions --30 seconds refresh
 - **Completed Transactions**: Total completed transactions
 - **Aging Transactions**: Transactions requiring attention 
 - **Critical Alerts**: High-priority aging transactions 
@@ -38,7 +38,7 @@ The Workflow Tracking Module is the first module of the SCM Monitoring System, d
 ### ⚠️ Aging Monitoring
 - **Normal**: Green indicator
 - **Warning**: Orange indicator
-- **Critical**: Red indicator with pulse animation
+- **Critical**: Red indicator
 
 ### 🎯 Priority Management
 - **Low Priority**: Green badge with down arrow
@@ -62,11 +62,21 @@ scm-monitoring-system/
 ```
 
 ## Technologies Used
-
+### Frontend
 - **HTML5**: Semantic markup and structure
-- **CSS3**: Modern styling with flexbox, grid, animations, and transitions
-- **JavaScript (ES6+)**: Dynamic functionality and data management
-- **Font Awesome 6.4.0**: Icon library (via CDN)
+- **CSS3**: Styling with flexbox, grid, CSS variables, animations, and transitions
+- **JavaScript (ES6+)**: Dynamic functionality, API fetching, DOM manipulation, and state management
+- **Font Awesome 6.4.0**:  Icon library via CDN for UI icons (status badges, buttons, timeline icons)
+
+### Backend
+- **Python 3**: Server-side logic and database querying
+- **Flask**: Lightweight web framework for REST API endpoints
+- **Flask-CORS**: Cross-Origin Resource Sharing support to allow HTML file to call the Flask API
+- **pyodbc**: Python library for connecting and querying the Microsoft SQL Server database
+
+### Database
+- **Microsoft SQL Server (MSSQL)**: Primary database storing all transaction data, views, and SLA information
+- **T-SQL**: SQL queries and views used to retrieve transactions, counts, workflow progress, and SLA details
 
 ## Getting Started
 
@@ -132,63 +142,26 @@ Ctrl + C
 ## Key Features Explained
 
 ### Transaction Status Badges
-- **ACTIVE**: Blue badge - Transaction is in progress
-- **COMPLETED**: Green badge - Transaction finished successfully
-- **PENDING**: Orange badge - Awaiting action
-- **REJECTED**: Red badge - Transaction was rejected
+- **For Approval**: Blue badge - The transaction has been updated within the last 24 hours and is currently awaiting approval.
+- **Transaction Complete**: Green badge - The transaction has been successfully approved and completed.
+- **Pending**: Orange badge - The transaction is still awaiting approval, but the last update was made more than 24 hours ago.
+- **For Additional Input**: Violet badge - The transaction requires the current approver to provide specific information before it can proceed to the next step in the workflow.
 
 ### Aging Indicators
 The system automatically calculates aging based on the submission date:
 - Transactions are color-coded based on how long they've been in the system
-- Critical aging transactions (8+ days) have a pulsing animation to draw attention
+- Critical aging transactions that have exceeded the aging threshold defined by their transaction type's SLA are displayed with a pulsing animation to attract attention.
 
 ### Workflow Timeline
 Each transaction has a detailed workflow timeline showing:
 - All stages of the approval process
 - Completion dates and responsible users
 - Current stage with visual indicator
-- Pending stages
 
 ### Pagination
 - Displays 10 transactions per page
 - Easy navigation with Previous/Next buttons
 - Current page indicator
-
-## Sample Data
-
-The system includes 8 sample transactions demonstrating various scenarios:
-- Different transaction amounts ($89,500 - $675,000)
-- Various workflow stages
-- Different aging periods (1-15 days)
-- Multiple status types
-- Different priority levels
-
-## Customization
-
-### Adding New Transactions
-Edit the `sampleTransactions` array in [`script.js`](script.js:3) to add or modify transactions.
-
-### Changing Colors
-Modify the CSS variables in [`styles.css`](styles.css:9) to customize the color scheme:
-```css
-:root {
-    --primary-color: #2563eb;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --danger-color: #ef4444;
-    /* ... more variables */
-}
-```
-
-### Adjusting Aging Thresholds
-Modify the aging logic in the `getAgingClass()` function in [`script.js`](script.js:445):
-```javascript
-function getAgingClass(days) {
-    if (days <= 3) return 'normal';
-    if (days <= 7) return 'warning';
-    return 'critical';
-}
-```
 
 ## Browser Compatibility
 
