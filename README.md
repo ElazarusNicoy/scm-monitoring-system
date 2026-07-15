@@ -170,25 +170,17 @@ SLA Status (Aging Level)
 ### 🔄 Workflow Tracking
 - Visual timeline showing transaction progress through stages:
   - Submission
-  - Review
   - Approval
-  - Processing
   - Completed
-- Color-coded status indicators (Green: Completed, Orange: Current, Blue: Pending)
-- User and timestamp tracking for each stage
+- User and timestamp tracking for each completed stage
 
 ### ⚠️ Aging Monitoring
 - **Normal**: Green indicator
 - **Warning**: Orange indicator
 - **Critical**: Red indicator
 
-### 🎯 Priority Management
-- **Low Priority**: Green badge with down arrow
-- **Medium Priority**: Orange badge with minus icon
-- **High Priority**: Red badge with up arrow
-
 ### 📱 Responsive Design
-- Fully responsive layout that works on desktop, tablet, and mobile devices
+- Fully responsive layout that works on desktop
 - Adaptive grid system for optimal viewing on any screen size
 
 ## File Structure
@@ -275,7 +267,7 @@ Ctrl + C
 2. **Search Transactions**: Use the search box to find specific transactions
 3. **Apply Filters**: Use dropdown filters to narrow down results
 4. **Switch Views**: Toggle between Table View and Card View
-5. **View Details**: Click "View" or "View Details" button to see complete transaction information
+5. **View Details**: Click "View" or "View Details" button to see transaction information
 6. **Monitor Workflow**: Check the workflow timeline in the detail modal to track progress
 7. **Refresh Data**: Click the Refresh button to update the display
 
@@ -303,13 +295,6 @@ Each transaction has a detailed workflow timeline showing:
 - Easy navigation with Previous/Next buttons
 - Current page indicator
 
-## Browser Compatibility
-
-- ✅ Chrome 90+
-- ✅ Firefox 88+
-- ✅ Safari 14+
-- ✅ Edge 90+
-
 ## Future Enhancements
 
 Planned features for future releases:
@@ -317,14 +302,12 @@ Planned features for future releases:
 - Export functionality (PDF, Excel)
 - Email notifications for aging transactions
 - Advanced analytics and reporting
-- User authentication and role-based access
 - Additional modules (Alerts, Reports, Analytics)
 - Mobile app version
 
 ## Performance
 
 - Lightweight and fast loading
-- Efficient DOM manipulation
 - Smooth animations and transitions
 - Optimized for large datasets with pagination
 
