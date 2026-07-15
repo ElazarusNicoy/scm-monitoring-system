@@ -16,7 +16,7 @@ The Workflow Tracking Module is the first module of the SCM Monitoring System, d
                       │  1. Opens the web page
                       ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    FRONTEND (script_v2.js)                      │
+│                    FRONTEND (script.js)                      │
 │                                                                 │
 │  initializeApp()                                                │
 │  ├── loadAllTransactionsList()     → fetches transaction list   │
@@ -90,7 +90,7 @@ The Workflow Tracking Module is the first module of the SCM Monitoring System, d
 ### Data Flow — Transaction List Display
 
 ```
-SQL Server → db_connection.py → display_data_api.py → script_v2.js → HTML Table
+SQL Server → db_connection.py → display_data_api.py → script.js → HTML Table
     │               │                   │                   │
     │  Raw rows      │  list of dicts    │  JSON response    │  Mapped objects
     │  (pyodbc)      │  (formatted       │  { success,       │  rendered into
@@ -198,8 +198,6 @@ scm-monitoring-system/
 ├── workflow-tracking.html    # Main HTML structure
 ├── styles.css                # Complete styling and animations
 ├── script.js                 # JavaScript functionality and data management
-├── analysis-planning.txt     # Project analysis and planning document
-├── designing.txt             # Design specifications
 └── README.md                 # This file
 ```
 
