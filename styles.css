@@ -608,6 +608,7 @@ body {
 .aging-warning {
     background-color: #fef9c3;
     color: #a16207;
+    animation: pulse-critical 2s ease-in-out infinite;
 }
 
 /* Critical aging pill — pulsing glow */
