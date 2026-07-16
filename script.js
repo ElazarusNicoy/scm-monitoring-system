@@ -609,16 +609,17 @@ function applyFilters() {
             transaction.transactionName.toLowerCase().includes(searchTerm) ||
             transaction.currentStage.toLowerCase().includes(searchTerm) ||
             transaction.status.toLowerCase().includes(searchTerm) ||
-            transaction.currentPIC.toLowerCase().includes(searchTerm);
+            transaction.currentPIC.toLowerCase().includes(searchTerm) ||
+            getStatusDisplayName(transaction.status).toLowerCase().includes(searchTerm) || // readable: "For Approval"
+            transaction.transactionType.toLowerCase().includes(searchTerm) ||   // Transaction Type
+            transaction.requestor.toLowerCase().includes(searchTerm);           // Requestor
 
         const matchesStatus = statusFilter === 'all' || transaction.status === statusFilter;
 
-        let matchesAging = true;
-        if (agingFilter !== 'all') {
-            matchesAging = transaction.agingLevel === agingFilter;
-        }
+        const matchesAging = agingFilter === 'all' || transaction.agingLevel === agingFilter;
 
-        const matchesStage = stageFilter === 'all' || transaction.currentStage.toLowerCase().includes(stageFilter.toLowerCase());
+        const matchesStage = stageFilter === 'all' ||
+            transaction.currentStage.toLowerCase().includes(stageFilter.toLowerCase());
 
         return matchesSearch && matchesStatus && matchesAging && matchesStage;
     });
