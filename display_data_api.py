@@ -4,6 +4,7 @@ from db_connection import get_transactions, get_critical_transactions_count, get
 from db_connection import get_forApproval_transactions_count, get_Pending_transactions_count, get_ForAdditionalInput_transactions_count, get_Complete_transactions_count
 from db_connection import get_all_transactions_list, get_SLA_InformationDetails, get_all_transactions_workflow_progress
 from db_connection import get_distinct_stages_from_all_transactions_list, get_distinct_transaction_types_from_all_transactions_list
+from db_connection import get_distinct_current_pic_from_all_transactions_list
 import os
 
 app = Flask(__name__)
@@ -15,11 +16,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 def serve_index():
     """Serve the main HTML page."""
     return send_from_directory(BASE_DIR, 'workflow-tracking.html')
-
-# @app.route('/script.js')
-# def serve_script():
-#     """Serve the JavaScript file."""
-#     return send_from_directory(BASE_DIR, 'script.js', mimetype='application/javascript')
 
 @app.route('/script.js')
 def serve_script():
@@ -35,7 +31,6 @@ def serve_styles():
 def get_all_transactions():
     try:
         transactions = get_transactions()
-        # critical_count = get_mas_critical_transactions_count()
         
         return jsonify({
             'success': True,
@@ -278,6 +273,25 @@ def get_distinct_transaction_types():
             'error': str(e)
         }), 500
 
+@app.route('/api/distinct-current-pics')
+def get_distinct_current_pics():
+    """Dedicated endpoint for distinct current PICs.
+
+    Returns a list of distinct current PICs from all transactions.
+    """
+    try:
+        distinct_current_pics = get_distinct_current_pic_from_all_transactions_list()
+
+        return jsonify({
+            'success': True,
+            'distinctCurrentPICs': distinct_current_pics
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    
 if __name__ == '__main__':
     print("Starting API server...")
     print("Application will be available at http://localhost:5000")
@@ -295,5 +309,6 @@ if __name__ == '__main__':
     print("  - http://localhost:5000/api/all_transactions_workflow_progress (all transactions workflow progress)")
     print("  - http://localhost:5000/api/distinct-stages (distinct stages)")
     print("  - http://localhost:5000/api/distinct-transaction-types (distinct transaction types)")
+    print("  - http://localhost:5000/api/distinct-current-pics (distinct current PICs)")
 
     app.run(debug=True, port=5000)

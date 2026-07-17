@@ -146,6 +146,7 @@ function initializeApp() {
     loadWorkflowProgress(); // Load workflow progress from API
     loadDistinctStages(); // Load distinct stages from API
     loadDistinctTransactionTypes(); // Load distinct transaction types from API
+    loadDistinctCurrentPICs(); // Load distinct current PICs from API
     refreshCriticalCount(); // Load critical count from backend
     refreshWarningCount(); // Load warning count from backend
     refreshNormalCount(); // Load normal count from backend
@@ -163,6 +164,32 @@ function initializeApp() {
     startPendingCountPolling();
     startForAdditionalInputCountPolling();
     startCompletedCountPolling();
+}
+
+async function loadDistinctCurrentPICs() {
+    try {
+        const response = await fetch('http://localhost:5000/api/distinct-current-pics');
+        const data = await response.json();
+
+        if (data.success) {
+            const currentPICFilter = document.getElementById('currentPICFilter');
+
+            // Keep "All PICs" as default first option
+            currentPICFilter.innerHTML = '<option value="all">All PICs</option>';
+
+            // Dynamically add each PIC from DB
+            data.distinctCurrentPICs.forEach(pic => {
+                const option = document.createElement('option');
+                option.value = pic.toLowerCase().replace(/\s+/g, '-');
+                option.textContent = pic;
+                currentPICFilter.appendChild(option);
+            });
+
+            console.log('Current PICs loaded:', data.distinctCurrentPICs);
+        }
+    } catch (error) {
+        console.warn('Distinct current PICs API not available:', error.message);
+    }
 }
 
 async function loadDistinctTransactionTypes() {
@@ -257,7 +284,6 @@ async function loadSLAInformationDetails() {
         console.warn('SLA Information Details API not available:', error.message);
     }
 }
-
 // Load all transactions from /api/all_transactions_list
 async function loadAllTransactionsList() {
     try {
@@ -308,7 +334,6 @@ async function loadAllTransactionsList() {
     }
 }
 
-// Approach 2: Dedicated endpoint for critical count only
 // Refreshes the critical count from the /api/critical-count endpoint
 async function refreshCriticalCount() {
     try {
@@ -636,6 +661,7 @@ function setupEventListeners() {
     document.getElementById('agingFilter').addEventListener('change', applyFilters);
     document.getElementById('stageFilter').addEventListener('change', applyFilters);
     document.getElementById('transactionTypeFilter').addEventListener('change', applyFilters);
+    document.getElementById('currentPICFilter').addEventListener('change', applyFilters);
     document.getElementById('refreshBtn').addEventListener('click', refreshData);
     
     document.querySelectorAll('.view-btn').forEach(btn => {
@@ -659,6 +685,7 @@ function applyFilters() {
     const agingFilter = document.getElementById('agingFilter').value;
     const stageFilter = document.getElementById('stageFilter').value;
     const typeFilter = document.getElementById('transactionTypeFilter').value;
+    const currentPICFilter = document.getElementById('currentPICFilter').value;
 
     filteredTransactions = currentTransactions.filter(transaction => {
         const matchesSearch = searchTerm === '' || 
@@ -679,7 +706,10 @@ function applyFilters() {
         const normalizedType = transaction.transactionType.toLowerCase().replace(/\s+/g, '-');
         const matchesType = typeFilter === 'all' || normalizedType === typeFilter;
 
-        return matchesSearch && matchesStatus && matchesAging && matchesStage && matchesType;
+        const normalizedPIC = transaction.currentPIC.toLowerCase().replace(/\s+/g, '-');
+        const matchesPIC = currentPICFilter === 'all' || normalizedPIC === currentPICFilter;
+
+        return matchesSearch && matchesStatus && matchesAging && matchesStage && matchesType && matchesPIC;
     });
 
     currentPage = 1;

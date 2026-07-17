@@ -130,6 +130,25 @@
                         <input type="text" id="searchInput" placeholder="Search by Transaction Name, Current Stage, Status, or Current PIC">
                     </div>
                     <div class="filter-group">
+                        <label for="transactionTypeFilter">Transaction Type:</label>
+                        <select id="transactionTypeFilter">
+                            <option value="all">All</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="stageFilter">Stage:</label>
+                        <select id="stageFilter">
+                            <option value="all">All Stages</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="currentPICFilter">Current PIC:</label>
+                        <select id="currentPICFilter">
+                            <option value="all">All PICs</option>
+                        </select>
+
+                    </div>
+                    <div class="filter-group">
                         <label for="statusFilter">Status:</label>
                         <select id="statusFilter">
                             <option value="all">All</option>
@@ -148,18 +167,8 @@
                             <option value="critical">Critical</option>
                         </select>
                     </div>
-                    <div class="filter-group">
-                        <label for="transactionTypeFilter">Transaction Type:</label>
-                        <select id="transactionTypeFilter">
-                            <option value="all">All</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="stageFilter">Stage:</label>
-                        <select id="stageFilter">
-                            <option value="all">All Stages</option>
-                        </select>
-                    </div>
+                    
+                    
                     <button class="btn-refresh" id="refreshBtn">
                         <i class="fas fa-sync-alt"></i> Refresh
                     </button>
