@@ -3,6 +3,7 @@ from flask_cors import CORS
 from db_connection import get_transactions, get_critical_transactions_count, get_warning_transactions_count, get_normal_transactions_count
 from db_connection import get_forApproval_transactions_count, get_Pending_transactions_count, get_ForAdditionalInput_transactions_count, get_Complete_transactions_count
 from db_connection import get_all_transactions_list, get_SLA_InformationDetails, get_all_transactions_workflow_progress
+from db_connection import get_distinct_stages_from_all_transactions_list
 import os
 
 app = Flask(__name__)
@@ -20,10 +21,10 @@ def serve_index():
 #     """Serve the JavaScript file."""
 #     return send_from_directory(BASE_DIR, 'script.js', mimetype='application/javascript')
 
-@app.route('/script_v2.js')
-def serve_script_v2():
+@app.route('/script.js')
+def serve_script():
     """Serve the v2 JavaScript file."""
-    return send_from_directory(BASE_DIR, 'script_v2.js', mimetype='application/javascript')
+    return send_from_directory(BASE_DIR, 'script.js', mimetype='application/javascript')
 
 @app.route('/styles.css')
 def serve_styles():
@@ -240,6 +241,25 @@ def get_all_transactions_workflow_progress_endpoint():
             'error': str(e)
         }), 500
 
+@app.route('/api/distinct-stages')
+def get_distinct_stages():
+    """Dedicated endpoint for distinct stages.
+
+    Returns a list of distinct stages from all transactions.
+    """
+    try:
+        distinct_stages = get_distinct_stages_from_all_transactions_list()
+
+        return jsonify({
+            'success': True,
+            'distinctStages': distinct_stages
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 if __name__ == '__main__':
     print("Starting API server...")
     print("Application will be available at http://localhost:5000")
@@ -255,5 +275,6 @@ if __name__ == '__main__':
     print("  - http://localhost:5000/api/all_transactions_list (all transactions list)")
     print("  - http://localhost:5000/api/sla_information_details (SLA information details)")
     print("  - http://localhost:5000/api/all_transactions_workflow_progress (all transactions workflow progress)")
+    print("  - http://localhost:5000/api/distinct-stages (distinct stages)")
 
     app.run(debug=True, port=5000)

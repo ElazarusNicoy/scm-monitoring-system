@@ -144,6 +144,7 @@ function initializeApp() {
     loadAllTransactionsList(); // Load all transactions list from API
     loadSLAInformationDetails(); // Load SLA information details from API
     loadWorkflowProgress(); // Load workflow progress from API
+    loadDistinctStages(); // Load distinct stages from API
     refreshCriticalCount(); // Load critical count from backend
     refreshWarningCount(); // Load warning count from backend
     refreshNormalCount(); // Load normal count from backend
@@ -161,6 +162,32 @@ function initializeApp() {
     startPendingCountPolling();
     startForAdditionalInputCountPolling();
     startCompletedCountPolling();
+}
+
+async function loadDistinctStages() {
+    try {
+        const response = await fetch('http://localhost:5000/api/distinct-stages');
+        const data = await response.json();
+
+        if (data.success) {
+            const stageFilter = document.getElementById('stageFilter');
+
+            // Keep "All Stages" as default first option
+            stageFilter.innerHTML = '<option value="all">All Stages</option>';
+
+            // Dynamically add each stage from DB
+            data.distinctStages.forEach(stage => {
+                const option = document.createElement('option');
+                option.value = stage.toLowerCase().replace(/\s+/g, '-');
+                option.textContent = stage;
+                stageFilter.appendChild(option);
+            });
+
+            console.log('Stages loaded:', data.stages);
+        }
+    } catch (error) {
+        console.warn('Distinct stages API not available:', error.message);
+    }
 }
 
 async function loadWorkflowProgress() {
@@ -615,11 +642,10 @@ function applyFilters() {
             transaction.requestor.toLowerCase().includes(searchTerm);           // Requestor
 
         const matchesStatus = statusFilter === 'all' || transaction.status === statusFilter;
-
         const matchesAging = agingFilter === 'all' || transaction.agingLevel === agingFilter;
 
-        const matchesStage = stageFilter === 'all' ||
-            transaction.currentStage.toLowerCase().includes(stageFilter.toLowerCase());
+        const normalizedStage = transaction.currentStage.toLowerCase().replace(/\s+/g, '-');
+        const matchesStage = stageFilter === 'all' || normalizedStage === stageFilter;
 
         return matchesSearch && matchesStatus && matchesAging && matchesStage;
     });
