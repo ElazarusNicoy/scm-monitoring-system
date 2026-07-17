@@ -127,7 +127,7 @@
                 <div class="filters-container">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="searchInput" placeholder="Search by Transaction Name, Current Stage, Status, or Current Approver...">
+                        <input type="text" id="searchInput" placeholder="Search by Transaction Name, Current Stage, Status, or Current PIC">
                     </div>
                     <div class="filter-group">
                         <label for="statusFilter">Status:</label>
@@ -149,18 +149,15 @@
                         </select>
                     </div>
                     <div class="filter-group">
+                        <label for="transactionTypeFilter">Transaction Type:</label>
+                        <select id="transactionTypeFilter">
+                            <option value="all">All</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
                         <label for="stageFilter">Stage:</label>
                         <select id="stageFilter">
                             <option value="all">All Stages</option>
-                            <!-- <option value="requestor">Requestor</option>
-                            <option value="check-by">Check By</option>
-                            <option value="confirm-by">Confirm By</option>
-                            <option value="note-by">Note By</option>
-                            <option value="approver">Approver</option>
-                            <option value="accounting">Accounting</option>
-                            <option value="finance">Finance</option>
-                            <option value="processing">Processing</option>
-                            <option value="completed">Completed</option> -->
                         </select>
                     </div>
                     <button class="btn-refresh" id="refreshBtn">

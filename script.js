@@ -145,6 +145,7 @@ function initializeApp() {
     loadSLAInformationDetails(); // Load SLA information details from API
     loadWorkflowProgress(); // Load workflow progress from API
     loadDistinctStages(); // Load distinct stages from API
+    loadDistinctTransactionTypes(); // Load distinct transaction types from API
     refreshCriticalCount(); // Load critical count from backend
     refreshWarningCount(); // Load warning count from backend
     refreshNormalCount(); // Load normal count from backend
@@ -162,6 +163,32 @@ function initializeApp() {
     startPendingCountPolling();
     startForAdditionalInputCountPolling();
     startCompletedCountPolling();
+}
+
+async function loadDistinctTransactionTypes() {
+    try {
+        const response = await fetch('http://localhost:5000/api/distinct-transaction-types');
+        const data = await response.json();
+
+        if (data.success) {
+            const typeFilter = document.getElementById('transactionTypeFilter');
+
+            // Keep "All Types" as default first option
+            typeFilter.innerHTML = '<option value="all">All Types</option>';
+
+            // Dynamically add each type from DB
+            data.distinctTransactionTypes.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type.toLowerCase().replace(/\s+/g, '-');
+                option.textContent = type;
+                typeFilter.appendChild(option);
+            });
+
+            console.log('Transaction types loaded:', data.distinctTransactionTypes);
+        }
+    } catch (error) {
+        console.warn('Distinct transaction types API not available:', error.message);
+    }
 }
 
 async function loadDistinctStages() {
@@ -608,6 +635,7 @@ function setupEventListeners() {
     document.getElementById('statusFilter').addEventListener('change', applyFilters);
     document.getElementById('agingFilter').addEventListener('change', applyFilters);
     document.getElementById('stageFilter').addEventListener('change', applyFilters);
+    document.getElementById('transactionTypeFilter').addEventListener('change', applyFilters);
     document.getElementById('refreshBtn').addEventListener('click', refreshData);
     
     document.querySelectorAll('.view-btn').forEach(btn => {
@@ -630,6 +658,7 @@ function applyFilters() {
     const statusFilter = document.getElementById('statusFilter').value;
     const agingFilter = document.getElementById('agingFilter').value;
     const stageFilter = document.getElementById('stageFilter').value;
+    const typeFilter = document.getElementById('transactionTypeFilter').value;
 
     filteredTransactions = currentTransactions.filter(transaction => {
         const matchesSearch = searchTerm === '' || 
@@ -647,7 +676,10 @@ function applyFilters() {
         const normalizedStage = transaction.currentStage.toLowerCase().replace(/\s+/g, '-');
         const matchesStage = stageFilter === 'all' || normalizedStage === stageFilter;
 
-        return matchesSearch && matchesStatus && matchesAging && matchesStage;
+        const normalizedType = transaction.transactionType.toLowerCase().replace(/\s+/g, '-');
+        const matchesType = typeFilter === 'all' || normalizedType === typeFilter;
+
+        return matchesSearch && matchesStatus && matchesAging && matchesStage && matchesType;
     });
 
     currentPage = 1;

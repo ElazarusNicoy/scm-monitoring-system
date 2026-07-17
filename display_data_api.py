@@ -3,7 +3,7 @@ from flask_cors import CORS
 from db_connection import get_transactions, get_critical_transactions_count, get_warning_transactions_count, get_normal_transactions_count
 from db_connection import get_forApproval_transactions_count, get_Pending_transactions_count, get_ForAdditionalInput_transactions_count, get_Complete_transactions_count
 from db_connection import get_all_transactions_list, get_SLA_InformationDetails, get_all_transactions_workflow_progress
-from db_connection import get_distinct_stages_from_all_transactions_list
+from db_connection import get_distinct_stages_from_all_transactions_list, get_distinct_transaction_types_from_all_transactions_list
 import os
 
 app = Flask(__name__)
@@ -228,12 +228,11 @@ def get_all_transactions_workflow_progress_endpoint():
     try:
         workflow_progress = get_all_transactions_workflow_progress()
 
-        print(f"Workflow rows returned: {len(workflow_progress)}")  # ✅ debug
-        print(f"Sample row: {workflow_progress[0] if workflow_progress else 'empty'}")  # ✅ debug
+        print(f"Workflow rows returned: {len(workflow_progress)}") 
 
         return jsonify({
             'success': True,
-            'allTransactionsWorkflowProgress': workflow_progress  # ✅ note exact key name
+            'allTransactionsWorkflowProgress': workflow_progress  
         })
     except Exception as e:
         return jsonify({
@@ -260,6 +259,25 @@ def get_distinct_stages():
             'error': str(e)
         }), 500
 
+@app.route('/api/distinct-transaction-types')
+def get_distinct_transaction_types():
+    """Dedicated endpoint for distinct transaction types.
+
+    Returns a list of distinct transaction types from all transactions.
+    """
+    try:
+        distinct_transaction_types = get_distinct_transaction_types_from_all_transactions_list()
+
+        return jsonify({
+            'success': True,
+            'distinctTransactionTypes': distinct_transaction_types
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 if __name__ == '__main__':
     print("Starting API server...")
     print("Application will be available at http://localhost:5000")
@@ -276,5 +294,6 @@ if __name__ == '__main__':
     print("  - http://localhost:5000/api/sla_information_details (SLA information details)")
     print("  - http://localhost:5000/api/all_transactions_workflow_progress (all transactions workflow progress)")
     print("  - http://localhost:5000/api/distinct-stages (distinct stages)")
+    print("  - http://localhost:5000/api/distinct-transaction-types (distinct transaction types)")
 
     app.run(debug=True, port=5000)

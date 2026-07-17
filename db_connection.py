@@ -559,6 +559,37 @@ def get_distinct_stages_from_all_transactions_list():
         print(f"Unexpected error in get_distinct_stages_from_all_transactions_list: {e}")
         return []
 
+def get_distinct_transaction_types_from_all_transactions_list():
+    """
+    Get distinct transaction types from all transactions in the database
+    Returns:
+        list: List of distinct transaction types from all transactions, empty list on error.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            query = """
+                SELECT 
+                DISTINCT [Transaction Type]
+                FROM [all_transactions_list] 
+                ORDER BY [Transaction Type]
+            """
+            cursor.execute(query)
+
+            rows = cursor.fetchall()
+            result = [row[0] for row in rows if row[0] is not None]
+
+            cursor.close()
+            return result
+
+    except odbc.Error as e:
+        print(f"Database query error in get_distinct_transaction_types_from_all_transactions_list: {e}")
+        return []
+    except Exception as e:
+        print(f"Unexpected error in get_distinct_transaction_types_from_all_transactions_list: {e}")
+        return []
+
 def test_connection():
     """
     Test the database connection and return status info.
