@@ -19,7 +19,7 @@ def serve_index():
 
 @app.route('/script.js')
 def serve_script():
-    """Serve the v2 JavaScript file."""
+    """Serve the JavaScript file."""
     return send_from_directory(BASE_DIR, 'script.js', mimetype='application/javascript')
 
 @app.route('/styles.css')
