@@ -141,6 +141,43 @@ body {
     box-shadow: var(--shadow);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border-left: 4px solid;
+    cursor: pointer;
+    user-select: none;
+}
+
+.summary-card.card-active {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.summary-card.card-active.card-critical {
+    outline-color: var(--danger-color);
+}
+
+.summary-card.card-active.card-warning {
+    outline-color: var(--warning-color);
+}
+
+.summary-card.card-active.card-normal {
+    outline-color: var(--success-color);
+}
+
+.summary-card.card-active.card-for-approval {
+    outline-color: var(--info-color);
+}
+
+.summary-card.card-active.card-pending {
+    outline-color: var(--warning-color);
+}
+
+.summary-card.card-active.card-additional-input {
+    outline-color: #8b5cf6;
+}
+
+.summary-card.card-active.card-completed {
+    outline-color: var(--success-color);
 }
 
 .summary-card:hover {

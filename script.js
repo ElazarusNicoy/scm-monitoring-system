@@ -676,8 +676,42 @@ function setupEventListeners() {
     document.getElementById('transactionModal').addEventListener('click', function(e) {
         if (e.target === this) closeModal();
     });
-}
+    // Dashboard summary card click filter
+        document.querySelectorAll('.summary-card[data-filter-type]').forEach(card => {
+            card.addEventListener('click', function() {
+                const filterType  = this.dataset.filterType;   // 'status' or 'aging'
+                const filterValue = this.dataset.filterValue;  // e.g. 'critical', 'pending'
 
+                const isAlreadyActive = this.classList.contains('card-active');
+
+                // Remove active state from all cards first
+                document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('card-active'));
+
+                if (isAlreadyActive) {
+                    // Clicking same card again → reset that filter back to 'all'
+                    if (filterType === 'status') document.getElementById('statusFilter').value = 'all';
+                    if (filterType === 'aging')  document.getElementById('agingFilter').value  = 'all';
+                } else {
+                    // Apply the filter and highlight the card
+                    this.classList.add('card-active');
+
+                    if (filterType === 'status') {
+                        document.getElementById('statusFilter').value = filterValue;
+                        document.getElementById('agingFilter').value  = 'all'; // reset other filter
+                    }
+                    if (filterType === 'aging') {
+                        document.getElementById('agingFilter').value  = filterValue;
+                        document.getElementById('statusFilter').value = 'all'; // reset other filter
+                    }
+                }
+
+                //Scroll down to transaction list smoothly
+                document.querySelector('.transactions-section').scrollIntoView({ behavior: 'smooth' });
+
+                applyFilters();
+            });
+        });
+    }
 // Apply filters
 function applyFilters() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -686,6 +720,16 @@ function applyFilters() {
     const stageFilter = document.getElementById('stageFilter').value;
     const typeFilter = document.getElementById('transactionTypeFilter').value;
     const currentPICFilter = document.getElementById('currentPICFilter').value;
+
+    // Sync card active state with dropdown values
+    document.querySelectorAll('.summary-card[data-filter-type]').forEach(card => {
+        const type  = card.dataset.filterType;
+        const value = card.dataset.filterValue;
+        const isActive =
+            (type === 'status' && statusFilter === value) ||
+            (type === 'aging'  && agingFilter  === value);
+        card.classList.toggle('card-active', isActive);
+    });
 
     filteredTransactions = currentTransactions.filter(transaction => {
         const matchesSearch = searchTerm === '' || 

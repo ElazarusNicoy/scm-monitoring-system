@@ -36,10 +36,9 @@
         <main class="main-content">
             <!-- Dashboard Summary Cards -->
             <section class="dashboard-summary">
-                <div class="summary-card card-for-approval">
-                    <div class="card-icon">
-                        <i class="fas fa-tasks"></i>
-                    </div>
+                <!--Status-based cards — filter by status -->
+                <div class="summary-card card-for-approval" data-filter-type="status" data-filter-value="for-approval" title="Click to filter For Approval transactions">
+                    <div class="card-icon"><i class="fas fa-tasks"></i></div>
                     <div class="card-content">
                         <div class="card-header-row">
                             <h3 id="forApprovalCount">0</h3>
@@ -48,10 +47,9 @@
                         <p>For Approval</p>
                     </div>
                 </div>
-                <div class="summary-card card-pending">
-                    <div class="card-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
+
+                <div class="summary-card card-pending" data-filter-type="status" data-filter-value="pending" title="Click to filter Pending transactions">
+                    <div class="card-icon"><i class="fas fa-clock"></i></div>
                     <div class="card-content">
                         <div class="card-header-row">
                             <h3 id="pendingCount">0</h3>
@@ -60,10 +58,9 @@
                         <p>Pending</p>
                     </div>
                 </div>
-                <div class="summary-card card-additional-input">
-                    <div class="card-icon">
-                        <i class="fas fa-edit"></i>
-                    </div>
+
+                <div class="summary-card card-additional-input" data-filter-type="status" data-filter-value="for-additional-input" title="Click to filter For Additional Input transactions">
+                    <div class="card-icon"><i class="fas fa-edit"></i></div>
                     <div class="card-content">
                         <div class="card-header-row">
                             <h3 id="additionalInputCount">0</h3>
@@ -72,10 +69,9 @@
                         <p>For Additional Input</p>
                     </div>
                 </div>
-                <div class="summary-card card-completed">
-                    <div class="card-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
+
+                <div class="summary-card card-completed" data-filter-type="status" data-filter-value="transaction-completed" title="Click to filter Completed transactions">
+                    <div class="card-icon"><i class="fas fa-check-circle"></i></div>
                     <div class="card-content">
                         <div class="card-header-row">
                             <h3 id="completedCount">0</h3>
@@ -84,10 +80,10 @@
                         <p>Transaction Completed</p>
                     </div>
                 </div>
-                <div class="summary-card card-normal">
-                    <div class="card-icon">
-                        <i class="fas fa-check"></i>
-                    </div>
+
+                <!--Aging-based cards — filter by aging level -->
+                <div class="summary-card card-normal" data-filter-type="aging" data-filter-value="normal" title="Click to filter Normal aging transactions">
+                    <div class="card-icon"><i class="fas fa-check"></i></div>
                     <div class="card-content">
                         <div class="card-header-row">
                             <h3 id="normalCount">0</h3>
@@ -96,10 +92,9 @@
                         <p>Normal</p>
                     </div>
                 </div>
-                <div class="summary-card card-warning">
-                    <div class="card-icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
+
+                <div class="summary-card card-warning" data-filter-type="aging" data-filter-value="warning" title="Click to filter Warning aging transactions">
+                    <div class="card-icon"><i class="fas fa-exclamation-triangle"></i></div>
                     <div class="card-content">
                         <div class="card-header-row">
                             <h3 id="warningCount">0</h3>
@@ -108,10 +103,9 @@
                         <p>Warning</p>
                     </div>
                 </div>
-                <div class="summary-card card-critical">
-                    <div class="card-icon">
-                        <i class="fas fa-fire"></i>
-                    </div>
+
+                <div class="summary-card card-critical" data-filter-type="aging" data-filter-value="critical" title="Click to filter Critical aging transactions">
+                    <div class="card-icon"><i class="fas fa-fire"></i></div>
                     <div class="card-content">
                         <div class="card-header-row">
                             <h3 id="criticalCount">0</h3>
