@@ -480,35 +480,6 @@ body {
     text-decoration: underline;
 }
 
-/* Status Badges */
-/* .status-badge {
-    display: inline-block;
-    padding: 0.35rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-} */
-
-/* .status-for-approval {
-    background-color: rgba(59, 130, 246, 0.1);
-    color: var(--info-color);
-}
-
-.status-pending {
-    background-color: rgba(245, 158, 11, 0.1);
-    color: var(--warning-color);
-}
-
-.status-for-additional-input {
-    background-color: rgba(139, 92, 246, 0.1);
-    color: #8b5cf6;
-}
-
-.status-completed {
-    background-color: rgba(16, 185, 129, 0.1);
-    color: var(--success-color);
-} */
-
 .status-badge {
     display: inline-block;
     padding: 4px 12px;
@@ -534,7 +505,7 @@ body {
     color: #6d28d9;
 }
 
-.status-transaction-complete {
+.status-transaction-completed {
     background-color: #dcfce7;
     color: #15803d;
 }
@@ -565,31 +536,6 @@ body {
     color: var(--danger-color);
 }
 
-/* Aging Indicator */
-/* .aging-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.35rem 0.75rem;
-    border-radius: 8px;
-    font-weight: 600;
-}
-
-.aging-normal {
-    background-color: rgba(16, 185, 129, 0.1);
-    color: var(--success-color);
-}
-
-.aging-warning {
-    background-color: rgba(245, 158, 11, 0.1);
-    color: var(--warning-color);
-}
-
-.aging-critical {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: var(--danger-color);
-    animation: pulse 2s infinite;
-} */
 
 .aging-indicator {
     display: inline-block;
