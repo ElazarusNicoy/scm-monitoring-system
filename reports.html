@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCM Monitoring System — Reports</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- <link rel="stylesheet" href="styles-reports.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div class="container">
+
+        <!-- Header (same as dashboard) -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> SCM Monitoring System</h1>
+                <div class="header-info">
+                    <span class="current-time" id="currentTime"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab" onclick="window.location.href='workflow-tracking.html'">
+                <i class="fas fa-stream"></i> Workflow Tracking
+            </button>
+            <button class="nav-tab" onclick="window.location.href='alerts.html'">
+                <i class="fas fa-bell"></i> Alerts
+            </button>
+            <button class="nav-tab active">
+                <i class="fas fa-file-alt"></i> Reports
+            </button>
+        </nav>
+
+        <main class="main-content">
+
+            <!-- Report Filters Section -->
+            <section class="report-filters-section">
+                <h2><i class="fas fa-filter"></i> Report Filters</h2>
+                <p class="report-subtitle">
+                    Filter the transactions to be included in the report before exporting.
+                </p>
+
+                <div class="report-filters-grid">
+
+                    <!-- Date Range -->
+                    <div class="report-filter-group">
+                        <label>Submitted Date Range</label>
+                        <div class="date-range">
+                            <input type="date" id="reportDateFrom" placeholder="From">
+                            <span>to</span>
+                            <input type="date" id="reportDateTo" placeholder="To">
+                        </div>
+                    </div>
+
+                    <!-- Transaction Type -->
+                    <div class="report-filter-group">
+                        <label for="reportTypeFilter">Transaction Type</label>
+                        <select id="reportTypeFilter">
+                            <option value="all">All Types</option>
+                        </select>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="report-filter-group">
+                        <label for="reportStatusFilter">Status</label>
+                        <select id="reportStatusFilter">
+                            <option value="all">All</option>
+                            <option value="for-approval">For Approval</option>
+                            <option value="pending">Pending</option>
+                            <option value="for-additional-input">For Additional Input</option>
+                            <option value="transaction-completed">Transaction Completed</option>
+                        </select>
+                    </div>
+
+                    <!-- Aging Level -->
+                    <div class="report-filter-group">
+                        <label for="reportAgingFilter">Aging Level</label>
+                        <select id="reportAgingFilter">
+                            <option value="all">All</option>
+                            <option value="normal">Normal</option>
+                            <option value="warning">Warning</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+
+                    <!-- Current PIC -->
+                    <div class="report-filter-group">
+                        <label for="reportPICFilter">Current PIC</label>
+                        <select id="reportPICFilter">
+                            <option value="all">All PICs</option>
+                        </select>
+                    </div>
+
+                    <!-- Current Stage -->
+                    <div class="report-filter-group">
+                        <label for="reportStageFilter">Current Stage</label>
+                        <select id="reportStageFilter">
+                            <option value="all">All Stages</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="report-filter-actions">
+                    <button class="btn-apply-filter" id="applyReportFilter">
+                        <i class="fas fa-search"></i> Apply Filter & Preview
+                    </button>
+                    <button class="btn-reset-filter" id="resetReportFilter">
+                        <i class="fas fa-times"></i> Reset Filters
+                    </button>
+                </div>
+            </section>
+
+            <!-- Report Preview Section -->
+            <section class="report-preview-section">
+                <div class="report-preview-header">
+                    <div>
+                        <h2><i class="fas fa-eye"></i> Report Preview</h2>
+                        <!-- Shows count of transactions to be exported -->
+                        <span class="report-count-badge">
+                            <strong id="reportTransactionCount">0</strong> transactions to be exported
+                        </span>
+                    </div>
+
+                    <!-- Export Buttons -->
+                    <div class="export-actions">
+                        <button class="btn-export btn-export-excel" id="exportExcelBtn" disabled>
+                            <i class="fas fa-file-excel"></i> Export to Excel
+                        </button>
+                        <button class="btn-export btn-export-pdf" id="exportPDFBtn" disabled>
+                            <i class="fas fa-file-pdf"></i> Export to PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preview Table -->
+                <div class="report-table-container">
+                    <table class="report-table" id="reportPreviewTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Transaction Name</th>
+                                <th>Transaction Type</th>
+                                <th>Requestor</th>
+                                <th>Current Stage</th>
+                                <th>Current PIC</th>
+                                <th>Status</th>
+                                <th>Aging (Days)</th>
+                                <th>SLA Status</th>
+                                <th>Submitted Date</th>
+                                <th>Last Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportTableBody">
+                            <tr>
+                                <td colspan="11" class="report-empty-state">
+                                    <i class="fas fa-filter"></i>
+                                    Apply filters above and click <strong>Apply Filter & Preview</strong> to preview transactions.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="reports.js"></script>
+</body>
+</html>
