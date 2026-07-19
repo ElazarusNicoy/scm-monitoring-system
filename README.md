@@ -39,7 +39,7 @@ The Workflow Tracking Module is the first module of the SCM Monitoring System, d
 ---
 
 ### Preset Filter Report
-![Preset Filter Report](docs/screenshots/preset-filter-report.png)
+![Preset Filter Report](docs/screenshots/filter-preset-report.png)
 > Reports module show a preset filter.
 
 ---
@@ -57,93 +57,40 @@ The Workflow Tracking Module is the first module of the SCM Monitoring System, d
 ### Process Flow
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        USER (Browser)                           │
-│                  workflow-tracking.html                         │
-└─────────────────────┬───────────────────────────────────────────┘
-                      │  1. Opens the web page
-                      ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    FRONTEND (script.js)                      │
-│                                                                 │
-│  initializeApp()                                                │
-│  ├── loadAllTransactionsList()     → fetches transaction list   │
-│  ├── loadSLAInformationDetails()   → fetches SLA thresholds     │
-│  ├── loadWorkflowProgress()        → fetches workflow history   │
-│  ├── refreshCriticalCount()        → fetches critical count     │
-│  ├── refreshWarningCount()         → fetches warning count      │
-│  ├── refreshNormalCount()          → fetches normal count       │
-│  ├── refreshForApprovalCount()     → fetches for approval count │
-│  ├── refreshPendingCount()         → fetches pending count      │
-│  ├── refreshForAdditionalInputCount() → fetches input count     │
-│  └── refreshCompletedCount()       → fetches completed count    │
-└─────────────────────┬───────────────────────────────────────────┘
-                      │  2. Sends HTTP GET requests to API
-                      ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                  REST API (display_data_api.py)                 │
-│                     Flask — port 5000                           │
-│                                                                 │
-│  Endpoints:                                                     │
-│  ├── GET /api/all_transactions_list                             │
-│  ├── GET /api/sla_information_details                           │
-│  ├── GET /api/all_transactions_workflow_progress                │
-│  ├── GET /api/critical-count                                    │
-│  ├── GET /api/warning-count                                     │
-│  ├── GET /api/normal-count                                      │
-│  ├── GET /api/forApproval-count                                 │
-│  ├── GET /api/pending-count                                     │
-│  ├── GET /api/forAdditionalInput-count                          │
-│  └── GET /api/completed-count                                   │
-└─────────────────────┬───────────────────────────────────────────┘
-                      │  3. Calls database query functions
-                      ▼
-┌─────────────────────────────────────────────────────────────────┐
-│               DATABASE LAYER (db_connection.py)                 │
-│                        pyodbc                                   │
-│                                                                 │
-│  Functions:                                                     │
-│  ├── get_all_transactions_list()                                │
-│  ├── get_SLA_InformationDetails()                               │
-│  ├── get_all_transactions_workflow_progress()                   │
-│  ├── get_critical_transactions_count()                          │
-│  ├── get_warning_transactions_count()                           │
-│  ├── get_normal_transactions_count()                            │
-│  ├── get_forApproval_transactions_count()                       │
-│  ├── get_Pending_transactions_count()                           │
-│  ├── get_ForAdditionalInput_transactions_count()                │
-│  └── get_Complete_transactions_count()                          │
-└─────────────────────┬───────────────────────────────────────────┘
-                      │  4. Executes SQL queries via ODBC
-                      ▼
-┌─────────────────────────────────────────────────────────────────┐
-│           Microsoft SQL Server (SP_TRANSACTIONS)                │
-│                                                                 │
-│  Tables / Views:                                                │
-│  ├── all_transactions_list              → transaction list      │
-│  ├── all_transactions_workflow_progress → workflow history      │
-│  ├── SLA_InformationDetails             → SLA thresholds        │
-│  ├── critical_transactions_count_view   → critical count        │
-│  ├── warning_transactions_count_view    → warning count         │
-│  ├── normal_transactions_count_view     → normal count          │
-│  ├── ForApproval_transactions_count_view                        │
-│  ├── Pending_transactions_count_view                            │
-│  ├── ForAdditionalInput_transactions_count_view                 │
-│  └── Completed_transactions_count_view                          │
-└─────────────────────────────────────────────────────────────────┘
-```
+SQL Server Database
+        │
+        │  pyodbc queries
+        ▼
+db_connection.py
+        │
+        │  returns data to API layer
+        ▼
+display_data_api.py  (Flask REST API — port 5000)
+        │
+        │  JSON responses
+        ├─────────────────────────────────────────┐
+        ▼                                         ▼
+workflow-tracking.html                      reports.html
+script.js                                   reports.js
+        │                                         │
+        ├── loadAllTransactionsList()             ├── loadReportData()
+        ├── updateDashboardSummary()              ├── populateFilterDropdowns()
+        ├── loadDistinctStages()                  ├── applyReportFilters()
+        ├── loadDistinctTransactionTypes()        ├── renderReportPreview()
+        ├── loadDistinctCurrentPICs()             ├── Suggested Filter Presets (pills)
+        ├── applyFilters()                        ├── exportToExcel()  → .xlsx download
+        ├── renderTransactions()                  └── exportToPDF()    → .pdf download
+        ├── detectNewCriticalTransactions()
+        ├── showCriticalAlert() (toast)
+        └── openTransactionModal()
+                │
+                ├── loadWorkflowProgress()
+                └── loadSLAInformationDetails()
 
----
-
-### Data Flow — Transaction List Display
-
-```
-SQL Server → db_connection.py → display_data_api.py → script.js → HTML Table
-    │               │                   │                   │
-    │  Raw rows      │  list of dicts    │  JSON response    │  Mapped objects
-    │  (pyodbc)      │  (formatted       │  { success,       │  rendered into
-    │               │   dates)          │  allTransaction   │  <tr> rows
-    │               │                   │  List: [...] }    │  or cards
+        Navigation
+        ──────────
+        workflow-tracking.html  ──[Reports tab]──►  reports.html
+        reports.html  ──[Workflow Tracking tab]──►  workflow-tracking.html
 ```
 
 ---
@@ -206,7 +153,7 @@ SLA Status (Aging Level)
 
 ### 🔍 Advanced Filtering & Search
 - **Search**: Find transactions by ID, Vendor, or PO Number
-- **Status Filter**: Filter by Active, Completed, Pending, or Rejected
+- **Status Filter**: Filter by For Approval, Completed, Pending, or For Additional Input
 - **Aging Filter**: Filter by Normal , Warning , or Critical 
 *The aging days depends on the sla threshold for each transaction type
 - **Stage Filter**: Filter by workflow stage (Submission, Review, Approval, Processing, Completed)
@@ -235,10 +182,26 @@ SLA Status (Aging Level)
 
 ```
 scm-monitoring-system/
-├── workflow-tracking.html    # Main HTML structure
-├── styles.css                # Complete styling and animations
-├── script.js                 # JavaScript functionality and data management
-└── README.md                 # This file
+├── workflow-tracking.html    # Main dashboard — transaction list, filters, summary cards
+├── reports.html              # Reports module — filter, preview, and export transactions
+├── styles.css                # Complete styling, animations, and responsive design
+├── script.js                 # Dashboard logic — API fetching, filtering, rendering, alerts
+├── reports.js                # Reports logic — preset filters, preview, Excel/PDF export
+├── display_data_api.py       # Flask REST API — exposes all endpoints on port 5000
+├── db_connection.py          # Database layer — pyodbc SQL Server queries and connections
+├── .env                      # Environment variables — DB credentials (never committed)
+├── requirements.txt          # Python dependencies
+├── docs/
+│   └── screenshots/
+│       ├── dashboard-summary.png
+│       ├── pending-filter.png
+│       ├── card-view-pending-filter.png
+│       ├── transaction-modal.png
+│       ├── reports-module.png
+│       ├── preset-filter-report.png
+│       ├── pdf-export-report.png
+│       └── excel-export-report.png
+└── README.md                 # Project documentation
 ```
 
 ## Technologies Used
@@ -311,13 +274,15 @@ Ctrl + C
 
 ### Usage
 
-1. **View Dashboard**: The dashboard displays summary cards with key metrics
-2. **Search Transactions**: Use the search box to find specific transactions
-3. **Apply Filters**: Use dropdown filters to narrow down results
-4. **Switch Views**: Toggle between Table View and Card View
-5. **View Details**: Click "View" or "View Details" button to see transaction information
-6. **Monitor Workflow**: Check the workflow timeline in the detail modal to track progress
-7. **Refresh Data**: Click the Refresh button to update the display
+1. **View Dashboard** — Summary cards display key metrics by status and aging level. Click any card to instantly filter the transaction list.
+2. **Search Transactions** — Use the search box to find specific transactions by name, requestor, stage, PIC, or type.
+3. **Apply Filters** — Use dropdown filters to narrow down results by status, aging level, stage, transaction type, and current PIC.
+4. **Switch Views** — Toggle between Table View and Card View.
+5. **View Details** — Click the View button to open the transaction detail modal showing full information, SLA thresholds, and workflow timeline.
+6. **Refresh Data** — Click the Refresh button or wait for the auto-refresh every 30 seconds to get the latest data from SQL Server.
+7. **Critical Alerts** — A toast notification automatically appears when a transaction becomes critically aged.
+8. **Reports & Export** — Navigate to the Reports module to filter transactions using dropdowns or suggested filter presets, preview the results, then export to **PDF** or **Excel**.
+
 
 ## Key Features Explained
 
@@ -346,11 +311,9 @@ Each transaction has a detailed workflow timeline showing:
 ## Future Enhancements
 
 Planned features for future releases:
-- Real-time data integration with backend API
-- Export functionality (PDF, Excel)
 - Email notifications for aging transactions
-- Advanced analytics and reporting
-- Additional modules (Alerts, Reports, Analytics)
+- Advanced analytics
+- Additional modules (Alerts, Analytics)
 - Mobile app version
 
 ## Performance
