@@ -280,8 +280,7 @@ Ctrl + C
 4. **Switch Views** — Toggle between Table View and Card View.
 5. **View Details** — Click the View button to open the transaction detail modal showing full information, SLA thresholds, and workflow timeline.
 6. **Refresh Data** — Click the Refresh button or wait for the auto-refresh every 30 seconds to get the latest data from SQL Server.
-7. **Critical Alerts** — A toast notification automatically appears when a transaction becomes critically aged.
-8. **Reports & Export** — Navigate to the Reports module to filter transactions using dropdowns or suggested filter presets, preview the results, then export to **PDF** or **Excel**.
+7. **Reports & Export** — Navigate to the Reports module to filter transactions using dropdowns or suggested filter presets, preview the results, then export to **PDF** or **Excel**.
 
 
 ## Key Features Explained
@@ -340,14 +339,33 @@ For questions or issues, please contact the development team.
 
 ## Version History
 
-- **v1.0.0** (March 2024) - Initial release with Workflow Tracking Module
-  - Dashboard summary cards
-  - Transaction list with table and card views
-  - Advanced filtering and search
-  - Workflow timeline visualization
-  - Aging monitoring with color-coded indicators
-  - Responsive design
+### v1.0.0 — Initial Release
+- Initial release of SCM Monitoring System
+- Workflow tracking dashboard with transaction list
+- Table view and card view toggle
+- Basic search and filter functionality
+- Transaction detail modal with workflow timeline
+- SLA threshold monitoring per transaction type
+- Dashboard summary cards showing status and aging level counts
+- Flask REST API connected to SQL Server via pyodbc
+- Environment variable configuration for database credentials
 
+### v1.1.0 — Aging & Filter Improvements
+- Added aging computation logic per transaction type (MAS, RCP, PR, WOAF, POACR)
+- Fixed aging days for completed transactions — now shows closed duration (submitted → last modified)
+- Fixed `CROSS APPLY` to `OUTER APPLY` to include transactions with 0 aging days
+- Added `Normal` threshold status for transactions submitted on the same day
+- Added requestor field to wildcard search
+- Dashboard summary cards are now clickable — act as quick filters for the transaction list
+- Added transaction count metric — displays `Showing X of Y total transactions`
+
+### v1.2.0 — Alerts & Reports Module
+- Added Reports module (`reports.html`, `reports.js`)
+- Reports module includes filters by date range, type, status, aging level, PIC, and stage
+- Added suggested filter presets for quick common report exports
+- Export to Excel (`.xlsx`) and Export to PDF (`.pdf`)
+- Fixed submitted date range UI overlap in Reports module
+- Updated navigation — Reports tab routes to `reports.html`
+ 
 ---
 
-**Note**: This is the first module of the complete SCM Monitoring System. Additional modules (Alerts, Reports, Analytics) will be added in future releases.
