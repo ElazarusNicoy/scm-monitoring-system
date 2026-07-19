@@ -1298,3 +1298,163 @@ tr.row-critical td {
     margin-bottom: 1rem;
     color: var(--border-color);
 }
+
+/* ========================================
+   REPORT FILTER PRESETS / SUGGESTED PILLS
+   ======================================== */
+
+.filter-presets {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.preset-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+}
+
+.preset-label i {
+    color: #f59e0b;
+}
+
+.preset-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.preset-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.25s ease;
+    background-color: var(--light-bg);
+    color: var(--text-secondary);
+}
+
+.preset-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+/* Active state — pill is selected */
+.preset-pill.pill-active {
+    border-width: 2px;
+    border-style: solid;
+    font-weight: 600;
+}
+
+/* Individual pill color themes */
+.preset-critical {
+    border-color: #fca5a5;
+    color: #b91c1c;
+    background-color: #fee2e2;
+}
+.preset-critical:hover,
+.preset-critical.pill-active {
+    background-color: #ef4444;
+    color: white;
+    border-color: #ef4444;
+}
+
+.preset-warning {
+    border-color: #fcd34d;
+    color: #a16207;
+    background-color: #fef9c3;
+}
+.preset-warning:hover,
+.preset-warning.pill-active {
+    background-color: #f59e0b;
+    color: white;
+    border-color: #f59e0b;
+}
+
+.preset-pending {
+    border-color: #fcd34d;
+    color: #a16207;
+    background-color: #fef9c3;
+}
+.preset-pending:hover,
+.preset-pending.pill-active {
+    background-color: #d97706;
+    color: white;
+    border-color: #d97706;
+}
+
+.preset-completed {
+    border-color: #6ee7b7;
+    color: #065f46;
+    background-color: #d1fae5;
+}
+.preset-completed:hover,
+.preset-completed.pill-active {
+    background-color: #10b981;
+    color: white;
+    border-color: #10b981;
+}
+
+.preset-for-approval {
+    border-color: #93c5fd;
+    color: #1d4ed8;
+    background-color: #dbeafe;
+}
+.preset-for-approval:hover,
+.preset-for-approval.pill-active {
+    background-color: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.preset-this-month {
+    border-color: #c4b5fd;
+    color: #5b21b6;
+    background-color: #ede9fe;
+}
+.preset-this-month:hover,
+.preset-this-month.pill-active {
+    background-color: #8b5cf6;
+    color: white;
+    border-color: #8b5cf6;
+}
+
+.preset-critical-pending {
+    border-color: #fca5a5;
+    color: #b91c1c;
+    background-color: #fee2e2;
+}
+.preset-critical-pending:hover,
+.preset-critical-pending.pill-active {
+    background-color: #dc2626;
+    color: white;
+    border-color: #dc2626;
+}
+
+.preset-mas,
+.preset-rcp,
+.preset-pr {
+    border-color: #d1d5db;
+    color: var(--text-primary);
+    background-color: var(--light-bg);
+}
+.preset-mas:hover,
+.preset-mas.pill-active,
+.preset-rcp:hover,
+.preset-rcp.pill-active,
+.preset-pr:hover,
+.preset-pr.pill-active {
+    background-color: var(--dark-bg);
+    color: white;
+    border-color: var(--dark-bg);
+}

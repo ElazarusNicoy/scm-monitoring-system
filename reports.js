@@ -118,7 +118,138 @@ function applyReportFilters() {
     document.getElementById('exportPDFBtn').disabled   = !hasResults;
 }
 
+// ─── Filter Presets Definition ────────────────────────────────
+const FILTER_PRESETS = {
+    'critical': {
+        label: 'Critical Transactions',
+        filters: { agingFilter: 'critical' }
+    },
+    'warning': {
+        label: 'Warning Transactions',
+        filters: { agingFilter: 'warning' }
+    },
+    'pending': {
+        label: 'Pending Transactions',
+        filters: { statusFilter: 'pending' }
+    },
+    'completed': {
+        label: 'Completed Transactions',
+        filters: { statusFilter: 'transaction-completed' }
+    },
+    'for-approval': {
+        label: 'For Approval',
+        filters: { statusFilter: 'for-approval' }
+    },
+    'this-month': {
+        label: 'This Month',
+        filters: {
+            dateFrom: getFirstDayOfMonth(),   // ← computed dynamically
+            dateTo:   getTodayDate()
+        }
+    },
+    'critical-pending': {
+        label: 'Critical + Pending',
+        filters: {
+            agingFilter:  'critical',
+            statusFilter: 'pending'
+        }
+    },
+    'mas': {
+        label: 'MAS Only',
+        filters: { typeFilter: 'mas' }
+    },
+    'rcp': {
+        label: 'RCP Only',
+        filters: { typeFilter: 'rcp' }
+    },
+    'pr': {
+        label: 'PR Only',
+        filters: { typeFilter: 'pr' }
+    }
+};
+
+// ─── Date Helpers ─────────────────────────────────────────────
+function getFirstDayOfMonth() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+}
+
+function getTodayDate() {
+    return new Date().toISOString().slice(0, 10);
+}
+
+// ─── Apply Preset ─────────────────────────────────────────────
+function applyPreset(presetKey) {
+    const preset = FILTER_PRESETS[presetKey];
+    if (!preset) return;
+
+    // Remove active from all pills first
+    document.querySelectorAll('.preset-pill').forEach(p => p.classList.remove('pill-active'));
+
+    // Highlight selected pill
+    const activePill = document.querySelector(`.preset-pill[data-preset="${presetKey}"]`);
+    if (activePill) activePill.classList.add('pill-active');
+
+    // Reset all filters first
+    resetFiltersOnly();
+
+    // Apply preset filter values
+    const f = preset.filters;
+    if (f.agingFilter)  document.getElementById('reportAgingFilter').value  = f.agingFilter;
+    if (f.statusFilter) document.getElementById('reportStatusFilter').value = f.statusFilter;
+    if (f.typeFilter)   document.getElementById('reportTypeFilter').value   = f.typeFilter;
+    if (f.picFilter)    document.getElementById('reportPICFilter').value    = f.picFilter;
+    if (f.stageFilter)  document.getElementById('reportStageFilter').value  = f.stageFilter;
+    if (f.dateFrom)     document.getElementById('reportDateFrom').value     = f.dateFrom;
+    if (f.dateTo)       document.getElementById('reportDateTo').value       = f.dateTo;
+
+    // Auto-apply and preview immediately
+    applyReportFilters();
+
+    console.log(`Preset applied: "${preset.label}"`);
+}
+
+// Reset filter values only (without clearing preview)
+function resetFiltersOnly() {
+    document.getElementById('reportDateFrom').value     = '';
+    document.getElementById('reportDateTo').value       = '';
+    document.getElementById('reportTypeFilter').value   = 'all';
+    document.getElementById('reportStatusFilter').value = 'all';
+    document.getElementById('reportAgingFilter').value  = 'all';
+    document.getElementById('reportPICFilter').value    = 'all';
+    document.getElementById('reportStageFilter').value  = 'all';
+}
+
+// ─── Event Listeners (updated) ────────────────────────────────
+function setupReportEventListeners() {
+    document.getElementById('applyReportFilter').addEventListener('click', () => {
+        // Clicking Apply manually clears the active preset pill
+        document.querySelectorAll('.preset-pill').forEach(p => p.classList.remove('pill-active'));
+        applyReportFilters();
+    });
+
+    document.getElementById('resetReportFilter').addEventListener('click', resetReportFilters);
+    document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
+    document.getElementById('exportPDFBtn').addEventListener('click', exportToPDF);
+
+    // Wire up all preset pills
+    document.querySelectorAll('.preset-pill').forEach(pill => {
+        pill.addEventListener('click', function () {
+            const presetKey = this.dataset.preset;
+
+            // Clicking same active pill → reset filters
+            if (this.classList.contains('pill-active')) {
+                this.classList.remove('pill-active');
+                resetReportFilters();
+            } else {
+                applyPreset(presetKey);
+            }
+        });
+    });
+}
+
 function resetReportFilters() {
+    resetFiltersOnly();
     document.getElementById('reportDateFrom').value = '';
     document.getElementById('reportDateTo').value   = '';
     document.getElementById('reportTypeFilter').value   = 'all';
@@ -126,6 +257,8 @@ function resetReportFilters() {
     document.getElementById('reportAgingFilter').value  = 'all';
     document.getElementById('reportPICFilter').value    = 'all';
     document.getElementById('reportStageFilter').value  = 'all';
+
+    document.querySelectorAll('.preset-pill').forEach(p => p.classList.remove('pill-active'));
 
     reportTransactions = [];
     renderReportPreview([]);
@@ -282,3 +415,4 @@ function exportToPDF() {
 
     console.log(`PDF exported: ${fileName}`);
 }
+

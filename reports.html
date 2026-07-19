@@ -46,6 +46,65 @@
                     Filter the transactions to be included in the report before exporting.
                 </p>
 
+                <!-- Add suggested filter presets here -->
+                <div class="filter-presets">
+                    <span class="preset-label">
+                        <i class="fas fa-lightbulb"></i> Suggested Filters:
+                    </span>
+                    <div class="preset-pills">
+                        <button class="preset-pill preset-critical"
+                            data-preset="critical"
+                            title="All transactions that exceeded SLA deadline">
+                            <i class="fas fa-fire"></i> Critical Transactions
+                        </button>
+                        <button class="preset-pill preset-warning"
+                            data-preset="warning"
+                            title="All transactions approaching SLA deadline">
+                            <i class="fas fa-exclamation-triangle"></i> Warning Transactions
+                        </button>
+                        <button class="preset-pill preset-pending"
+                            data-preset="pending"
+                            title="All transactions waiting for action">
+                            <i class="fas fa-clock"></i> Pending Transactions
+                        </button>
+                        <button class="preset-pill preset-completed"
+                            data-preset="completed"
+                            title="All completed transactions">
+                            <i class="fas fa-check-circle"></i> Completed Transactions
+                        </button>
+                        <button class="preset-pill preset-for-approval"
+                            data-preset="for-approval"
+                            title="Transactions freshly submitted or approved">
+                            <i class="fas fa-tasks"></i> For Approval
+                        </button>
+                        <button class="preset-pill preset-this-month"
+                            data-preset="this-month"
+                            title="All transactions submitted this month">
+                            <i class="fas fa-calendar-alt"></i> This Month
+                        </button>
+                        <button class="preset-pill preset-critical-pending"
+                            data-preset="critical-pending"
+                            title="Critical transactions still pending action">
+                            <i class="fas fa-exclamation-circle"></i> Critical + Pending
+                        </button>
+                        <button class="preset-pill preset-mas"
+                            data-preset="mas"
+                            title="All MAS transactions">
+                            <i class="fas fa-file-alt"></i> MAS Only
+                        </button>
+                        <button class="preset-pill preset-rcp"
+                            data-preset="rcp"
+                            title="All RCP transactions">
+                            <i class="fas fa-file-invoice"></i> RCP Only
+                        </button>
+                        <button class="preset-pill preset-pr"
+                            data-preset="pr"
+                            title="All PR transactions">
+                            <i class="fas fa-shopping-cart"></i> PR Only
+                        </button>
+                    </div>
+                </div>
+
                 <div class="report-filters-grid">
 
                     <!-- Date Range -->
