@@ -30,6 +30,30 @@ The Workflow Tracking Module is the first module of the SCM Monitoring System, d
 ![Transaction Modal](docs/screenshots/transaction-modal.png)
 > Detailed view showing transaction info, SLA thresholds, and workflow timeline.
 
+---
+
+### Reports Module
+![Reports Module](docs/screenshots/reports-module.png)
+> Reports module show filter, preview and export to Excel or PDF for reports.
+
+---
+
+### Preset Filter Report
+![Preset Filter Report](docs/screenshots/preset-filter-report.png)
+> Reports module show a preset filter.
+
+---
+
+### PDF Export Report
+![PDF Export  Report](docs/screenshots/pdf-export-report.png)
+> Reports module exported filtered data to PDF.
+
+---
+
+### Excel Export Report
+![Excel Export  Report](docs/screenshots/excel-export-report.png)
+> Reports module exported filtered data to Excel.
+
 ### Process Flow
 
 ```
