@@ -54,57 +54,57 @@ def get_db_connection():
             conn.close()
 
 
-def get_transactions():
-    """
-    Get all transactions from the database view and return as list of dictionaries.
-    Uses context manager to ensure proper connection cleanup.
+# def get_transactions():
+#     """
+#     Get all transactions from the database view and return as list of dictionaries.
+#     Uses context manager to ensure proper connection cleanup.
 
-    Returns:
-        list[dict]: List of transaction dictionaries, empty list on error.
-    """
-    try:
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
+#     Returns:
+#         list[dict]: List of transaction dictionaries, empty list on error.
+#     """
+#     try:
+#         with get_db_connection() as conn:
+#             cursor = conn.cursor()
 
-            # Select all columns from the view to ensure complete data
-            cursor.execute("SELECT " \
-            " [source] " \
-            " ,[transactionNumber] " \
-            " ,[requestor] " \
-            " ,[submittedDate] " \
-            " ,[currentApproverPIC] " \
-            " ,[currentFormStatus] " \
-            " ,[resubmittedDate] " \
-            " ,[completedDate] " \
-            " ,[lastModifiedBy] " \
-            " ,[lastModifiedDate] " \
-            " ,[dashboardStatus] " \
-            " FROM [all_transactions]")
+#             # Select all columns from the view to ensure complete data
+#             cursor.execute("SELECT " \
+#             " [source] " \
+#             " ,[transactionNumber] " \
+#             " ,[requestor] " \
+#             " ,[submittedDate] " \
+#             " ,[currentApproverPIC] " \
+#             " ,[currentFormStatus] " \
+#             " ,[resubmittedDate] " \
+#             " ,[completedDate] " \
+#             " ,[lastModifiedBy] " \
+#             " ,[lastModifiedDate] " \
+#             " ,[dashboardStatus] " \
+#             " FROM [all_transactions]")
 
-            # Get column names from cursor description
-            columns = [column[0] for column in cursor.description]
+#             # Get column names from cursor description
+#             columns = [column[0] for column in cursor.description]
 
-            # Convert rows to list of dictionaries
-            transactions = []
-            for row in cursor.fetchall():
-                transaction = {}
-                for i, value in enumerate(row):
-                    # Convert datetime to ISO format string if needed
-                    if hasattr(value, 'strftime'):
-                        transaction[columns[i]] = value.strftime('%Y-%m-%d %H:%M:%S')
-                    else:
-                        transaction[columns[i]] = str(value) if value is not None else ""
-                transactions.append(transaction)
+#             # Convert rows to list of dictionaries
+#             transactions = []
+#             for row in cursor.fetchall():
+#                 transaction = {}
+#                 for i, value in enumerate(row):
+#                     # Convert datetime to ISO format string if needed
+#                     if hasattr(value, 'strftime'):
+#                         transaction[columns[i]] = value.strftime('%Y-%m-%d %H:%M:%S')
+#                     else:
+#                         transaction[columns[i]] = str(value) if value is not None else ""
+#                 transactions.append(transaction)
 
-            cursor.close()
-            return transactions
+#             cursor.close()
+#             return transactions
 
-    except odbc.Error as e:
-        print(f"Database query error: {e}")
-        return []
-    except Exception as e:
-        print(f"Unexpected error in get_transactions: {e}")
-        return []
+#     except odbc.Error as e:
+#         print(f"Database query error: {e}")
+#         return []
+#     except Exception as e:
+#         print(f"Unexpected error in get_transactions: {e}")
+#         return []
 
 
 def get_critical_transactions_count():
@@ -657,7 +657,7 @@ if __name__ == "__main__":
     print(f"Connection test: {status['message']}")
 
     if status['success']:
-        data = get_transactions()
+        data = get_all_transactions_list()
         print(f"Found {len(data)} transactions")
         for transaction in data[:2]:  # Show first 2
             print(transaction)

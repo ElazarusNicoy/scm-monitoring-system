@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
-from db_connection import get_transactions, get_critical_transactions_count, get_warning_transactions_count, get_normal_transactions_count
+# from db_connection import get_transactions, 
+from db_connection import get_critical_transactions_count, get_warning_transactions_count, get_normal_transactions_count
 from db_connection import get_forApproval_transactions_count, get_Pending_transactions_count, get_ForAdditionalInput_transactions_count, get_Complete_transactions_count
 from db_connection import get_all_transactions_list, get_SLA_InformationDetails, get_all_transactions_workflow_progress
 from db_connection import get_distinct_stages_from_all_transactions_list, get_distinct_transaction_types_from_all_transactions_list
@@ -27,24 +28,24 @@ def serve_styles():
     """Serve the CSS file."""
     return send_from_directory(BASE_DIR, 'styles.css', mimetype='text/css')
 
-@app.route('/api/transactions')
-def get_all_transactions():
-    try:
-        transactions = get_transactions()
+# @app.route('/api/transactions')
+# def get_all_transactions():
+#     try:
+#         transactions = get_transactions()
         
-        return jsonify({
-            'success': True,
-            'data': transactions,
-            'count': len(transactions),
-            'summary': {
-                'allTransactions': transactions
-            }
-        })
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+#         return jsonify({
+#             'success': True,
+#             'data': transactions,
+#             'count': len(transactions),
+#             'summary': {
+#                 'allTransactions': transactions
+#             }
+#         })
+#     except Exception as e:
+#         return jsonify({
+#             'success': False,
+#             'error': str(e)
+#         }), 500
 
 @app.route('/api/critical-count')
 def get_critical_count():
@@ -296,7 +297,6 @@ if __name__ == '__main__':
     print("Starting API server...")
     print("Application will be available at http://localhost:5000")
     print("API endpoints:")
-    print("  - http://localhost:5000/api/transactions (full data)")
     print("  - http://localhost:5000/api/critical-count (critical count only)")
     print("  - http://localhost:5000/api/warning-count (warning count only)")
     print("  - http://localhost:5000/api/normal-count (normal count only)")

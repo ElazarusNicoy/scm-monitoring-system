@@ -329,6 +329,29 @@ body {
     transform: translateX(-50%) translateY(-12px);
 }
 
+/* Transaction count metric */
+.transaction-count-metric {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    background-color: var(--light-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.metric-showing strong {
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
+.metric-total strong {
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
 /* Filters Section */
 .filters-section {
     background: var(--card-bg);
@@ -945,6 +968,8 @@ tr.row-critical td {
 .hidden {
     display: none !important;
 }
+
+
 
 /* Responsive Design */
 @media (max-width: 1024px) {

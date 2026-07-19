@@ -322,6 +322,7 @@ async function loadAllTransactionsList() {
             // Re-render the table
             applyFilters();
             updateDashboardSummary();
+            updateTransactionCountMetric();
 
         } else {
             console.error('all_transactions_list API error:', data.error);
@@ -331,6 +332,7 @@ async function loadAllTransactionsList() {
         currentTransactions = [];
         filteredTransactions = [];
         applyFilters();
+        updateTransactionCountMetric();
     }
 }
 
@@ -758,6 +760,15 @@ function applyFilters() {
 
     currentPage = 1;
     renderTransactions();
+    updateTransactionCountMetric();
+}
+
+function updateTransactionCountMetric() {
+    const shownEl = document.getElementById('shownTransactionCount');
+    const totalEl = document.getElementById('totalTransactionCount');
+
+    if (shownEl) shownEl.textContent = filteredTransactions.length;  // filtered count
+    if (totalEl) totalEl.textContent = currentTransactions.length;   // always total
 }
 
 // Refresh data
