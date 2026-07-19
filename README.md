@@ -6,6 +6,30 @@ A comprehensive web-based monitoring system for tracking supply chain management
 
 The Workflow Tracking Module is the first module of the SCM Monitoring System, designed to help organizations monitor transaction statuses, track approval stages, and identify aging transactions that require attention.
 
+## Screenshots
+
+### Dashboard Summary
+![Dashboard Summary](docs/screenshots/dashboard-summary.png)
+> Summary cards showing transaction counts by status and aging level.
+
+---
+
+### Table View
+![Table View](docs/screenshots/pending-filter.png)
+> Transaction list in table format with status badges and aging indicators.
+
+---
+
+### Card View
+![Card View](docs/screenshots/card-view-pending-filter.png)
+> Transaction list in card format for easier visual scanning.
+
+---
+
+### Transaction Detail Modal
+![Transaction Modal](docs/screenshots/transaction-modal.png)
+> Detailed view showing transaction info, SLA thresholds, and workflow timeline.
+
 ### Process Flow
 
 ```
