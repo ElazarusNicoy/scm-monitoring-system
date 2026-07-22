@@ -1,11 +1,20 @@
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
+from flask import request
 from db_connection import get_critical_transactions_count, get_warning_transactions_count, get_normal_transactions_count
 from db_connection import get_forApproval_transactions_count, get_Pending_transactions_count, get_ForAdditionalInput_transactions_count, get_Complete_transactions_count
 from db_connection import get_all_transactions_list, get_SLA_InformationDetails, get_all_transactions_workflow_progress
 from db_connection import get_distinct_stages_from_all_transactions_list, get_distinct_transaction_types_from_all_transactions_list
 from db_connection import get_distinct_current_pic_from_all_transactions_list
 import os
+from utils.email_sender import send_escalation_email
+from db_connection import (
+    get_escalation_log,
+    get_escalation_transactions,
+    get_transactions_newly_aged,
+    log_escalation_email
+    )
+
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -291,6 +300,135 @@ def get_distinct_current_pics():
             'success': False,
             'error': str(e)
         }), 500
+
+@app.route('/api/escalation-transactions')
+def get_escalation_transactions_endpoint():
+    """Returns only Warning and Critical transactions for the Escalation module."""
+    try:
+        transactions = get_escalation_transactions()
+        return jsonify({
+            'success': True,
+            'escalationTransactions': transactions,
+            'count': len(transactions)
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/send-followup-email', methods=['POST'])
+def send_followup_email():
+    """
+    Manual follow-up email triggered by user clicking Follow Up button.
+    To: Current PIC | CC: Requestor
+    """
+    try:
+        data = request.get_json()
+
+        transaction_name  = data.get('transactionName')
+        transaction_type  = data.get('transactionType')
+        aging_days        = data.get('agingDays')
+        aging_level       = data.get('agingLevel')
+        current_pic       = data.get('currentPIC')
+        requestor         = data.get('requestor')
+        pic_email         = data.get('currentPICEmail')
+        requestor_email   = data.get('requestorEmail')
+        sharepoint_link   = data.get('sharePointLink', '#')
+        sent_by           = data.get('sentBy', 'SYSTEM')
+
+        subject = f"[Follow Up] {transaction_name} — {aging_level.upper()} ({aging_days} days)"
+
+        success = send_escalation_email(
+            to_email         = pic_email,
+            cc_email         = requestor_email,
+            subject          = subject,
+            transaction_name = transaction_name,
+            transaction_type = transaction_type,
+            aging_days       = aging_days,
+            aging_level      = aging_level,
+            current_pic      = current_pic,
+            requestor        = requestor,
+            sharepoint_link  = sharepoint_link
+        )
+
+        if success:
+            log_escalation_email(
+                transaction_number = transaction_name,
+                transaction_type   = transaction_type,
+                escalation_type    = aging_level.lower(),
+                email_to           = pic_email,
+                email_cc           = requestor_email,
+                sent_type          = 'manual',
+                sent_by            = sent_by
+            )
+            return jsonify({'success': True, 'message': 'Follow-up email sent.'})
+        else:
+            return jsonify({'success': False, 'error': 'Email failed to send.'}), 500
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/check-auto-escalation', methods=['POST'])
+def check_auto_escalation():
+    """
+    Checks for transactions on their FIRST DAY as Warning or Critical.
+    Sends automated email and logs it — will NOT re-send on subsequent days.
+    Call this endpoint on page load or on a schedule.
+    """
+    try:
+        newly_aged = get_transactions_newly_aged()
+        sent_count = 0
+
+        for t in newly_aged:
+            subject = (
+                f"[SCM Alert] {t['transactionNumber']} has reached "
+                f"{t['agingLevel'].upper()} aging ({t['agingDays']} days)"
+            )
+
+            success = send_escalation_email(
+                to_email         = t['currentPICEmail'],
+                cc_email         = t['requestorEmail'],
+                subject          = subject,
+                transaction_name = t['transactionNumber'],
+                transaction_type = t['transactionType'],
+                aging_days       = t['agingDays'],
+                aging_level      = t['agingLevel'],
+                current_pic      = t['currentPIC'],
+                requestor        = t['requestor'],
+                sharepoint_link  = t.get('sharePointLink', '#')
+            )
+
+            if success:
+                log_escalation_email(
+                    transaction_number = t['transactionNumber'],
+                    transaction_type   = t['transactionType'],
+                    escalation_type    = t['agingLevel'].lower(),
+                    email_to           = t['currentPICEmail'],
+                    email_cc           = t['requestorEmail'],
+                    sent_type          = 'auto',
+                    sent_by            = 'SYSTEM'
+                )
+                sent_count += 1
+
+        return jsonify({
+            'success': True,
+            'autoEmailsSent': sent_count,
+            'message': f'{sent_count} automated escalation email(s) dispatched.'
+        })
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/escalation-log')
+def get_escalation_log_endpoint():
+    """Returns the full escalation email log."""
+    try:
+        logs = get_escalation_log()
+        return jsonify({'success': True, 'escalationLog': logs})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
     
 if __name__ == '__main__':
     print("Starting API server...")

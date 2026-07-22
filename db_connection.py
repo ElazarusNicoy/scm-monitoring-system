@@ -54,59 +54,6 @@ def get_db_connection():
             conn.close()
 
 
-# def get_transactions():
-#     """
-#     Get all transactions from the database view and return as list of dictionaries.
-#     Uses context manager to ensure proper connection cleanup.
-
-#     Returns:
-#         list[dict]: List of transaction dictionaries, empty list on error.
-#     """
-#     try:
-#         with get_db_connection() as conn:
-#             cursor = conn.cursor()
-
-#             # Select all columns from the view to ensure complete data
-#             cursor.execute("SELECT " \
-#             " [source] " \
-#             " ,[transactionNumber] " \
-#             " ,[requestor] " \
-#             " ,[submittedDate] " \
-#             " ,[currentApproverPIC] " \
-#             " ,[currentFormStatus] " \
-#             " ,[resubmittedDate] " \
-#             " ,[completedDate] " \
-#             " ,[lastModifiedBy] " \
-#             " ,[lastModifiedDate] " \
-#             " ,[dashboardStatus] " \
-#             " FROM [all_transactions]")
-
-#             # Get column names from cursor description
-#             columns = [column[0] for column in cursor.description]
-
-#             # Convert rows to list of dictionaries
-#             transactions = []
-#             for row in cursor.fetchall():
-#                 transaction = {}
-#                 for i, value in enumerate(row):
-#                     # Convert datetime to ISO format string if needed
-#                     if hasattr(value, 'strftime'):
-#                         transaction[columns[i]] = value.strftime('%Y-%m-%d %H:%M:%S')
-#                     else:
-#                         transaction[columns[i]] = str(value) if value is not None else ""
-#                 transactions.append(transaction)
-
-#             cursor.close()
-#             return transactions
-
-#     except odbc.Error as e:
-#         print(f"Database query error: {e}")
-#         return []
-#     except Exception as e:
-#         print(f"Unexpected error in get_transactions: {e}")
-#         return []
-
-
 def get_critical_transactions_count():
     """
     Get the count of critical transactions from the database.
@@ -499,7 +446,6 @@ def get_all_transactions_workflow_progress():
             """
             cursor.execute(query)
 
-            # ✅ Add these debug prints
             columns = [col[0] for col in cursor.description]
             print(f"Columns returned: {columns}")
 
@@ -649,6 +595,315 @@ def test_connection():
             'server': SERVER_NAME,
             'database': DATABASE_NAME
         }
+
+def get_all_transactions_list_WarningCriticalAged():
+    """
+    Get a list of all transactions's warning and critically aged from the database.
+
+    Queries the all_transactions_list database view.
+
+    Returns:
+        list: List of all transaction's warning and critically aged, empty list on error.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            query = """
+                 SELECT 
+					[Transaction Type],
+					[Transaction Name],
+					Requestor,
+					[Submitted Date],
+					[Last Updated],
+					[Current Stage],
+					[Current PIC],
+					Status,
+					[Aging (Days)],
+					[SLA Status]
+				FROM [all_transactions_list] 
+				WHERE [SLA Status] IN ('Warning', 'Critical') 
+				ORDER BY [Last Updated] DESC
+            """
+            cursor.execute(query)
+
+            # Add these debug prints
+            columns = [col[0] for col in cursor.description]
+            print(f"Columns returned: {columns}")
+
+            rows = cursor.fetchall()
+            print(f"Total rows fetched: {len(rows)}")          # ← check this
+            print(f"Sample row: {rows[0] if rows else 'empty'}")  # ← check this
+
+            result = []
+            for row in rows:
+                row_dict = dict(zip(columns, row))
+                for date_col in ['Submitted Date', 'Last Updated']:
+                    if date_col in row_dict and row_dict[date_col] is not None:
+                        row_dict[date_col] = row_dict[date_col].strftime('%Y-%m-%d')
+                result.append(row_dict)
+
+            cursor.close()
+            return result
+
+    except odbc.Error as e:
+        print(f"Database query error in get_all_transactions_list_WarningCriticalAged: {e}")
+        return []
+    except Exception as e:
+        print(f"Unexpected error in get_all_transactions_list_WarningCriticalAged: {e}")
+        return []
+
+def get_newly_warning_transactions():
+    """
+    Get the count of newly warning transactions from the database.
+
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            query = """
+                 SELECT 
+					transactionNumber, 
+					requestor,  
+					submittedDate,
+					currentApproverPIC,
+					currentFormStatus,
+					lastModifiedDate,
+					dashboardStatus,
+					agingDays,
+					thresholdStatus
+				FROM [newlyWarningAgedTransactions]
+				ORDER BY lastModifiedDate DESC
+            """
+            cursor.execute(query)
+
+            # Add these debug prints
+            columns = [col[0] for col in cursor.description]
+            print(f"Columns returned: {columns}")
+
+            rows = cursor.fetchall()
+            print(f"Total rows fetched: {len(rows)}")          # ← check this
+            print(f"Sample row: {rows[0] if rows else 'empty'}")  # ← check this
+
+            result = []
+            for row in rows:
+                row_dict = dict(zip(columns, row))
+                for date_col in ['submittedDate', 'lastModifiedDate']:
+                    if date_col in row_dict and row_dict[date_col] is not None:
+                        row_dict[date_col] = row_dict[date_col].strftime('%Y-%m-%d')
+                result.append(row_dict)
+
+            cursor.close()
+            return result
+
+    except odbc.Error as e:
+        print(f"Database query error in get_newly_warning_transactions: {e}")
+        return []
+    except Exception as e:
+        print(f"Unexpected error in get_newly_warning_transactions: {e}")
+        return []
+		
+def get_newly_critical_transactions():
+    """
+    Get the count of newly critical transactions from the database.
+
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            query = """
+                 SELECT 
+					transactionNumber, 
+					requestor,  
+					submittedDate,
+					currentApproverPIC,
+					currentFormStatus,
+					lastModifiedDate,
+					dashboardStatus,
+					agingDays,
+					thresholdStatus
+				FROM [newlyCriticalAgedTransactions]
+				ORDER BY lastModifiedDate DESC
+            """
+            cursor.execute(query)
+
+            # Add these debug prints
+            columns = [col[0] for col in cursor.description]
+            print(f"Columns returned: {columns}")
+
+            rows = cursor.fetchall()
+            print(f"Total rows fetched: {len(rows)}")          # ← check this
+            print(f"Sample row: {rows[0] if rows else 'empty'}")  # ← check this
+
+            result = []
+            for row in rows:
+                row_dict = dict(zip(columns, row))
+                for date_col in ['submittedDate', 'lastModifiedDate']:
+                    if date_col in row_dict and row_dict[date_col] is not None:
+                        row_dict[date_col] = row_dict[date_col].strftime('%Y-%m-%d')
+                result.append(row_dict)
+
+            cursor.close()
+            return result
+
+    except odbc.Error as e:
+        print(f"Database query error in get_newly_critical_transactions: {e}")
+        return []
+    except Exception as e:
+        print(f"Unexpected error in get_newly_critical_transactions: {e}")
+        return []
+
+
+
+# ...existing code...
+
+def get_escalation_transactions():
+    """Get all Warning and Critical transactions only — excludes Normal and Completed."""
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT
+                    [Transaction Name],      
+                    [Transaction Type],      
+                    [Requestor],             
+                    [Current Stage],         
+                    [Current PIC],           
+                    [Current PIC] + '@ionics-ems.com' AS [Current PIC Email],
+                    [Requestor] + '@ionics-ems.com' AS [Requestor Email],
+                    [Status],
+                    [Aging (Days)],
+                    [SLA Status],
+                    [Submitted Date],
+                    [Last Updated],
+                    CASE 
+                        WHEN [Transaction Type] = 'MAS' THEN 'http://sharepoint/sites/hqservices/Movement%20Approval%20Sheet/'+[Transaction Name]+'.xml'
+                        WHEN [Transaction Type] = 'RCP' THEN 'http://sharepoint/sites/hqservices/RCP/'+[Transaction Name]+'.xml'
+                        WHEN [Transaction Type] = 'PR' THEN 'http://sharepoint/sites/hqservices/Purchase%20Requisition/'+[Transaction Name]+'.xml'
+                        WHEN [Transaction Type] = 'POACR' THEN 'http://sharepoint/sites/hqservices/PO%20Amend%Cancel%Request/'+[Transaction Name]+'.xml'
+                        WHEN [Transaction Type] = 'WOAF' THEN 'http://sharepoint/sites/hqservices/Work%20Order%20Amendment%20Form/'+[Transaction Name]+'.xml'
+                        ELSE 'N/A'
+                    END AS [SharePoint Link]
+                FROM dbo.all_transactions_list
+                WHERE [SLA Status] IN ('Warning', 'Critical')
+                ORDER BY [Aging (Days)] DESC
+            """)
+
+            columns = [col[0] for col in cursor.description]
+            print(f"Columns returned: {columns}")
+
+            rows = cursor.fetchall()
+            print(f"Total rows fetched: {len(rows)}")
+            print(f"Sample row: {rows[0] if rows else 'empty'}")
+
+            result = []
+            for row in rows:
+                row_dict = dict(zip(columns, row))
+                for date_col in ['Submitted Date', 'Last Updated']:
+                    if date_col in row_dict and row_dict[date_col] is not None:
+                        row_dict[date_col] = row_dict[date_col].strftime('%Y-%m-%d')
+                result.append(row_dict)
+
+            cursor.close()
+            return result
+
+    except odbc.Error as e:
+        print(f"Database query error in get_escalation_transactions: {e}")
+        return []
+    except Exception as e:
+        print(f"Unexpected error in get_escalation_transactions: {e}")
+        return []
+
+# ...existing code...
+
+
+def get_transactions_newly_aged():
+    """
+    Retrieve transactions that are on their FIRST DAY as Warning or Critical.
+    Compares aging days against SLA threshold daysAgingValue exactly.
+    These are candidates for automated email dispatch.
+    """
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT
+				atl.[Transaction Name],
+				atl.[Transaction Type],
+				atl.[Requestor],
+				atl.[Current Stage],
+				atl.[Current PIC],
+				atl.[Current PIC] + '@ionics-ems.com' AS [Current PIC Email],
+				atl.[Requestor] + '@ionics-ems.com' AS [Requestor Email],
+				atl.[Status],
+				atl.[Aging (Days)],
+				atl.[SLA Status],
+				CASE 
+					WHEN [Transaction Type] = 'MAS' THEN 'http://sharepoint/sites/hqservices/Movement%20Approval%20Sheet/'+[Transaction Name]+'.xml'
+					WHEN [Transaction Type] = 'RCP' THEN 'http://sharepoint/sites/hqservices/RCP/'+[Transaction Name]+'.xml'
+					WHEN [Transaction Type] = 'PR' THEN 'http://sharepoint/sites/hqservices/Purchase%20Requisition/'+[Transaction Name]+'.xml'
+					WHEN [Transaction Type] = 'POACR' THEN 'http://sharepoint/sites/hqservices/PO%20Amend%Cancel%Request/'+[Transaction Name]+'.xml'
+					WHEN [Transaction Type] = 'WOAF' THEN 'http://sharepoint/sites/hqservices/Work%20Order%20Amendment%20Form/'+[Transaction Name]+'.xml'
+					ELSE 'N/A'
+				END AS [SharePoint Link],
+				sla.daysAgingValue
+			FROM dbo.all_transactions_list atl
+			INNER JOIN dbo.SLA_Threshold sla
+				ON  sla.transactionType = atl.[Transaction Type]
+				AND sla.Active = 1
+				AND sla.thresholdStatus = atl.[SLA Status]
+			WHERE
+				-- Transaction is exactly on the first day of Warning or Critical
+				CAST(atl.[Aging (Days)] AS INT) = CAST(sla.daysAgingValue AS INT)
+				AND atl.[SLA Status] IN ('Warning', 'Critical')
+				-- Not yet sent as auto email for this escalation type
+				AND NOT EXISTS (
+					SELECT 1 FROM dbo.EscalationLog el
+					WHERE el.transactionNumber = atl.[Transaction Name]
+					  AND el.escalationType    = LOWER(atl.[SLA Status])
+					  AND el.sentType          = 'auto'
+				)
+        """)
+        columns = [col[0] for col in cursor.description]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+
+def log_escalation_email(transaction_number, transaction_type,
+                          escalation_type, email_to, email_cc, sent_type, sent_by='SYSTEM'):
+    """Log a sent escalation email to EscalationLog table."""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO dbo.EscalationLog
+                (transactionNumber, transactionType, escalationType,
+                 emailSentTo, emailCC, sentType, sentBy)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (transaction_number, transaction_type, escalation_type,
+              email_to, email_cc, sent_type, sent_by))
+        conn.commit()
+
+
+def get_escalation_log():
+    """Get all escalation email logs ordered by most recent."""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT
+                id,
+                transactionNumber,
+                transactionType,
+                escalationType,
+                emailSentTo,
+                emailCC,
+                sentType,
+                sentBy,
+                CONVERT(VARCHAR, sentAt, 120) AS sentAt
+            FROM dbo.EscalationLog
+            ORDER BY sentAt DESC
+        """)
+        columns = [col[0] for col in cursor.description]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
 
 if __name__ == "__main__":
