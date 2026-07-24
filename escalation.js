@@ -30,7 +30,7 @@ async function loadEscalationData() {
             fetch('http://localhost:5000/api/escalation-transactions'),
             fetch('http://localhost:5000/api/distinct-stages'),
             fetch('http://localhost:5000/api/distinct-transaction-types'),
-            fetch('http://localhost:5000/api/distinct-current-pics')
+            fetch('http://localhost:5000/api/distinct-current-pics'),
         ]);
 
         const transData = await transRes.json();
@@ -151,7 +151,7 @@ function renderTableView(transactions) {
             <tr>
                 <td colspan="6" class="empty-state">
                     <i class="fas fa-inbox"></i>
-                    No Warning or Critical transactions found.
+                    No transactions found.
                 </td>
             </tr>`;
         return;
@@ -435,7 +435,22 @@ function setupEventListeners() {
     document.getElementById('stageFilter').addEventListener('change', applyFilters);
     document.getElementById('transactionTypeFilter').addEventListener('change', applyFilters);
     document.getElementById('currentPICFilter').addEventListener('change', applyFilters);
-    document.getElementById('refreshBtn').addEventListener('click', loadEscalationData);
+    
+    // ✅ Reset all filters then reload data on refresh
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+        document.getElementById('searchInput').value              = '';
+        document.getElementById('agingFilter').value              = 'all';
+        document.getElementById('stageFilter').value              = 'all';
+        document.getElementById('transactionTypeFilter').value    = 'all';
+        document.getElementById('currentPICFilter').value         = 'all';
+
+        // Clear active card state
+        document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('card-active'));
+
+        loadEscalationData();
+    });
+
+    // document.getElementById('refreshBtn').addEventListener('click', loadEscalationData);
 
     document.querySelectorAll('.view-btn').forEach(btn =>
         btn.addEventListener('click', function () { switchView(this.dataset.view); })
