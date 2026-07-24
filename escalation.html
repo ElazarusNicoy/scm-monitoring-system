@@ -36,23 +36,21 @@
         <main class="main-content">
             <!-- Dashboard Summary Cards -->
             <section class="dashboard-summary">
-                <div class="summary-card card-warning" data-filter-type="aging" data-filter-value="warning" title="Click to filter newly Warning aged transactions">
+                <div class="summary-card card-warning" data-filter-type="aging" data-filter-value="warning" title="Click to filter Warning aged transactions">
                     <div class="card-icon"><i class="fas fa-exclamation-triangle"></i></div>
                     <div class="card-content">
                         <div class="card-header-row">
-                            <h3 id="newlyWarningCount">0</h3>
-                            <i class="fas fa-info-circle card-info-icon" data-tooltip="Transactions that was newly steps in the Warning aged transaction."></i>
+                            <h3 id="warningCount">0</h3>
                         </div>
                         <p>Warning</p>
                     </div>
                 </div>
 
-                <div class="summary-card card-critical" data-filter-type="aging" data-filter-value="critical" title="Click to filter newly Critical aged transactions">
+                <div class="summary-card card-critical" data-filter-type="aging" data-filter-value="critical" title="Click to filter Critical aged transactions">
                     <div class="card-icon"><i class="fas fa-fire"></i></div>
                     <div class="card-content">
                         <div class="card-header-row">
-                            <h3 id="newlyCriticalCount">0</h3>
-                            <i class="fas fa-info-circle card-info-icon" data-tooltip="Transactions that has newly steps in the Critical aged transaction."></i>
+                            <h3 id="criticalCount">0</h3>
                         </div>
                         <p>Critical</p>
                     </div>
@@ -86,15 +84,6 @@
 
                     </div>
                     <div class="filter-group">
-                        <label for="statusFilter">Status:</label>
-                        <select id="statusFilter">
-                            <option value="all">All</option>
-                            <option value="for-approval">For Approval</option>
-                            <option value="pending">Pending</option>
-                            <option value="for-additional-input">For Additional Input</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
                         <label for="agingFilter">Aging:</label>
                         <select id="agingFilter">
                             <option value="all">All</option>
@@ -102,8 +91,6 @@
                             <option value="critical">Critical</option>
                         </select>
                     </div>
-                    
-                    
                     <button class="btn-refresh" id="refreshBtn">
                         <i class="fas fa-sync-alt"></i> Refresh
                     </button>
@@ -113,7 +100,7 @@
             <!-- Transactions Table -->
             <section class="transactions-section">
                 <div class="section-header">
-                    <h2><i class="fas fa-list"></i> Transaction List</h2>
+                    <h2><i class="fas fa-bell"></i> Aging Transactions</h2>
                     <div class="transaction-count-metric">
                         <span class="metric-showing">
                             Showing <strong id="shownTransactionCount">0</strong> of
