@@ -161,18 +161,18 @@ function renderTableView(transactions) {
         <tr>
             <td>
                 <strong>${t.transactionName}</strong>
-                <div style="font-size:0.8rem; color:var(--text-secondary);">${t.transactionType}</div>
+                <!--<div style="font-size:0.8rem; color:var(--text-secondary);">${t.transactionType}</div>-->
             </td>
             <td>${t.currentStage}</td>
             <td>
                 ${t.currentPIC}
-                <div style="font-size:0.78rem; color:var(--text-secondary);">${t.currentPICEmail || '—'}</div>
+                <!--<div style="font-size:0.78rem; color:var(--text-secondary);">${t.currentPICEmail || '—'}</div>-->
             </td>
-            <td>
+            <!--<td>
                 <span class="status-badge status-${t.status}">
                     ${getStatusDisplayName(t.status)}
                 </span>
-            </td>
+            </td>-->
             <td>
                 <strong>${t.agingDays}</strong> days
                 <div>
@@ -220,16 +220,16 @@ function renderCardView(transactions) {
                 </span>
             </div>
             <div class="card-details">
-                <div><span>Type:</span> ${t.transactionType}</div>
+                <!--<div><span>Type:</span> ${t.transactionType}</div>-->
                 <div><span>Requestor:</span> ${t.requestor}</div>
                 <div><span>Current PIC:</span> ${t.currentPIC}</div>
                 <div><span>Stage:</span> ${t.currentStage}</div>
                 <div><span>Aging:</span> <strong>${t.agingDays} days</strong></div>
-                <div><span>Status:</span>
+                <!--<div><span>Status:</span>
                     <span class="status-badge status-${t.status}">
                         ${getStatusDisplayName(t.status)}
                     </span>
-                </div>
+                </div>-->
             </div>
             <div class="card-actions">
                 <button class="btn-action btn-view"
