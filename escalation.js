@@ -30,13 +30,13 @@ async function loadEscalationData() {
             fetch('http://localhost:5000/api/escalation-transactions'),
             fetch('http://localhost:5000/api/distinct-stages'),
             fetch('http://localhost:5000/api/distinct-transaction-types'),
-            fetch('http://localhost:5000/api/distinct-current-pics'),
+            fetch('http://localhost:5000/api/distinct-current-pics-warning-critical')
         ]);
 
         const transData = await transRes.json();
         const stageData = await stageRes.json();
         const typeData  = await typeRes.json();
-        const picData   = await picRes.json();
+        const picDataWarningCrit   = await picRes.json();
 
         if (transData.success) {
             // Same mapping pattern as workflow-tracking script.js
@@ -63,7 +63,7 @@ async function loadEscalationData() {
 
         if (stageData.success) populateSelect('stageFilter', stageData.distinctStages);
         if (typeData.success)  populateSelect('transactionTypeFilter', typeData.distinctTransactionTypes);
-        if (picData.success)   populateSelect('currentPICFilter', picData.distinctCurrentPICs);
+        if (picDataWarningCrit.success) populateSelect('currentPICFilter', picDataWarningCrit.distinctCurrentPICsWarningCrit);
 
     } catch (error) {
         console.error('Error loading escalation data:', error);

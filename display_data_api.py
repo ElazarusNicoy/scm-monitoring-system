@@ -5,7 +5,7 @@ from db_connection import get_critical_transactions_count, get_warning_transacti
 from db_connection import get_forApproval_transactions_count, get_Pending_transactions_count, get_ForAdditionalInput_transactions_count, get_Complete_transactions_count
 from db_connection import get_all_transactions_list, get_SLA_InformationDetails, get_all_transactions_workflow_progress
 from db_connection import get_distinct_stages_from_all_transactions_list, get_distinct_transaction_types_from_all_transactions_list
-from db_connection import get_distinct_current_pic_from_all_transactions_list
+from db_connection import get_distinct_current_pic_from_all_transactions_list, get_distinct_current_pic_from_warningCrit_transactions_list
 import os
 from utils.email_sender import send_escalation_email
 from db_connection import (
@@ -301,6 +301,23 @@ def get_distinct_current_pics():
             'error': str(e)
         }), 500
 
+@app.route('/api/distinct-current-pics-warning-critical')
+def get_distinct_current_pics_warning_critical():
+    """Dedicated endpoint for distinct current PICs for warning and critical transactions.
+    """
+    try:
+        distinct_current_pics_warningCrit = get_distinct_current_pic_from_warningCrit_transactions_list()
+
+        return jsonify({
+            'success': True,
+            'distinctCurrentPICsWarningCrit': distinct_current_pics_warningCrit
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    
 @app.route('/api/escalation-transactions')
 def get_escalation_transactions_endpoint():
     """Returns only Warning and Critical transactions for the Escalation module."""
@@ -451,6 +468,6 @@ if __name__ == '__main__':
     print("  - http://localhost:5000/api/distinct-stages (distinct stages)")
     print("  - http://localhost:5000/api/distinct-transaction-types (distinct transaction types)")
     print("  - http://localhost:5000/api/distinct-current-pics (distinct current PICs)")
-
+    print("  - http://localhost:5000/api/distinct-current-pics-warning-critical (distinct current PICs for warning and critical transactions)")
     print("  - http://localhost:5000/api/escalation-log (escalation log)")
     app.run(debug=True, port=5000)

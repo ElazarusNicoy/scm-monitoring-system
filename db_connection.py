@@ -567,6 +567,37 @@ def get_distinct_current_pic_from_all_transactions_list():
     except Exception as e:
         print(f"Unexpected error in get_distinct_current_pic_from_all_transactions_list: {e}")
         return []
+
+def get_distinct_current_pic_from_warningCrit_transactions_list():
+    """
+    Get distinct current PICs from warning & Critical transactions in the database
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            query = """
+                SELECT 
+                DISTINCT [Current PIC]
+                FROM [all_transactions_list] 
+                WHERE [Current PIC] != ''
+                AND [SLA Status] IN ('Warning','Critical')
+                ORDER BY [Current PIC]
+            """
+            cursor.execute(query)
+
+            rows = cursor.fetchall()
+            result = [row[0] for row in rows if row[0] is not None]
+
+            cursor.close()
+            return result
+
+    except odbc.Error as e:
+        print(f"Database query error in get_distinct_current_pic_from_warningCrit_transactions_list: {e}")
+        return []
+    except Exception as e:
+        print(f"Unexpected error in get_distinct_current_pic_from_warningCrit_transactions_list: {e}")
+        return []
     
 def test_connection():
     """
