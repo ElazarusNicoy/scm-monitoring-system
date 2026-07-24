@@ -447,5 +447,6 @@ if __name__ == '__main__':
     print("  - http://localhost:5000/api/distinct-stages (distinct stages)")
     print("  - http://localhost:5000/api/distinct-transaction-types (distinct transaction types)")
     print("  - http://localhost:5000/api/distinct-current-pics (distinct current PICs)")
-
+    
+    print("  - http://localhost:5000/api/escalation-log (escalation log)")
     app.run(debug=True, port=5000)
