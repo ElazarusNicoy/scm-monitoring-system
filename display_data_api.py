@@ -333,8 +333,12 @@ def send_followup_email():
         pic_email         = data.get('currentPICEmail')
         requestor_email   = data.get('requestorEmail')
         sharepoint_link   = data.get('sharePointLink', '#')
-        sent_by           = data.get('sentBy', 'SYSTEM')
+        #sent_by           = data.get('sentBy', 'SYSTEM')
 
+        # ✅ Use default test email for both To and CC during system testing
+        DEFAULT_EMAIL = os.getenv('DEFAULT_ESCALATION_EMAIL', 'nj.aguisanda21@gmail.com')
+        pic_email      = data.get('currentPICEmail') or DEFAULT_EMAIL
+        requestor_email = data.get('requestorEmail') or DEFAULT_EMAIL
         subject = f"[Follow Up] {transaction_name} — {aging_level.upper()} ({aging_days} days)"
 
         success = send_escalation_email(
@@ -358,9 +362,9 @@ def send_followup_email():
                 email_to           = pic_email,
                 email_cc           = requestor_email,
                 sent_type          = 'manual',
-                sent_by            = sent_by
+                sent_by            = 'USER'
             )
-            return jsonify({'success': True, 'message': 'Follow-up email sent.'})
+            return jsonify({'success': True, 'message': f'Follow-up email sent to {pic_email}.'})
         else:
             return jsonify({'success': False, 'error': 'Email failed to send.'}), 500
 
@@ -447,6 +451,6 @@ if __name__ == '__main__':
     print("  - http://localhost:5000/api/distinct-stages (distinct stages)")
     print("  - http://localhost:5000/api/distinct-transaction-types (distinct transaction types)")
     print("  - http://localhost:5000/api/distinct-current-pics (distinct current PICs)")
-    
+
     print("  - http://localhost:5000/api/escalation-log (escalation log)")
     app.run(debug=True, port=5000)
