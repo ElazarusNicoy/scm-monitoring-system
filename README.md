@@ -24,7 +24,7 @@ Monitor all transactions with comprehensive filtering, search, and real-time upd
 ---
 
 ### Card View
-![Card View](docs/screenshots/card-view-pending-filter.png)
+![Card View](docs/screenshots/card-view-critical-aging-filter.png)
 > Transaction list in card format for easier visual scanning.
 
 ---
