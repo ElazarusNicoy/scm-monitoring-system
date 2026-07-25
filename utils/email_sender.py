@@ -4,13 +4,19 @@ from email.mime.text import MIMEText
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
-SMTP_HOST     = os.getenv('SMTP_HOST',     'smtp.gmail.com')
-SMTP_PORT     = int(os.getenv('SMTP_PORT', 587))
+SMTP_HOST     = os.getenv('SMTP_HOST')
+SMTP_PORT     = int(os.getenv('SMTP_PORT'))
 SMTP_USER     = os.getenv('SMTP_USER')      # sender email
 SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')  # sender app password
-SENDER_NAME   = os.getenv('SENDER_NAME',   'SCM Monitoring System')
+SENDER_NAME   = os.getenv('SENDER_NAME')
+
+# ✅ Quick debug — remove after confirming values load correctly
+print(f"SMTP_HOST: {SMTP_HOST}")
+print(f"SMTP_PORT: {SMTP_PORT}")
+print(f"SMTP_USER: {SMTP_USER}")
+print(f"SMTP_PASSWORD: {'SET' if SMTP_PASSWORD else 'NOT SET'}")
 
 
 def send_escalation_email(to_email, cc_email, subject, transaction_name,
@@ -119,7 +125,7 @@ def send_escalation_email(to_email, cc_email, subject, transaction_name,
             server.login(SMTP_USER, SMTP_PASSWORD)
             server.sendmail(SMTP_USER, recipients, msg.as_string())
 
-        print(f"✅ Escalation email sent → {to_email} (CC: {cc_email})")
+        print(f"Escalation email sent → {to_email} (CC: {cc_email})")
         return True
 
     except Exception as e:
