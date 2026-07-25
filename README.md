@@ -37,7 +37,6 @@ Monitor all transactions with comprehensive filtering, search, and real-time upd
 
 ### 2. Escalation Module
 Focus on Warning and Critical aging transactions with follow-up capabilities.
-<!--<screenshots here>
 ### Escalation Module
 ![Escalation Module](docs/screenshots/escalation-module.png)
 > Escalation module focusing on Warning and Critical aging transactions with follow-up actions.
@@ -47,7 +46,6 @@ Focus on Warning and Critical aging transactions with follow-up capabilities.
 ### Email Preview Modal
 ![Email Preview Modal](docs/screenshots/email-preview-modal.png)
 > Outlook-style email preview showing simulated follow-up email with transaction details.
--->
 
 ---
 ### 3. Reports Module
