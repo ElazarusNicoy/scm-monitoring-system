@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     setInterval(updateCurrentTime, 1000);
     setupEventListeners();
     loadEscalationData();
+    checkAndSimulateAutoEmails();
     // checkAutoEscalation(); // trigger auto email check on page load
     setInterval(loadEscalationData, 30000); // auto-refresh every 30s
 });
@@ -78,6 +79,152 @@ async function loadEscalationData() {
         console.error('Error loading escalation data:', error);
     }
 }
+
+// ─── Auto Email Simulation ────────────────────────────────────
+async function checkAndSimulateAutoEmails() {
+    try {
+        console.log('Checking for newly aged transactions...');
+        
+        const response = await fetch('http://localhost:5000/api/newly-aged-transactions');
+        const data = await response.json();
+
+        if (!data.success) {
+            console.error('Failed to fetch newly aged transactions:', data.error);
+            return;
+        }
+
+        const newlyAged = data.newlyAgedTransactions || [];
+        console.log(`Found ${newlyAged.length} newly aged transaction(s)`);
+
+        if (newlyAged.length === 0) {
+            console.log('No newly aged transactions requiring auto-follow-up.');
+            return;
+        }
+
+        // Map the data to match our transaction format
+        const transactions = newlyAged.map(t => ({
+            transactionName: t['Transaction Name'] || 'N/A',
+            transactionType: t['Transaction Type'] || 'N/A',
+            requestor:       t['Requestor']        || 'N/A',
+            currentStage:    t['Current Stage']    || 'N/A',
+            currentPIC:      t['Current PIC']      || 'N/A',
+            currentPICEmail: t['Current PIC Email']|| '',
+            requestorEmail:  t['Requestor Email']  || '',
+            status:          (t['Status'] || 'pending').toLowerCase().trim().replace(/\s+/g, '-'),
+            agingDays:       t['Aging (Days)']     || 0,
+            agingLevel:      (t['SLA Status'] || 'warning').toLowerCase().trim(),
+            submittedDate:   t['Submitted Date']   || 'N/A',
+            lastUpdated:     t['Last Updated']     || 'N/A',
+            sharePointLink:  t['SharePoint Link']  || '#'
+        }));
+
+        // Simulate sending emails for each newly aged transaction
+        for (const transaction of transactions) {
+            await simulateAutoEmail(transaction);
+        }
+
+        // Show summary toast notification
+        showAutoEmailSummaryToast(transactions);
+
+    } catch (error) {
+        console.error('Error in checkAndSimulateAutoEmails:', error);
+    }
+}
+
+async function simulateAutoEmail(transaction) {
+    console.log(`Simulating auto-email for: ${transaction.transactionName} (${transaction.agingLevel.toUpperCase()})`);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Log to console (simulating email send)
+    console.log(`✅ Auto follow-up email simulated:`);
+    console.log(`   To: ${transaction.currentPIC} <${transaction.currentPICEmail}>`);
+    console.log(`   CC: ${transaction.requestor} <${transaction.requestorEmail}>, System Admin`);
+    console.log(`   Subject: ${transaction.agingLevel === 'critical' ? '🔴 URGENT' : '⚠️ ATTENTION REQUIRED'}: Follow-up Required - ${transaction.transactionName}`);
+    console.log(`   Aging: ${transaction.agingDays} days (${transaction.agingLevel.toUpperCase()})`);
+}
+
+function showAutoEmailSummaryToast(transactions) {
+    const warningCount = transactions.filter(t => t.agingLevel === 'warning').length;
+    const criticalCount = transactions.filter(t => t.agingLevel === 'critical').length;
+    
+    let message = '🤖 Automatic Follow-up Emails Sent:\n';
+    
+    if (criticalCount > 0) {
+        message += `• ${criticalCount} Critical transaction${criticalCount > 1 ? 's' : ''}\n`;
+    }
+    if (warningCount > 0) {
+        message += `• ${warningCount} Warning transaction${warningCount > 1 ? 's' : ''}`;
+    }
+    
+    // Create detailed list
+    const transactionList = transactions.map(t => 
+        `${t.transactionName} (${t.agingLevel.toUpperCase()})`
+    ).join(', ');
+
+    // Show main toast
+    showToastWithDetails(message, transactionList, 'success');
+}
+
+function showToastWithDetails(message, details, type = 'info') {
+    const colors = { success: '#10b981', error: '#ef4444', info: '#3b82f6' };
+    const icons  = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle' };
+
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed; top: 1.5rem; right: 1.5rem; z-index: 9999;
+        background: white; border-left: 4px solid ${colors[type]};
+        border-radius: 8px; padding: 1rem 1.25rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: flex; flex-direction: column; gap: 0.5rem;
+        max-width: 450px; font-size: 0.9rem;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    toast.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <i class="fas ${icons[type]}" style="color:${colors[type]}; font-size:1.2rem;"></i>
+            <div>
+                <strong style="display: block; margin-bottom: 0.25rem;">Auto-Escalation System</strong>
+                <div style="white-space: pre-line; line-height: 1.4;">${message}</div>
+            </div>
+        </div>
+        ${details ? `
+        <div style="background: #f8f9fa; padding: 0.75rem; border-radius: 4px; font-size: 0.85rem; color: #6c757d; margin-top: 0.5rem;">
+            <strong style="display: block; margin-bottom: 0.25rem; color: #495057;">Transactions:</strong>
+            ${details}
+        </div>` : ''}
+        <button onclick="this.parentElement.remove()" 
+            style="position: absolute; top: 0.5rem; right: 0.5rem; background: none; border: none; color: #6c757d; cursor: pointer; font-size: 1.2rem; padding: 0.25rem;">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Auto-remove after 10 seconds for detailed toasts
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, 10000);
+}
+
+// Add CSS animation for slide out
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
 
 function populateSelect(selectId, items) {
     const select = document.getElementById(selectId);
@@ -247,118 +394,6 @@ function renderCardView(transactions) {
         </div>
     `}).join('');
 }
-
-// function renderTableView(transactions) {
-//     const tbody = document.getElementById('transactionsTableBody');
-//     if (!tbody) return;
-
-//     if (transactions.length === 0) {
-//         tbody.innerHTML = `
-//             <tr>
-//                 <td colspan="6" class="empty-state">
-//                     <i class="fas fa-inbox"></i>
-//                     No transactions found.
-//                 </td>
-//             </tr>`;
-//         return;
-//     }
-
-//     tbody.innerHTML = transactions.map(t => {
-//         const txKey = makeTxKey(t);
-//         return 
-//         <tr>
-//             <td>
-//                 <strong>${t.transactionName}</strong>
-//                 <!--<div style="font-size:0.8rem; color:var(--text-secondary);">${t.transactionType}</div>-->
-//             </td>
-//             <td>${t.currentStage}</td>
-//             <td>
-//                 ${t.currentPIC}
-//                 <!--<div style="font-size:0.78rem; color:var(--text-secondary);">${t.currentPICEmail || '—'}</div>-->
-//             </td>
-//             <!--<td>
-//                 <span class="status-badge status-${t.status}">
-//                     ${getStatusDisplayName(t.status)}
-//                 </span>
-//             </td>-->
-//             <td>
-//                 <strong>${t.agingDays}</strong> days
-//                 <div>
-//                     <span class="aging-indicator aging-${t.agingLevel}">
-//                         ${t.agingLevel.toUpperCase()}
-//                     </span>
-//                 </div>
-//             </td>
-//             <td>
-//                 <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
-//                     <button class="btn-action btn-view"
-//                         onclick='openTransactionModal(${JSON.stringify(t)})'>
-//                         <i class="fas fa-eye"></i> View
-//                     </button>
-//                     <button class="btn-action btn-followup"
-//                         <!--data-action="followup"
-//                         data-key="${makeTxKey(t)}"-->
-//                         id="followup-${t.transactionName.replace(/\s+/g, '-')}"
-//                         onclick='openEmailPreviewModal(${JSON.stringify(t)})'>
-//                         <!--onclick='sendFollowUpEmail(${JSON.stringify(t)})'-->
-//                         <i class="fas fa-envelope"></i> Follow Up
-//                     </button>
-//                 </div>
-//             </td>
-//         </tr>
-//     `).join('');
-// }
-
-// function renderCardView(transactions) {
-//     const container = document.getElementById('cardView');
-//     if (!container) return;
-
-//     if (transactions.length === 0) {
-//         container.innerHTML = `
-//             <div class="empty-state" style="width:100%;">
-//                 <i class="fas fa-inbox"></i>
-//                 No Warning or Critical transactions found.
-//             </div>`;
-//         return;
-//     }
-
-//     container.innerHTML = transactions.map(t => `
-//         <div class="transaction-card">
-//             <div class="card-top">
-//                 <span class="card-transaction-name">${t.transactionName}</span>
-//                 <span class="aging-indicator aging-${t.agingLevel}">
-//                     ${t.agingLevel.toUpperCase()}
-//                 </span>
-//             </div>
-//             <div class="card-details">
-//                 <!--<div><span>Type:</span> ${t.transactionType}</div>-->
-//                 <div><span>Requestor:</span> ${t.requestor}</div>
-//                 <div><span>Current PIC:</span> ${t.currentPIC}</div>
-//                 <div><span>Stage:</span> ${t.currentStage}</div>
-//                 <div><span>Aging:</span> <strong>${t.agingDays} days</strong></div>
-//                 <!--<div><span>Status:</span>
-//                     <span class="status-badge status-${t.status}">
-//                         ${getStatusDisplayName(t.status)}
-//                     </span>
-//                 </div>-->
-//             </div>
-//             <div class="card-actions">
-//                 <button class="btn-action btn-view"
-//                     onclick='openTransactionModal(${JSON.stringify(t)})'>
-//                     <i class="fas fa-eye"></i> View
-//                 </button>
-//                 <button class="btn-action btn-followup"
-//                     <!--data-action="followup"
-//                     data-key="${makeTxKey(t)}"-->
-//                     id="followup-${t.transactionName.replace(/\s+/g, '-')}"
-//                     onclick='openEmailPreviewModal(${JSON.stringify(t)})'
-//                     <!--onclick='sendFollowUpEmail(${JSON.stringify(t)})'-->
-//                     <i class="fas fa-envelope"></i> Follow Up
-//                 </button>
-//             </div>
-//         </div>
-//     `).join('');
-// }
 
 // ─── Follow Up Email (Simulated) ──────────────────────────────
 async function sendFollowUpEmail(buttonEl, transaction) {

@@ -598,7 +598,73 @@ def get_distinct_current_pic_from_warningCrit_transactions_list():
     except Exception as e:
         print(f"Unexpected error in get_distinct_current_pic_from_warningCrit_transactions_list: {e}")
         return []
-    
+
+def get_newly_warningCriticalTransactions():
+    """
+    Get newly warning and critical transactions
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            query = """
+                SELECT
+                    atl.[Transaction Name],
+                    atl.[Transaction Type],
+                    atl.[Requestor],
+                    atl.[Current Stage],
+                    atl.[Current PIC],
+                    atl.[Current PIC] + '@ionics-ems.com' AS [Current PIC Email],
+                    atl.[Requestor] + '@ionics-ems.com' AS [Requestor Email],
+                    atl.[Status],
+                    atl.[Aging (Days)],
+                    atl.[SLA Status],
+                    atl.[Submitted Date],
+                    atl.[Last Updated],
+                    CASE 
+                        WHEN atl.[Transaction Type] = 'MAS' THEN 'http://sharepoint/sites/hqservices/Movement%20Approval%20Sheet/'+atl.[Transaction Name]+'.xml'
+                        WHEN atl.[Transaction Type] = 'RCP' THEN 'http://sharepoint/sites/hqservices/RCP/'+atl.[Transaction Name]+'.xml'
+                        WHEN atl.[Transaction Type] = 'PR' THEN 'http://sharepoint/sites/hqservices/Purchase%20Requisition/'+atl.[Transaction Name]+'.xml'
+                        WHEN atl.[Transaction Type] = 'POACR' THEN 'http://sharepoint/sites/hqservices/PO%20Amend%Cancel%Request/'+atl.[Transaction Name]+'.xml'
+                        WHEN atl.[Transaction Type] = 'WOAF' THEN 'http://sharepoint/sites/hqservices/Work%20Order%20Amendment%20Form/'+atl.[Transaction Name]+'.xml'
+                        ELSE 'N/A'
+                    END AS [SharePoint Link]
+                FROM dbo.all_transactions_list atl
+                INNER JOIN dbo.SLA_Threshold sla
+                    ON  sla.transactionType = atl.[Transaction Type]
+                    AND sla.Active = 1
+                    AND sla.thresholdStatus = atl.[SLA Status]
+                WHERE
+                    -- Transaction is exactly on the first day of Warning or Critical
+                    CAST(atl.[Aging (Days)] AS INT) = CAST(sla.daysAgingValue AS INT)
+                    AND atl.[SLA Status] IN ('Warning', 'Critical')
+            """
+            cursor.execute(query)
+
+            columns = [col[0] for col in cursor.description]
+            print(f"Newly aged transactions columns: {columns}")
+
+            rows = cursor.fetchall()
+            print(f"Total newly aged transactions: {len(rows)}")
+
+            result = []
+            for row in rows:
+                row_dict = dict(zip(columns, row))
+                for date_col in ['Submitted Date', 'Last Updated']:
+                    if date_col in row_dict and row_dict[date_col] is not None:
+                        row_dict[date_col] = row_dict[date_col].strftime('%Y-%m-%d')
+                result.append(row_dict)
+
+            cursor.close()
+            return result
+
+    except odbc.Error as e:
+        print(f"Database query error in get_newly_warningCriticalTransactions: {e}")
+        return []
+    except Exception as e:
+        print(f"Unexpected error in get_newly_warningCriticalTransactions: {e}")
+        return []
+
 def test_connection():
     """
     Test the database connection and return status info.

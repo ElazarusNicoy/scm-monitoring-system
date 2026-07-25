@@ -5,7 +5,7 @@ from db_connection import get_critical_transactions_count, get_warning_transacti
 from db_connection import get_forApproval_transactions_count, get_Pending_transactions_count, get_ForAdditionalInput_transactions_count, get_Complete_transactions_count
 from db_connection import get_all_transactions_list, get_SLA_InformationDetails, get_all_transactions_workflow_progress
 from db_connection import get_distinct_stages_from_all_transactions_list, get_distinct_transaction_types_from_all_transactions_list
-from db_connection import get_distinct_current_pic_from_all_transactions_list, get_distinct_current_pic_from_warningCrit_transactions_list
+from db_connection import get_distinct_current_pic_from_all_transactions_list, get_distinct_current_pic_from_warningCrit_transactions_list, get_newly_warningCriticalTransactions
 import os
 from utils.email_sender import send_escalation_email
 from db_connection import (
@@ -450,6 +450,22 @@ def get_escalation_log_endpoint():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/newly-aged-transactions')
+def get_newly_aged_transactions_endpoint():
+    """
+    Returns transactions that just reached Warning or Critical threshold TODAY.
+    These are candidates for automatic follow-up emails.
+    """
+    try:
+        newly_aged = get_newly_warningCriticalTransactions()
+        return jsonify({
+            'success': True,
+            'newlyAgedTransactions': newly_aged,
+            'count': len(newly_aged)
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
     
 if __name__ == '__main__':
     print("Starting API server...")
@@ -470,4 +486,5 @@ if __name__ == '__main__':
     print("  - http://localhost:5000/api/distinct-current-pics (distinct current PICs)")
     print("  - http://localhost:5000/api/distinct-current-pics-warning-critical (distinct current PICs for warning and critical transactions)")
     print("  - http://localhost:5000/api/escalation-log (escalation log)")
+    print("  - http://localhost:5000/api/newly-aged-transactions (newly warning/critical transactions)")
     app.run(debug=True, port=5000)
