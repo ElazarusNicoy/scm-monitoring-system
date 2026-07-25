@@ -172,6 +172,45 @@
                 </div>
             </div>
         </div>
+
+        <!-- Email Preview Modal -->
+         <div class="email-preview-modal" id="emailPreviewModal">
+            <div class="email-preview-content">
+                <div class="email-preview-header">
+                    <h3><i class="fas fa-envelope"></i> Follow-up Email Preview</h3>
+                    <button class="email-preview-close" id="closeEmailPreview">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="email-preview-body">
+                    <div class="email-header-section">
+                        <div class="email-field">
+                            <span class="email-field-label">To:</span>
+                            <span class="email-field-value" id="emailTo"></span>
+                        </div>
+                        <div class="email-field">
+                            <span class="email-field-label">Cc:</span>
+                            <span class="email-field-value" id="emailCc"></span>
+                        </div>
+                        <div class="email-field">
+                            <span class="email-field-label">Subject:</span>
+                            <span class="email-field-value email-subject" id="emailSubject"></span>
+                        </div>
+                    </div>
+                    <div class="email-content-section" id="emailContentSection">
+                        <!-- Email content will be populated here -->
+                    </div>
+                </div>
+                <div class="email-preview-footer">
+                    <button class="btn-email-action btn-cancel-email" id="cancelEmailBtn">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button class="btn-email-action btn-send-email" id="sendEmailBtn">
+                        <i class="fas fa-paper-plane"></i> Send Email
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="escalation.js"></script>

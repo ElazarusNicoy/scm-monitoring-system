@@ -3,6 +3,7 @@ let filteredEscalationTransactions = [];
 let currentPage = 1;
 const itemsPerPage = 10;
 let currentView = 'table';
+let escalationTxIndex = new Map();
 
 // ─── Initialize ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
@@ -21,6 +22,10 @@ function updateCurrentTime() {
         year: 'numeric', month: 'short', day: 'numeric',
         hour: '2-digit', minute: '2-digit', second: '2-digit'
     });
+}
+
+function makeTxKey(t) {
+    return `${t.transactionName}|${t.transactionType}|${t.currentStage}|${t.currentPIC}`;
 }
 
 // ─── Load Data ─────────────────────────────
@@ -55,6 +60,10 @@ async function loadEscalationData() {
                 lastUpdated:     t['Last Updated']     || 'N/A',
                 sharePointLink:  t['SharePoint Link']  || '#'
             }));
+
+            escalationTxIndex = new Map(
+                allEscalationTransactions.map(t => [makeTxKey(t), t])
+            );
 
             filteredEscalationTransactions = [...allEscalationTransactions];
             updateSummaryCards();
@@ -157,22 +166,15 @@ function renderTableView(transactions) {
         return;
     }
 
-    tbody.innerHTML = transactions.map(t => `
+    tbody.innerHTML = transactions.map(t => {
+        const txKey = makeTxKey(t);
+        return `
         <tr>
             <td>
                 <strong>${t.transactionName}</strong>
-                <!--<div style="font-size:0.8rem; color:var(--text-secondary);">${t.transactionType}</div>-->
             </td>
             <td>${t.currentStage}</td>
-            <td>
-                ${t.currentPIC}
-                <!--<div style="font-size:0.78rem; color:var(--text-secondary);">${t.currentPICEmail || '—'}</div>-->
-            </td>
-            <!--<td>
-                <span class="status-badge status-${t.status}">
-                    ${getStatusDisplayName(t.status)}
-                </span>
-            </td>-->
+            <td>${t.currentPIC}</td>
             <td>
                 <strong>${t.agingDays}</strong> days
                 <div>
@@ -184,18 +186,20 @@ function renderTableView(transactions) {
             <td>
                 <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
                     <button class="btn-action btn-view"
-                        onclick='openTransactionModal(${JSON.stringify(t)})'>
+                        data-action="view"
+                        data-key="${txKey}">
                         <i class="fas fa-eye"></i> View
                     </button>
                     <button class="btn-action btn-followup"
-                        id="followup-${t.transactionName.replace(/\s+/g, '-')}"
-                        onclick='sendFollowUpEmail(${JSON.stringify(t)})'>
+                        data-action="followup"
+                        data-key="${txKey}"
+                        id="followup-${t.transactionName.replace(/\s+/g, '-')}">
                         <i class="fas fa-envelope"></i> Follow Up
                     </button>
                 </div>
             </td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 function renderCardView(transactions) {
@@ -211,7 +215,9 @@ function renderCardView(transactions) {
         return;
     }
 
-    container.innerHTML = transactions.map(t => `
+    container.innerHTML = transactions.map(t => {
+        const txKey = makeTxKey(t);
+        return `
         <div class="transaction-card">
             <div class="card-top">
                 <span class="card-transaction-name">${t.transactionName}</span>
@@ -220,80 +226,358 @@ function renderCardView(transactions) {
                 </span>
             </div>
             <div class="card-details">
-                <!--<div><span>Type:</span> ${t.transactionType}</div>-->
                 <div><span>Requestor:</span> ${t.requestor}</div>
                 <div><span>Current PIC:</span> ${t.currentPIC}</div>
                 <div><span>Stage:</span> ${t.currentStage}</div>
                 <div><span>Aging:</span> <strong>${t.agingDays} days</strong></div>
-                <!--<div><span>Status:</span>
-                    <span class="status-badge status-${t.status}">
-                        ${getStatusDisplayName(t.status)}
-                    </span>
-                </div>-->
             </div>
             <div class="card-actions">
                 <button class="btn-action btn-view"
-                    onclick='openTransactionModal(${JSON.stringify(t)})'>
+                    data-action="view"
+                    data-key="${txKey}">
                     <i class="fas fa-eye"></i> View
                 </button>
                 <button class="btn-action btn-followup"
-                    id="followup-${t.transactionName.replace(/\s+/g, '-')}"
-                    onclick='sendFollowUpEmail(${JSON.stringify(t)})'>
+                    data-action="followup"
+                    data-key="${txKey}"
+                    id="followup-${t.transactionName.replace(/\s+/g, '-')}">
                     <i class="fas fa-envelope"></i> Follow Up
                 </button>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
-// ─── Follow Up Email ──────────────────────────────────────────
-async function sendFollowUpEmail(transaction) {
-    const btnId = `followup-${transaction.transactionName.replace(/\s+/g, '-')}`;
-    const btn   = document.getElementById(btnId);
+// function renderTableView(transactions) {
+//     const tbody = document.getElementById('transactionsTableBody');
+//     if (!tbody) return;
 
-    if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+//     if (transactions.length === 0) {
+//         tbody.innerHTML = `
+//             <tr>
+//                 <td colspan="6" class="empty-state">
+//                     <i class="fas fa-inbox"></i>
+//                     No transactions found.
+//                 </td>
+//             </tr>`;
+//         return;
+//     }
+
+//     tbody.innerHTML = transactions.map(t => {
+//         const txKey = makeTxKey(t);
+//         return 
+//         <tr>
+//             <td>
+//                 <strong>${t.transactionName}</strong>
+//                 <!--<div style="font-size:0.8rem; color:var(--text-secondary);">${t.transactionType}</div>-->
+//             </td>
+//             <td>${t.currentStage}</td>
+//             <td>
+//                 ${t.currentPIC}
+//                 <!--<div style="font-size:0.78rem; color:var(--text-secondary);">${t.currentPICEmail || '—'}</div>-->
+//             </td>
+//             <!--<td>
+//                 <span class="status-badge status-${t.status}">
+//                     ${getStatusDisplayName(t.status)}
+//                 </span>
+//             </td>-->
+//             <td>
+//                 <strong>${t.agingDays}</strong> days
+//                 <div>
+//                     <span class="aging-indicator aging-${t.agingLevel}">
+//                         ${t.agingLevel.toUpperCase()}
+//                     </span>
+//                 </div>
+//             </td>
+//             <td>
+//                 <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+//                     <button class="btn-action btn-view"
+//                         onclick='openTransactionModal(${JSON.stringify(t)})'>
+//                         <i class="fas fa-eye"></i> View
+//                     </button>
+//                     <button class="btn-action btn-followup"
+//                         <!--data-action="followup"
+//                         data-key="${makeTxKey(t)}"-->
+//                         id="followup-${t.transactionName.replace(/\s+/g, '-')}"
+//                         onclick='openEmailPreviewModal(${JSON.stringify(t)})'>
+//                         <!--onclick='sendFollowUpEmail(${JSON.stringify(t)})'-->
+//                         <i class="fas fa-envelope"></i> Follow Up
+//                     </button>
+//                 </div>
+//             </td>
+//         </tr>
+//     `).join('');
+// }
+
+// function renderCardView(transactions) {
+//     const container = document.getElementById('cardView');
+//     if (!container) return;
+
+//     if (transactions.length === 0) {
+//         container.innerHTML = `
+//             <div class="empty-state" style="width:100%;">
+//                 <i class="fas fa-inbox"></i>
+//                 No Warning or Critical transactions found.
+//             </div>`;
+//         return;
+//     }
+
+//     container.innerHTML = transactions.map(t => `
+//         <div class="transaction-card">
+//             <div class="card-top">
+//                 <span class="card-transaction-name">${t.transactionName}</span>
+//                 <span class="aging-indicator aging-${t.agingLevel}">
+//                     ${t.agingLevel.toUpperCase()}
+//                 </span>
+//             </div>
+//             <div class="card-details">
+//                 <!--<div><span>Type:</span> ${t.transactionType}</div>-->
+//                 <div><span>Requestor:</span> ${t.requestor}</div>
+//                 <div><span>Current PIC:</span> ${t.currentPIC}</div>
+//                 <div><span>Stage:</span> ${t.currentStage}</div>
+//                 <div><span>Aging:</span> <strong>${t.agingDays} days</strong></div>
+//                 <!--<div><span>Status:</span>
+//                     <span class="status-badge status-${t.status}">
+//                         ${getStatusDisplayName(t.status)}
+//                     </span>
+//                 </div>-->
+//             </div>
+//             <div class="card-actions">
+//                 <button class="btn-action btn-view"
+//                     onclick='openTransactionModal(${JSON.stringify(t)})'>
+//                     <i class="fas fa-eye"></i> View
+//                 </button>
+//                 <button class="btn-action btn-followup"
+//                     <!--data-action="followup"
+//                     data-key="${makeTxKey(t)}"-->
+//                     id="followup-${t.transactionName.replace(/\s+/g, '-')}"
+//                     onclick='openEmailPreviewModal(${JSON.stringify(t)})'
+//                     <!--onclick='sendFollowUpEmail(${JSON.stringify(t)})'-->
+//                     <i class="fas fa-envelope"></i> Follow Up
+//                 </button>
+//             </div>
+//         </div>
+//     `).join('');
+// }
+
+// ─── Follow Up Email (Simulated) ──────────────────────────────
+async function sendFollowUpEmail(buttonEl, transaction) {
+    if (!transaction) {
+        showToast('Unable to prepare email: transaction data not found.', 'error');
+        return;
     }
 
-    try {
-        const res = await fetch('http://localhost:5000/api/send-followup-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                transactionName: transaction.transactionName,
-                transactionType: transaction.transactionType,
-                agingDays:       transaction.agingDays,
-                agingLevel:      transaction.agingLevel,
-                currentPIC:      transaction.currentPIC,
-                requestor:       transaction.requestor,
-                currentPICEmail: transaction.currentPICEmail,
-                requestorEmail:  transaction.requestorEmail,
-                sharePointLink:  transaction.sharePointLink
-            })
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-            showToast(`Follow-up email sent to ${transaction.currentPIC}.`, 'success');
-            if (btn) {
-                btn.innerHTML = '<i class="fas fa-check"></i> Sent';
-                btn.classList.add('btn-sent');
-            }
-        } else {
-            throw new Error(data.error || 'Unknown error');
-        }
-
-    } catch (error) {
-        console.error('Follow-up email failed:', error);
-        showToast(`Failed to send email: ${error.message}`, 'error');
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-envelope"></i> Follow Up';
-        }
-    }
+    // Show email preview modal
+    openEmailPreviewModal(transaction);
 }
+
+function openEmailPreviewModal(transaction) {
+    const modal = document.getElementById('emailPreviewModal');
+    
+    // System admin email (you can make this configurable)
+    const systemAdminEmail = 'systemadmin@company.com';
+    
+    // Populate email fields
+    const toField = document.getElementById('emailTo');
+    const ccField = document.getElementById('emailCc');
+    const subjectField = document.getElementById('emailSubject');
+    const contentSection = document.getElementById('emailContentSection');
+    
+    // To: Current PIC
+    toField.innerHTML = `
+        <span class="email-recipient">
+            <i class="fas fa-user"></i> ${transaction.currentPIC} &lt;${transaction.currentPICEmail || 'pic@company.com'}&gt;
+        </span>
+    `;
+    
+    // Cc: Requestor and System Admin
+    ccField.innerHTML = `
+        <span class="email-recipient">
+            <i class="fas fa-user"></i> ${transaction.requestor} &lt;${transaction.requestorEmail || 'requestor@company.com'}&gt;
+        </span>
+        <span class="email-recipient">
+            <i class="fas fa-user-shield"></i> System Admin &lt;${systemAdminEmail}&gt;
+        </span>
+    `;
+    
+    // Subject
+    const urgencyLabel = transaction.agingLevel === 'critical' ? '🔴 URGENT' : '⚠️ ATTENTION REQUIRED';
+    subjectField.textContent = `${urgencyLabel}: Follow-up Required - ${transaction.transactionName}`;
+    
+    // Email content
+    const agingBadgeClass = transaction.agingLevel === 'critical' ? 'aging-badge-critical' : 'aging-badge-warning';
+    const agingLabel = transaction.agingLevel.toUpperCase();
+    
+    contentSection.innerHTML = `
+        <div class="email-greeting">
+            Dear <strong>${transaction.currentPIC}</strong>,
+        </div>
+        
+        <div class="email-body-text">
+            This is a follow-up reminder regarding the transaction below that requires your attention. 
+            The transaction has been pending for <strong>${transaction.agingDays} days</strong> and is currently 
+            marked as <span class="${agingBadgeClass}">${agingLabel}</span>.
+        </div>
+        
+        <div class="email-details-box">
+            <h4><i class="fas fa-info-circle"></i> Transaction Details</h4>
+            <div class="email-detail-row">
+                <strong>Transaction Name:</strong>
+                <span>${transaction.transactionName}</span>
+            </div>
+            <div class="email-detail-row">
+                <strong>Transaction Type:</strong>
+                <span>${transaction.transactionType}</span>
+            </div>
+            <div class="email-detail-row">
+                <strong>Requestor:</strong>
+                <span>${transaction.requestor}</span>
+            </div>
+            <div class="email-detail-row">
+                <strong>Current Stage:</strong>
+                <span>${transaction.currentStage}</span>
+            </div>
+            <div class="email-detail-row">
+                <strong>Status:</strong>
+                <span class="status-badge status-${transaction.status}">${getStatusDisplayName(transaction.status)}</span>
+            </div>
+            <div class="email-detail-row">
+                <strong>Aging Days:</strong>
+                <span>${transaction.agingDays} days</span>
+            </div>
+            <div class="email-detail-row">
+                <strong>SLA Status:</strong>
+                <span class="${agingBadgeClass}">${agingLabel}</span>
+            </div>
+            <div class="email-detail-row">
+                <strong>Submitted Date:</strong>
+                <span>${transaction.submittedDate}</span>
+            </div>
+            <div class="email-detail-row">
+                <strong>Last Updated:</strong>
+                <span>${transaction.lastUpdated}</span>
+            </div>
+        </div>
+        
+        <div class="email-body-text">
+            Please take immediate action to move this transaction forward. You can access the transaction details here:
+        </div>
+        
+        <div style="margin: 1rem 0;">
+            <a href="${transaction.sharePointLink}" target="_blank" class="email-link-button">
+                <i class="fas fa-external-link-alt"></i> Open Transaction in SharePoint
+            </a>
+        </div>
+        
+        <div class="email-body-text">
+            If you have already taken action or if there are any issues preventing progress, please inform the transaction requestor or contact the system administrator.
+        </div>
+        
+        <div class="email-signature">
+            <strong>Best regards,</strong><br>
+            SCM Monitoring System<br>
+            <em style="font-size: 0.8rem; color: #8a8886;">
+                This is an automated message from the SCM Monitoring System. Please do not reply to this email.
+            </em>
+        </div>
+    `;
+    
+    // Show modal
+    modal.classList.add('active');
+    
+    // Store transaction data for sending
+    modal.dataset.transaction = JSON.stringify(transaction);
+}
+
+function closeEmailPreviewModal() {
+    const modal = document.getElementById('emailPreviewModal');
+    modal.classList.remove('active');
+    delete modal.dataset.transaction;
+}
+
+async function simulateSendEmail() {
+    const modal = document.getElementById('emailPreviewModal');
+    const sendBtn = document.getElementById('sendEmailBtn');
+    const cancelBtn = document.getElementById('cancelEmailBtn');
+    
+    // Get transaction data
+    const transaction = JSON.parse(modal.dataset.transaction || '{}');
+    if (!transaction.transactionName) {
+        showToast('Unable to send email: transaction data not found.', 'error');
+        return;
+    }
+    
+    // Disable buttons and show sending state
+    sendBtn.disabled = true;
+    cancelBtn.disabled = true;
+    sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Close modal
+    closeEmailPreviewModal();
+    
+    // Show success message
+    showToast(
+        `Follow-up email successfully sent to ${transaction.currentPIC} with CC to ${transaction.requestor} and System Admin.`,
+        'success'
+    );
+    
+    // Update the follow-up button state
+    const buttonId = `followup-${transaction.transactionName.replace(/\s+/g, '-')}`;
+    const followupBtn = document.getElementById(buttonId);
+    if (followupBtn) {
+        followupBtn.innerHTML = '<i class="fas fa-check"></i> Sent';
+        followupBtn.classList.add('btn-sent');
+        followupBtn.disabled = true;
+    }
+    
+    // Reset button states
+    sendBtn.disabled = false;
+    cancelBtn.disabled = false;
+    sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Email';
+}
+
+// // ─── Follow Up Email ──────────────────────────────────────────
+// async function sendFollowUpEmail(buttonEl, transaction) {
+//     if (!transaction) {
+//         showToast('Unable to send email: transaction data not found.', 'error');
+//         return;
+//     }
+
+//     buttonEl.disabled = true;
+//     buttonEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+//     try {
+//         const res = await fetch('http://localhost:5000/api/send-followup-email', {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({
+//                 transactionName: transaction.transactionName,
+//                 transactionType: transaction.transactionType,
+//                 agingDays: transaction.agingDays,
+//                 agingLevel: transaction.agingLevel,
+//                 currentPIC: transaction.currentPIC,
+//                 requestor: transaction.requestor,
+//                 currentPICEmail: transaction.currentPICEmail,
+//                 requestorEmail: transaction.requestorEmail,
+//                 sharePointLink: transaction.sharePointLink
+//             })
+//         });
+
+//         const data = await res.json();
+//         if (!data.success) throw new Error(data.error || 'Unknown error');
+
+//         buttonEl.innerHTML = '<i class="fas fa-check"></i> Sent';
+//         buttonEl.classList.add('btn-sent');
+//         showToast(`Follow-up email sent to ${transaction.currentPIC}.`, 'success');
+//     } catch (error) {
+//         buttonEl.disabled = false;
+//         buttonEl.innerHTML = '<i class="fas fa-envelope"></i> Follow Up';
+//         showToast(`Failed to send email: ${error.message}`, 'error');
+//     }
+// }
 
 // ─── Modal ────────────────────────────────────────────────────
 function openTransactionModal(transaction) {
@@ -428,39 +712,102 @@ function getStatusDisplayName(status) {
     return map[status] || status;
 }
 
-// ─── Event Listeners ─────────────────────────────────────────
 function setupEventListeners() {
-    document.getElementById('searchInput').addEventListener('input', applyFilters);
-    document.getElementById('agingFilter').addEventListener('change', applyFilters);
-    document.getElementById('stageFilter').addEventListener('change', applyFilters);
-    document.getElementById('transactionTypeFilter').addEventListener('change', applyFilters);
-    document.getElementById('currentPICFilter').addEventListener('change', applyFilters);
-    
-    // ✅ Reset all filters then reload data on refresh
-    document.getElementById('refreshBtn').addEventListener('click', () => {
-        document.getElementById('searchInput').value              = '';
-        document.getElementById('agingFilter').value              = 'all';
-        document.getElementById('stageFilter').value              = 'all';
-        document.getElementById('transactionTypeFilter').value    = 'all';
-        document.getElementById('currentPICFilter').value         = 'all';
+    // Prevent duplicate binding if called again
+    if (setupEventListeners._bound) return;
+    setupEventListeners._bound = true;
 
-        // Clear active card state
-        document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('card-active'));
+    const byId = (id) => document.getElementById(id);
 
-        loadEscalationData();
+    const searchInput = byId('searchInput');
+    const agingFilter = byId('agingFilter');
+    const stageFilter = byId('stageFilter');
+    const typeFilter = byId('transactionTypeFilter');
+    const picFilter = byId('currentPICFilter');
+    const refreshBtn = byId('refreshBtn');
+    const prevPage = byId('prevPage');
+    const nextPage = byId('nextPage');
+    const closeModalBtn = byId('closeModal');
+    const modal = byId('transactionModal');
+
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+    if (agingFilter) agingFilter.addEventListener('change', applyFilters);
+    if (stageFilter) stageFilter.addEventListener('change', applyFilters);
+    if (typeFilter) typeFilter.addEventListener('change', applyFilters);
+    if (picFilter) picFilter.addEventListener('change', applyFilters);
+
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', async () => {
+            if (searchInput) searchInput.value = '';
+            if (agingFilter) agingFilter.value = 'all';
+            if (stageFilter) stageFilter.value = 'all';
+            if (typeFilter) typeFilter.value = 'all';
+            if (picFilter) picFilter.value = 'all';
+
+            document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('card-active'));
+            await loadEscalationData();
+        });
+    }
+
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            switchView(this.dataset.view);
+        });
     });
 
-    // document.getElementById('refreshBtn').addEventListener('click', loadEscalationData);
+    if (prevPage) prevPage.addEventListener('click', () => changePage(-1));
+    if (nextPage) nextPage.addEventListener('click', () => changePage(1));
 
-    document.querySelectorAll('.view-btn').forEach(btn =>
-        btn.addEventListener('click', function () { switchView(this.dataset.view); })
-    );
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === this) closeModal();
+        });
+    }
 
-    document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
-    document.getElementById('nextPage').addEventListener('click', () => changePage(1));
-    document.getElementById('closeModal').addEventListener('click', closeModal);
-    document.getElementById('transactionModal').addEventListener('click', function (e) {
-        if (e.target === this) closeModal();
+    // Email preview modal listeners
+    const closeEmailPreviewBtn = byId('closeEmailPreview');
+    const cancelEmailBtn = byId('cancelEmailBtn');
+    const sendEmailBtn = byId('sendEmailBtn');
+    const emailPreviewModal = byId('emailPreviewModal');
+    
+    if (closeEmailPreviewBtn) {
+        closeEmailPreviewBtn.addEventListener('click', closeEmailPreviewModal);
+    }
+    
+    if (cancelEmailBtn) {
+        cancelEmailBtn.addEventListener('click', closeEmailPreviewModal);
+    }
+    
+    if (sendEmailBtn) {
+        sendEmailBtn.addEventListener('click', simulateSendEmail);
+    }
+    
+    if (emailPreviewModal) {
+        emailPreviewModal.addEventListener('click', function(e) {
+            if (e.target === this) closeEmailPreviewModal();
+        });
+    }
+
+    // Delegated click handler for View and Follow Up buttons
+    document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+
+        const action = btn.dataset.action;
+        const key = btn.dataset.key;
+        const tx = escalationTxIndex.get(key);
+
+        if (!tx) {
+            showToast('Transaction not found.', 'error');
+            return;
+        }
+
+        if (action === 'view') {
+            openTransactionModal(tx);
+        } else if (action === 'followup') {
+            openEmailPreviewModal(tx);
+        }
     });
 
     // Summary card click → filter
@@ -469,14 +816,17 @@ function setupEventListeners() {
             const isActive = this.classList.contains('card-active');
             document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('card-active'));
 
-            if (isActive) {
-                document.getElementById('agingFilter').value = 'all';
-            } else {
+            if (!isActive) {
                 this.classList.add('card-active');
-                document.getElementById('agingFilter').value = this.dataset.filterValue;
             }
 
-            document.querySelector('.transactions-section').scrollIntoView({ behavior: 'smooth' });
+            if (agingFilter) {
+                agingFilter.value = isActive ? 'all' : this.dataset.filterValue;
+            }
+
+            const section = document.querySelector('.transactions-section');
+            if (section) section.scrollIntoView({ behavior: 'smooth' });
+
             applyFilters();
         });
     });
