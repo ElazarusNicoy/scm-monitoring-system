@@ -348,14 +348,14 @@ scm-monitoring-system/
 - **CSS3**: Styling with flexbox, grid, CSS variables, animations, and transitions
 - **JavaScript (ES6+)**: Dynamic functionality, API fetching, DOM manipulation, and state management
 - **Font Awesome 6.4.0**: Icon library via CDN for UI icons (status badges, buttons, timeline icons, email icons)
+- **SheetJS (xlsx.js)**: Client-side library for generating Excel (.xlsx) files
+- **jsPDF & jsPDF-AutoTable**: Client-side libraries for generating PDF (.pdf) files with tables
 
 ### Backend
 - **Python 3**: Server-side logic and database querying
 - **Flask**: Lightweight web framework for REST API endpoints
 - **Flask-CORS**: Cross-Origin Resource Sharing support to allow HTML files to call the Flask API
 - **pyodbc**: Python library for connecting and querying the Microsoft SQL Server database
-- **openpyxl**: Python library for generating Excel (.xlsx) files
-- **reportlab**: Python library for generating PDF files
 
 ### Database
 - **Microsoft SQL Server (MSSQL)**: Primary database storing all transaction data, views, and SLA information
@@ -616,9 +616,9 @@ Planned features for future releases:
 - Verify `emailPreviewModal` element exists in HTML
 
 ### Export Not Working
-- Ensure API server has write permissions
-- Check browser console for errors
-- Verify `openpyxl` and `reportlab` are installed
+- Check the browser console for any JavaScript errors (press F12).
+- Ensure the `reportTransactions` array has data before clicking export.
+- Verify that the SheetJS and jsPDF libraries are correctly linked in `reports.html`.
 
 ---
 
