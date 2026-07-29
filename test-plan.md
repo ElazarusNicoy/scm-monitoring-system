@@ -66,115 +66,108 @@ The test plan covers all major features of the SCM Monitoring System across its 
 ### Objective
 To verify that individual small parts of the code work correctly on their own before putting the whole system together.
 
-| Module  | Description | Test Date | Responsibility | 
-| ------------- |:-------------:|:-------------:|:-------------:|
-| Workflow Tracking: Summary Cards  | Verify total transaction count metrics across summary cards | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Summary Cards  | Validate hover animation (card elevation lift effect) on mouse hover | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Summary Cards  | Verify dynamic list filtering and updating upon clicking a summary card | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Search Bar  | Validate real-time search filtering as user inputs characters | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Transaction List | Verify transaction list auto-sorting by last modified date (descending order) | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Transaction List | Validate visual indicators for Warning status (pulsating aging days animation and yellow/orange highlight) | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Transaction List (Table View) | Validate Critical status styling (red border accent, light red background, fire icon, and pulsating animation) | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Transaction List (Card View) | Verify Critical card layout elements (fire icon near title, SLA status string concatenation, and bottom timestamp row) | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Pagination | Verify page navigation preserves default sorting by latest modified date | YYYY-MM-DD | Lead Developer |
-| Escalation: Automated Notification | Validate simulated email toast notification on tab load (displays count and aging category for new Critical/Warning items)
- | YYYY-MM-DD | Lead Developer |
-| Escalation: Summary Cards | Verify summary cards dynamically filter strictly for Warning and Critical items  | YYYY-MM-DD | Lead Developer |
-| Escalation: Aging Transaction (Table and Card View) | Verify the visibility and clickable action of the manual "Follow Up" button | YYYY-MM-DD | Lead Developer |
-| Escalation: Refresh button | Validate that clicking Refresh resets filtered results and updates the transaction view | YYYY-MM-DD | Lead Developer |
-| Escalation: Pagination | Verify escalation list pagination preserves default sorting by latest modified date | YYYY-MM-DD | Lead Developer |
-| Reports: Report Filters | Verify automatic loading and display of default preset filters on tab entry | YYYY-MM-DD | Lead Developer |
-| Reports: Report Filters | Validate that resetting filters clears active criteria and re-renders the report preview  | YYYY-MM-DD | Lead Developer |
+| Module                                            | Description                                                                                                        | Test Date  | Responsibility |
+|---------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------|:----------:|:---------------|
+| Workflow Tracking: Summary Cards                  | Verify total transaction count metrics across summary cards                                                        | YYYY-MM-DD | Lead Developer |
+| Workflow Tracking: Summary Cards                  | Validate hover animation (card elevation lift effect) on mouse hover                                               | YYYY-MM-DD | Lead Developer |
+| Workflow Tracking: Summary Cards                  | Verify dynamic list filtering and updating upon clicking a summary card                                            | YYYY-MM-DD | Lead Developer |
+| Workflow Tracking: Search Bar                     | Validate real-time search filtering as user inputs characters                                                      | YYYY-MM-DD | Lead Developer |
+| Workflow Tracking: Transaction List               | Verify transaction list auto-sorting by last modified date (descending order)                                      | YYYY-MM-DD | Lead Developer |
+| Workflow Tracking: Transaction List               | Validate visual indicators for Warning status (pulsating aging days animation and yellow/orange highlight)         | YYYY-MM-DD | Lead Developer |
+| Workflow Tracking: Transaction List (Table View)  | Validate Critical status styling (red border accent, light red background, fire icon, and pulsating animation)     | YYYY-MM-DD | Lead Developer |
+| Workflow Tracking: Transaction List (Card View)   | Verify Critical card layout elements (fire icon near title, SLA status string concatenation, and bottom timestamp row) | YYYY-MM-DD | Lead Developer |
+| Workflow Tracking: Pagination                     | Verify page navigation preserves default sorting by latest modified date                                           | YYYY-MM-DD | Lead Developer |
+| Escalation: Automated Notification                | Validate simulated email toast notification on tab load (displays count and aging category for new Critical/Warning items) | YYYY-MM-DD | Lead Developer |
+| Escalation: Summary Cards                         | Verify summary cards dynamically filter strictly for Warning and Critical items                                    | YYYY-MM-DD | Lead Developer |
+| Escalation: Aging Transaction (Table and Card View) | Verify the visibility and clickable action of the manual "Follow Up" button                                        | YYYY-MM-DD | Lead Developer |
+| Escalation: Refresh button                        | Validate that clicking Refresh resets filtered results and updates the transaction view                            | YYYY-MM-DD | Lead Developer |
+| Escalation: Pagination                            | Verify escalation list pagination preserves default sorting by latest modified date                                | YYYY-MM-DD | Lead Developer |
+| Reports: Report Filters                           | Verify automatic loading and display of default preset filters on tab entry                                        | YYYY-MM-DD | Lead Developer |
+| Reports: Report Filters                           | Validate that resetting filters clears active criteria and re-renders the report preview                           | YYYY-MM-DD | Lead Developer |
+
 
 ## Integration Testing
 ### Objective
 To verify that different parts of the system work together as expected.
 
-| Module  | Description | Test Date | Responsibility | 
-| ------------- |:-------------:|:-------------:|:-------------:|
-| Workflow Tracking: Search & Filter Integration  | Verify combined query execution when applying search keywords simultaneously with dropdown filters | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Multi-Filter Integration | Validate compound data filtering when combining multiple dropdown selection criteria  | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Details Modal Integration | Verify real-time SLA state propagation into modal view (including pulsating CSS animation for Warning/Critical states). | YYYY-MM-DD | Lead Developer |
-| Escalation: Details Modal Integration | Validate conditional modal rendering in Escalation view (verifying intentional reduction of Workflow Progress and SLA timeline). Workflow Progress and SLA Information are removed from the modal. | YYYY-MM-DD | Lead Developer |
-| Escalation: Summary Card & Filter Sync | Verify bi-directional state synchronization between Summary Card selection and Dropdown Filter values.  | YYYY-MM-DD | Lead Developer |
-| Escalation: Email Simulator Modal | Verify trigger integration between "Follow Up" action and Outlook-style simulated email preview rendering | YYYY-MM-DD | Lead Developer |
-| Escalation: Email Recipient Mapping | Validate automated address populating in email preview (To: Current PIC, CC: Requestor and System Admin). | YYYY-MM-DD | Lead Developer |
-| Escalation: Dynamic Email Subject Generation | Verify automated subject line construction containing Transaction ID and dynamic urgency prefix (Urgent vs. Attention Required) | YYYY-MM-DD | Lead Developer |
-| Escalation: Dynamic Email Body Generation | Validate email body data binding (recipient greeting, escalation trigger reason, transaction metadata, and dynamic SharePoint URL). | YYYY-MM-DD | Lead Developer |
-| Escalation: Modal Navigation Control | Validate "Cancel" action handling (modal dismissal and returning on aging transaction list)
- | YYYY-MM-DD | Lead Developer |
-| Escalation: Simulated Email Dispatch | Verify "Send Email" execution flow (simulated dispatch trigger, success notification, and status state update).
- | YYYY-MM-DD | Lead Developer |
-| Reports: Preset Filter Integration | Verify responsive display of found transactions in the report preview that are aligned with suggested filters. | YYYY-MM-DD | Lead Developer |
-| RReports: Custom Query Execution | Validate query execution merging preset parameters and manual dropdown filters upon clicking "Apply Filter and Preview" | YYYY-MM-DD | Lead Developer |
+| Module                                     | Description                                                                                                                            | Test Date  | Responsibility |
+|--------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------|:----------:|:---------------|
+| Workflow Tracking: Search & Filter Integration | Verify combined query execution when applying search keywords simultaneously with dropdown filters                                     | YYYY-MM-DD | Lead Developer |
+| Workflow Tracking: Multi-Filter Integration  | Validate compound data filtering when combining multiple dropdown selection criteria                                                     | YYYY-MM-DD | Lead Developer |
+| Workflow Tracking: Details Modal Integration | Verify real-time SLA state propagation into modal view (including pulsating CSS animation for Warning/Critical states).                | YYYY-MM-DD | Lead Developer |
+| Escalation: Details Modal Integration      | Validate conditional modal rendering in Escalation view (verifying intentional reduction of Workflow Progress and SLA timeline). Workflow Progress and SLA Information are removed from the modal. | YYYY-MM-DD | Lead Developer |
+| Escalation: Summary Card & Filter Sync     | Verify bi-directional state synchronization between Summary Card selection and Dropdown Filter values.                                   | YYYY-MM-DD | Lead Developer |
+| Escalation: Email Simulator Modal          | Verify trigger integration between "Follow Up" action and Outlook-style simulated email preview rendering                                | YYYY-MM-DD | Lead Developer |
+| Escalation: Email Recipient Mapping        | Validate automated address populating in email preview (To: Current PIC, CC: Requestor and System Admin).                                | YYYY-MM-DD | Lead Developer |
+| Escalation: Dynamic Email Subject Generation | Verify automated subject line construction containing Transaction ID and dynamic urgency prefix (Urgent vs. Attention Required)          | YYYY-MM-DD | Lead Developer |
+| Escalation: Dynamic Email Body Generation  | Validate email body data binding (recipient greeting, escalation trigger reason, transaction metadata, and dynamic SharePoint URL).      | YYYY-MM-DD | Lead Developer |
+| Escalation: Modal Navigation Control       | Validate "Cancel" action handling (modal dismissal and returning on aging transaction list)                                              | YYYY-MM-DD | Lead Developer |
+| Escalation: Simulated Email Dispatch       | Verify "Send Email" execution flow (simulated dispatch trigger, success notification, and status state update).                          | YYYY-MM-DD | Lead Developer |
+| Reports: Preset Filter Integration         | Verify responsive display of found transactions in the report preview that are aligned with suggested filters.                           | YYYY-MM-DD | Lead Developer |
+| Reports: Custom Query Execution            | Validate query execution merging preset parameters and manual dropdown filters upon clicking "Apply Filter and Preview"                  | YYYY-MM-DD | Lead Developer |
+| Reports: Dataset Preview Rendering         | Verify full dataset rendering in Report Preview table matching active criteria (verifying non-paginated scrolling view).                 | YYYY-MM-DD | Lead Developer |
+| Reports: File Export Integration           | Verify data pipeline binding between filtered UI dataset and generated physical file outputs (.XLSX and .PDF) to local storage.            | YYYY-MM-DD | Lead Developer |
+| Workflow Tracking ↔ Escalation Data Sync   | Verify data alignment for Warning/Critical status counts and item details between Workflow Tracking and Escalation tabs                  | YYYY-MM-DD | Lead Developer |
+| Workflow Tracking ↔ Reports Data Sync      | Validate cross-module data alignment across Aging Category, Transaction Type, and Status filters between Tracking and Reporting tab      | YYYY-MM-DD | Lead Developer |
+| Escalation ↔ Reports Data Sync             | Verify data alignment between Escalation metrics and Report preset filter query results                                                  | YYYY-MM-DD | Lead Developer |
 
-| Reports: Dataset Preview Rendering | Verify full dataset rendering in Report Preview table matching active criteria (verifying non-paginated scrolling view). | YYYY-MM-DD | Lead Developer |
-| Reports: File Export Integration | Verify data pipeline binding between filtered UI dataset and generated physical file outputs (.XLSX and .PDF) to local storage.  | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking ↔ Escalation Data Sync | Verify data alignment for Warning/Critical status counts and item details between Workflow Tracking and Escalation tabs | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking ↔ Reports Data Sync | Validate cross-module data alignment across Aging Category, Transaction Type, and Status filters between Tracking and Reporting tab | YYYY-MM-DD | Lead Developer |
-| Escalation ↔ Reports Data Sync |  Verify data alignment between Escalation metrics and Report preset filter query results | YYYY-MM-DD | Lead Developer |
 
 
 ## System Testing
 ### Objective
 To verify that the complete, integrated system works as expected and meets core user requirements.
 
-| Module  | Description | Test Date | Responsibility | 
-| ------------- |:-------------:|:-------------:|:-------------:|
-| Workflow Tracking: Metric Accuracy & Transparency | Validate system-wide transaction counter accuracy (displaying matching "X out of Y" records) across all applied global filters | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: End-to-End Workflow Visibility | Validate that all required transaction metadata, history, and status attributes are completely populated and accessible across views | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Data Completeness & Accessibility | The completeness of combination of details per transaction and show it and accessible to all users. | YYYY-MM-DD | Lead Developer |
+| Module                                         | Description                                                                                                                                  | Test Date  | Responsibility |
+|------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------|:----------:|:---------------|
+| Workflow Tracking: Metric Accuracy & Transparency | Validate system-wide transaction counter accuracy (displaying matching "X out of Y" records) across all applied global filters                 | YYYY-MM-DD | Lead Developer |
+| Workflow Tracking: End-to-End Workflow Visibility | Validate that all required transaction metadata, history, and status attributes are completely populated and accessible across views           | YYYY-MM-DD | Lead Developer |
+| Workflow Tracking: Data Completeness & Accessibility | The completeness of combination of details per transaction and show it and accessible to all users.                                        | YYYY-MM-DD | Lead Developer |
 | Workflow Tracking: Centralized Data Integration | Verify seamless cross-module data consistency where centralized transaction records synchronize identically across Workflow Tracking, Escalation, and Reporting modules | YYYY-MM-DD | Lead Developer |
+
 
 ## User Acceptance Testing
 ### Objective
 To verify that individual small parts of code work correctly on their own before putting the whole system together.
 
-| Module  | Description | Test Date | Responsibility | 
-| ------------- |:-------------:|:-------------:|:-------------:|
-| Workflow Tracking: Search & Filter Integration  | Verify combined query execution when applying search keywords simultaneously with dropdown filters | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Multi-Filter Integration | Validate compound data filtering when combining multiple dropdown selection criteria  | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Details Modal Integration | Verify real-time SLA state propagation into modal view (including pulsating CSS animation for Warning/Critical states). | YYYY-MM-DD | Lead Developer |
-| Escalation: Details Modal Integration | Validate conditional modal rendering in Escalation view (verifying intentional reduction of Workflow Progress and SLA timeline). Workflow Progress and SLA Information are removed from the modal. | YYYY-MM-DD | Lead Developer |
-| Escalation: Summary Card & Filter Sync | Verify bi-directional state synchronization between Summary Card selection and Dropdown Filter values.  | YYYY-MM-DD | Lead Developer |
-| Escalation: Email Simulator Modal | Verify trigger integration between "Follow Up" action and Outlook-style simulated email preview rendering | YYYY-MM-DD | Lead Developer |
-| Escalation: Email Recipient Mapping | Validate automated address populating in email preview (To: Current PIC, CC: Requestor and System Admin). | YYYY-MM-DD | Lead Developer |
-| Escalation: Dynamic Email Subject Generation | Verify automated subject line construction containing Transaction ID and dynamic urgency prefix (Urgent vs. Attention Required) | YYYY-MM-DD | Lead Developer |
-| Escalation: Dynamic Email Body Generation | Validate email body data binding (recipient greeting, escalation trigger reason, transaction metadata, and dynamic SharePoint URL). | YYYY-MM-DD | Lead Developer |
-| Escalation: Modal Navigation Control | Validate "Cancel" action handling (modal dismissal and returning on aging transaction list)
- | YYYY-MM-DD | Lead Developer |
-| Escalation: Simulated Email Dispatch | Verify "Send Email" execution flow (simulated dispatch trigger, success notification, and status state update).
- | YYYY-MM-DD | Lead Developer |
-| Reports: Preset Filter Integration | Verify responsive display of found transactions in the report preview that are aligned with suggested filters. | YYYY-MM-DD | Lead Developer |
-| RReports: Custom Query Execution | Validate query execution merging preset parameters and manual dropdown filters upon clicking "Apply Filter and Preview" | YYYY-MM-DD | Lead Developer |
-
-| Reports: Dataset Preview Rendering | Verify full dataset rendering in Report Preview table matching active criteria (verifying non-paginated scrolling view). | YYYY-MM-DD | Lead Developer |
-| Reports: File Export Integration | Verify data pipeline binding between filtered UI dataset and generated physical file outputs (.XLSX and .PDF) to local storage.  | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking ↔ Escalation Data Sync | Verify data alignment for Warning/Critical status counts and item details between Workflow Tracking and Escalation tabs | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking ↔ Reports Data Sync | Validate cross-module data alignment across Aging Category, Transaction Type, and Status filters between Tracking and Reporting tab | YYYY-MM-DD | Lead Developer |
-| Escalation ↔ Reports Data Sync |  Verify data alignment between Escalation metrics and Report preset filter query results | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Search & Filter Integration  | Verify combined query execution when applying search keywords simultaneously with dropdown filters | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Multi-Filter Integration | Validate compound data filtering when combining multiple dropdown selection criteria  | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Details Modal Integration | Verify real-time SLA state propagation into modal view (including pulsating CSS animation for Warning/Critical states). | YYYY-MM-DD | Lead Developer |
-| Escalation: Details Modal Integration | Validate conditional modal rendering in Escalation view (verifying intentional reduction of Workflow Progress and SLA timeline). Workflow Progress and SLA Information are removed from the modal. | YYYY-MM-DD | Lead Developer |
-| Escalation: Summary Card & Filter Sync | Verify bi-directional state synchronization between Summary Card selection and Dropdown Filter values.  | YYYY-MM-DD | Lead Developer |
-| Escalation: Email Simulator Modal | Verify trigger integration between "Follow Up" action and Outlook-style simulated email preview rendering | YYYY-MM-DD | Lead Developer |
-| Escalation: Email Recipient Mapping | Validate automated address populating in email preview (To: Current PIC, CC: Requestor and System Admin). | YYYY-MM-DD | Lead Developer |
-| Escalation: Dynamic Email Subject Generation | Verify automated subject line construction containing Transaction ID and dynamic urgency prefix (Urgent vs. Attention Required) | YYYY-MM-DD | Lead Developer |
-| Escalation: Dynamic Email Body Generation | Validate email body data binding (recipient greeting, escalation trigger reason, transaction metadata, and dynamic SharePoint URL). | YYYY-MM-DD | Lead Developer |
-| Escalation: Modal Navigation Control | Validate "Cancel" action handling (modal dismissal and returning on aging transaction list)
- | YYYY-MM-DD | Lead Developer |
-| Escalation: Simulated Email Dispatch | Verify "Send Email" execution flow (simulated dispatch trigger, success notification, and status state update).
- | YYYY-MM-DD | Lead Developer |
-| Reports: Preset Filter Integration | Verify responsive display of found transactions in the report preview that are aligned with suggested filters. | YYYY-MM-DD | Lead Developer |
-| RReports: Custom Query Execution | Validate query execution merging preset parameters and manual dropdown filters upon clicking "Apply Filter and Preview" | YYYY-MM-DD | Lead Developer |
-
-| Reports: Dataset Preview Rendering | Verify full dataset rendering in Report Preview table matching active criteria (verifying non-paginated scrolling view). | YYYY-MM-DD | Lead Developer |
-| Reports: File Export Integration | Verify data pipeline binding between filtered UI dataset and generated physical file outputs (.XLSX and .PDF) to local storage.  | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking ↔ Escalation Data Sync | Verify data alignment for Warning/Critical status counts and item details between Workflow Tracking and Escalation tabs | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking ↔ Reports Data Sync | Validate cross-module data alignment across Aging Category, Transaction Type, and Status filters between Tracking and Reporting tab | YYYY-MM-DD | Lead Developer |
-| Escalation ↔ Reports Data Sync |  Verify data alignment between Escalation metrics and Report preset filter query results | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Metric Accuracy & Transparency | Validate system-wide transaction counter accuracy (displaying matching "X out of Y" records) across all applied global filters | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: End-to-End Workflow Visibility | Validate that all required transaction metadata, history, and status attributes are completely populated and accessible across views | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Data Completeness & Accessibility | The completeness of combination of details per transaction and show it and accessible to all users. | YYYY-MM-DD | Lead Developer |
-| Workflow Tracking: Centralized Data Integration | Verify seamless cross-module data consistency where centralized transaction records synchronize identically across Workflow Tracking, Escalation, and Reporting modules | YYYY-MM-DD | Lead Developer |
+| Module                                     | Description                                                                                                                            | Test Date  | Responsibility |
+|--------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------|:----------:|:---------------|
+| Workflow Tracking: Search & Filter Integration | Verify combined query execution when applying search keywords simultaneously with dropdown filters                                     | YYYY-MM-DD | End-User |
+| Workflow Tracking: Multi-Filter Integration  | Validate compound data filtering when combining multiple dropdown selection criteria                                                     | YYYY-MM-DD | End-user |
+| Workflow Tracking: Details Modal Integration | Verify real-time SLA state propagation into modal view (including pulsating CSS animation for Warning/Critical states).                | YYYY-MM-DD | End-user |
+| Escalation: Details Modal Integration      | Validate conditional modal rendering in Escalation view (verifying intentional reduction of Workflow Progress and SLA timeline). Workflow Progress and SLA Information are removed from the modal. | YYYY-MM-DD | End-user |
+| Escalation: Summary Card & Filter Sync     | Verify bi-directional state synchronization between Summary Card selection and Dropdown Filter values.                                   | YYYY-MM-DD | End-user |
+| Escalation: Email Simulator Modal          | Verify trigger integration between "Follow Up" action and Outlook-style simulated email preview rendering                                | YYYY-MM-DD | End-user |
+| Escalation: Email Recipient Mapping        | Validate automated address populating in email preview (To: Current PIC, CC: Requestor and System Admin).                                | YYYY-MM-DD | End-user |
+| Escalation: Dynamic Email Subject Generation | Verify automated subject line construction containing Transaction ID and dynamic urgency prefix (Urgent vs. Attention Required)          | YYYY-MM-DD | End-user |
+| Escalation: Dynamic Email Body Generation  | Validate email body data binding (recipient greeting, escalation trigger reason, transaction metadata, and dynamic SharePoint URL).      | YYYY-MM-DD | End-user |
+| Escalation: Modal Navigation Control       | Validate "Cancel" action handling (modal dismissal and returning on aging transaction list)                                              | YYYY-MM-DD | End-user |
+| Escalation: Simulated Email Dispatch       | Verify "Send Email" execution flow (simulated dispatch trigger, success notification, and status state update).                          | YYYY-MM-DD | End-user |
+| Reports: Preset Filter Integration         | Verify responsive display of found transactions in the report preview that are aligned with suggested filters.                           | YYYY-MM-DD | End-user |
+| Reports: Custom Query Execution            | Validate query execution merging preset parameters and manual dropdown filters upon clicking "Apply Filter and Preview"                  | YYYY-MM-DD | End-user |
+| Reports: Dataset Preview Rendering         | Verify full dataset rendering in Report Preview table matching active criteria (verifying non-paginated scrolling view).                 | YYYY-MM-DD | End-user |
+| Reports: File Export Integration           | Verify data pipeline binding between filtered UI dataset and generated physical file outputs (.XLSX and .PDF) to local storage.            | YYYY-MM-DD | End-user |
+| Workflow Tracking ↔ Escalation Data Sync   | Verify data alignment for Warning/Critical status counts and item details between Workflow Tracking and Escalation tabs                  | YYYY-MM-DD | End-user |
+| Workflow Tracking ↔ Reports Data Sync      | Validate cross-module data alignment across Aging Category, Transaction Type, and Status filters between Tracking and Reporting tab      | YYYY-MM-DD | End-user |
+| Escalation ↔ Reports Data Sync             | Verify data alignment between Escalation metrics and Report preset filter query results                                                  | YYYY-MM-DD | End-user |
+| Workflow Tracking: Search & Filter Integration | Verify combined query execution when applying search keywords simultaneously with dropdown filters                                     | YYYY-MM-DD | End-user |
+| Workflow Tracking: Multi-Filter Integration  | Validate compound data filtering when combining multiple dropdown selection criteria                                                     | YYYY-MM-DD | End-user |
+| Workflow Tracking: Details Modal Integration | Verify real-time SLA state propagation into modal view (including pulsating CSS animation for Warning/Critical states).                | YYYY-MM-DD | End-user |
+| Escalation: Details Modal Integration      | Validate conditional modal rendering in Escalation view (verifying intentional reduction of Workflow Progress and SLA timeline). Workflow Progress and SLA Information are removed from the modal. | YYYY-MM-DD | End-user |
+| Escalation: Summary Card & Filter Sync     | Verify bi-directional state synchronization between Summary Card selection and Dropdown Filter values.                                   | YYYY-MM-DD | End-user |
+| Escalation: Email Simulator Modal          | Verify trigger integration between "Follow Up" action and Outlook-style simulated email preview rendering                                | YYYY-MM-DD | End-user |
+| Escalation: Email Recipient Mapping        | Validate automated address populating in email preview (To: Current PIC, CC: Requestor and System Admin).                                | YYYY-MM-DD | End-user |
+| Escalation: Dynamic Email Subject Generation | Verify automated subject line construction containing Transaction ID and dynamic urgency prefix (Urgent vs. Attention Required)          | YYYY-MM-DD | End-user |
+| Escalation: Dynamic Email Body Generation  | Validate email body data binding (recipient greeting, escalation trigger reason, transaction metadata, and dynamic SharePoint URL).      | YYYY-MM-DD | End-user |
+| Escalation: Modal Navigation Control       | Validate "Cancel" action handling (modal dismissal and returning on aging transaction list)                                              | YYYY-MM-DD | End-user |
+| Escalation: Simulated Email Dispatch       | Verify "Send Email" execution flow (simulated dispatch trigger, success notification, and status state update).                          | YYYY-MM-DD | End-user |
+| Reports: Preset Filter Integration         | Verify responsive display of found transactions in the report preview that are aligned with suggested filters.                           | YYYY-MM-DD | End-user |
+| Reports: Custom Query Execution            | Validate query execution merging preset parameters and manual dropdown filters upon clicking "Apply Filter and Preview"                  | YYYY-MM-DD | End-user |
+| Reports: Dataset Preview Rendering         | Verify full dataset rendering in Report Preview table matching active criteria (verifying non-paginated scrolling view).                 | YYYY-MM-DD | End-user |
+| Reports: File Export Integration           | Verify data pipeline binding between filtered UI dataset and generated physical file outputs (.XLSX and .PDF) to local storage.            | YYYY-MM-DD | End-user |
+| Workflow Tracking ↔ Escalation Data Sync   | Verify data alignment for Warning/Critical status counts and item details between Workflow Tracking and Escalation tabs                  | YYYY-MM-DD | End-user |
+| Workflow Tracking ↔ Reports Data Sync      | Validate cross-module data alignment across Aging Category, Transaction Type, and Status filters between Tracking and Reporting tab      | YYYY-MM-DD | End-user |
+| Escalation ↔ Reports Data Sync             | Verify data alignment between Escalation metrics and Report preset filter query results                                                  | YYYY-MM-DD | End-user |
+| Workflow Tracking: Metric Accuracy & Transparency | Validate system-wide transaction counter accuracy (displaying matching "X out of Y" records) across all applied global filters                 | YYYY-MM-DD | End-user |
+| Workflow Tracking: End-to-End Workflow Visibility | Validate that all required transaction metadata, history, and status attributes are completely populated and accessible across views           | YYYY-MM-DD | End-user |
+| Workflow Tracking: Data Completeness & Accessibility | The completeness of combination of details per transaction and show it and accessible to all users.                                        | YYYY-MM-DD | End-user |
+| Workflow Tracking: Centralized Data Integration | Verify seamless cross-module data consistency where centralized transaction records synchronize identically across Workflow Tracking, Escalation, and Reporting modules | YYYY-MM-DD | End-user |
