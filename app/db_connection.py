@@ -29,6 +29,29 @@ def _get_connection_string():
         )
     return _connection_string
 
+def authenticate_user(username, password):
+    """
+    Authenticate a user against the database.
+    Returns True if authentication is successful, False otherwise.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            query = """
+                PK_ID, username, password, Active
+                FROM users
+                WHERE username = ? AND password = ? AND Active = 1
+            """
+            cursor.execute(query, (username, password))
+            row = cursor.fetchone()
+            cursor.close()
+            if row:
+                return {"pk_id": row[0], "username": row[1], "active": row[3]}
+            else:
+                return None
+    except Exception as e:
+        print(f"Error authenticating user: {e}")
+        return None
 
 @contextmanager
 def get_db_connection():

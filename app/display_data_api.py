@@ -1,19 +1,21 @@
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from flask import request
-from db_connection import get_critical_transactions_count, get_warning_transactions_count, get_normal_transactions_count
-from db_connection import get_forApproval_transactions_count, get_Pending_transactions_count, get_ForAdditionalInput_transactions_count, get_Complete_transactions_count
-from db_connection import get_all_transactions_list, get_SLA_InformationDetails, get_all_transactions_workflow_progress
-from db_connection import get_distinct_stages_from_all_transactions_list, get_distinct_transaction_types_from_all_transactions_list
-from db_connection import get_distinct_current_pic_from_all_transactions_list, get_distinct_current_pic_from_warningCrit_transactions_list, get_newly_warningCriticalTransactions
+from app.db_connection import get_critical_transactions_count, get_warning_transactions_count, get_normal_transactions_count
+from app.db_connection import get_forApproval_transactions_count, get_Pending_transactions_count, get_ForAdditionalInput_transactions_count, get_Complete_transactions_count
+from app.db_connection import get_all_transactions_list, get_SLA_InformationDetails, get_all_transactions_workflow_progress
+from app.db_connection import get_distinct_stages_from_all_transactions_list, get_distinct_transaction_types_from_all_transactions_list
+from app.db_connection import get_distinct_current_pic_from_all_transactions_list, get_distinct_current_pic_from_warningCrit_transactions_list, get_newly_warningCriticalTransactions
 import os
-from utils.email_sender import send_escalation_email
-from db_connection import (
+from app.utils.email_sender import send_escalation_email
+from app.db_connection import (
     get_escalation_log,
     get_escalation_transactions,
     get_transactions_newly_aged,
     log_escalation_email
     )
+from flask import Flask, jsonify, request
+from app.db_connection import authenticate_user
 
 
 app = Flask(__name__)
@@ -36,24 +38,16 @@ def serve_styles():
     """Serve the CSS file."""
     return send_from_directory(BASE_DIR, 'styles.css', mimetype='text/css')
 
-# @app.route('/api/transactions')
-# def get_all_transactions():
-#     try:
-#         transactions = get_transactions()
-        
-#         return jsonify({
-#             'success': True,
-#             'data': transactions,
-#             'count': len(transactions),
-#             'summary': {
-#                 'allTransactions': transactions
-#             }
-#         })
-#     except Exception as e:
-#         return jsonify({
-#             'success': False,
-#             'error': str(e)
-#         }), 500
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    user = authenticate_user(username, password)
+    if user:
+        return jsonify({'success': True, 'user': user})
+    else:
+        return jsonify({'success': False}), 401
 
 @app.route('/api/critical-count')
 def get_critical_count():
