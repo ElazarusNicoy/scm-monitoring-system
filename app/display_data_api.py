@@ -16,38 +16,48 @@ from app.db_connection import (
     )
 from flask import Flask, jsonify, request
 from app.db_connection import authenticate_user
-
-
-app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+from flask import Flask, render_template, redirect, url_for
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, '..'))   
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(PROJECT_ROOT, 'templates'),
+    static_folder=os.path.join(PROJECT_ROOT, 'static')
+
+)
+CORS(app)  # Enable CORS for all routes
 
 @app.route('/')
-def serve_index():
-    """Serve the main HTML page."""
-    return send_from_directory(BASE_DIR, 'workflow-tracking.html')
+def index():
+    """Show login page."""
+    return render_template('login.html')
 
-@app.route('/script.js')
-def serve_script():
-    """Serve the JavaScript file."""
-    return send_from_directory(BASE_DIR, 'script.js', mimetype='application/javascript')
+@app.route('/workflow-tracking')
+def workflow_tracking():
+    return render_template('workflow-tracking.html')
 
-@app.route('/styles.css')
-def serve_styles():
-    """Serve the CSS file."""
-    return send_from_directory(BASE_DIR, 'styles.css', mimetype='text/css')
+# @app.route('/script.js')
+# def serve_script():
+#     """Serve the JavaScript file."""
+#     return send_from_directory(BASE_DIR, 'script.js', mimetype='application/javascript')
+
+# @app.route('/styles.css')
+# def serve_styles():
+#     """Serve the CSS file."""
+#     return send_from_directory(BASE_DIR, 'styles.css', mimetype='text/css')
 
 @app.route('/api/login', methods=['POST'])
 def login():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
+    data = request.get_json() or {}
+    username = data.get('username', '').strip()
+    password = data.get('password', '')
     user = authenticate_user(username, password)
     if user:
-        return jsonify({'success': True, 'user': user})
+        return jsonify({'success': True, 'user': {'pk_id': user['pk_id'], 'username': user['username']}})
     else:
-        return jsonify({'success': False}), 401
+        return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
 
 @app.route('/api/critical-count')
 def get_critical_count():

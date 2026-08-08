@@ -38,7 +38,7 @@ def authenticate_user(username, password):
         with get_db_connection() as conn:
             cursor = conn.cursor()
             query = """
-                PK_ID, username, password, Active
+                SELECT PK_ID, username, password, role, Active
                 FROM users
                 WHERE username = ? AND password = ? AND Active = 1
             """
