@@ -7,7 +7,8 @@ try {
     const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password }),
+        credentials: 'same-origin'
     });
 
     if (res.ok) {
@@ -18,9 +19,10 @@ try {
             return;
         } 
     }
+    const err = await res.json().catch(() => ({}));
 
     //failure
-    alert('Invalid username or password.');
+    alert(err.message || 'Invalid username or password.');
 } catch (err) {
     console.error(err);
     alert('Unable to contact server.');
@@ -45,7 +47,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const res = await fetch('/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, password }),
+                credentials: 'same-origin'
             });
             if (res.ok) {
                 const data = await res.json();
