@@ -93,8 +93,9 @@ body {
 
 .user-name {
     font-size: 0.95rem;
-    color: var(--text-color, #222);
+    color: var(--text-color, #ffffff);
     white-space: nowrap;
+    font-weight: 500;
 }
 
 .user-caret {
