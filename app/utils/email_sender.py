@@ -7,7 +7,7 @@ import os
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 SMTP_HOST     = os.getenv('SMTP_HOST')
-SMTP_PORT     = int(os.getenv('SMTP_PORT'))
+SMTP_PORT     = int(os.getenv('SMTP_PORT', 587))  # default to 587 if not set
 SMTP_USER     = os.getenv('SMTP_USER')      # sender email
 SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')  # sender app password
 SENDER_NAME   = os.getenv('SENDER_NAME')
