@@ -1,22 +1,41 @@
-from flask import Flask, jsonify, send_from_directory
-from flask_cors import CORS
-from flask import request
-from app.db_connection import get_critical_transactions_count, get_warning_transactions_count, get_normal_transactions_count
-from app.db_connection import get_forApproval_transactions_count, get_Pending_transactions_count, get_ForAdditionalInput_transactions_count, get_Complete_transactions_count
-from app.db_connection import get_all_transactions_list, get_SLA_InformationDetails, get_all_transactions_workflow_progress
-from app.db_connection import get_distinct_stages_from_all_transactions_list, get_distinct_transaction_types_from_all_transactions_list
-from app.db_connection import get_distinct_current_pic_from_all_transactions_list, get_distinct_current_pic_from_warningCrit_transactions_list, get_newly_warningCriticalTransactions
 import os
+from flask import (
+    Flask, 
+    jsonify, 
+    send_from_directory,
+    request, 
+    session, 
+    render_template, 
+    redirect, 
+    url_for
+)
+from flask_cors import CORS
+
 from app.utils.email_sender import send_escalation_email
+
 from app.db_connection import (
+    get_critical_transactions_count,
+    get_warning_transactions_count,
+    get_normal_transactions_count,
+    get_forApproval_transactions_count,
+    get_Pending_transactions_count,
+    get_ForAdditionalInput_transactions_count,
+    get_Complete_transactions_count,
+    get_all_transactions_list,
+    get_SLA_InformationDetails,
+    get_all_transactions_workflow_progress,
+    get_distinct_stages_from_all_transactions_list,
+    get_distinct_transaction_types_from_all_transactions_list,
+    get_distinct_current_pic_from_all_transactions_list,
+    get_distinct_current_pic_from_warningCrit_transactions_list,
+    get_newly_warningCriticalTransactions,
     get_escalation_log,
     get_escalation_transactions,
     get_transactions_newly_aged,
-    log_escalation_email
+    log_escalation_email,
+    authenticate_user,
+    display_current_user_responsibilities
     )
-from flask import Flask, jsonify, request
-from app.db_connection import authenticate_user
-from flask import Flask, render_template, redirect, url_for
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, '..'))   
@@ -27,8 +46,10 @@ app = Flask(
     static_folder=os.path.join(PROJECT_ROOT, 'static')
 
 )
-CORS(app)  # Enable CORS for all routes
 
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-secret')
+
+CORS(app)  # Enable CORS for all routes
 @app.route('/')
 def index():
     """Show login page."""
@@ -55,9 +76,34 @@ def login():
     password = data.get('password', '')
     user = authenticate_user(username, password)
     if user:
-        return jsonify({'success': True, 'user': {'pk_id': user['pk_id'], 'username': user['username']}})
-    else:
-        return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
+        session['user'] = {'pk_id': user['pk_id'], 'username': user['username']}
+        return jsonify({'success': True, 'user': session['user']})
+    return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
+
+@app.route('/api/current-user', methods=['GET'])
+def api_current_user():
+    user = session.get('user')
+    if user:
+        return jsonify({'success': True, 'user': user})
+    return jsonify({'success': False, 'message': 'No user logged in'}), 401
+
+
+@app.route('/api/my-responsibilities')
+def get_my_responsibilities():
+    """
+    Return transactions where the current session user is Current PIC or Requestor.
+    Client should call this after successful login (session must be set).
+    """
+    user = session.get('user')
+    if not user:
+        return jsonify({'success': False, 'message': 'Not authenticated'}), 401
+
+    current_user = user.get('username')
+    try:
+        rows = display_current_user_responsibilities(current_user)
+        return jsonify({'success': True, 'responsibilities': rows, 'count': len(rows)})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/critical-count')
 def get_critical_count():
@@ -491,4 +537,5 @@ if __name__ == '__main__':
     print("  - http://localhost:5000/api/distinct-current-pics-warning-critical (distinct current PICs for warning and critical transactions)")
     print("  - http://localhost:5000/api/escalation-log (escalation log)")
     print("  - http://localhost:5000/api/newly-aged-transactions (newly warning/critical transactions)")
+    print("  - http://localhost:5000/api/my-responsibilities (transactions where current user is Current PIC or Requestor)")
     app.run(debug=True, port=5000)

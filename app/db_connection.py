@@ -53,6 +53,52 @@ def authenticate_user(username, password):
         print(f"Error authenticating user: {e}")
         return None
 
+def display_current_user_responsibilities(current_user):
+    """
+    Display the responsibilities where the current user is current PIC or Requestor.
+    Returns a list of responsibilities or an empty list if none found.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            query = """
+                SELECT [Transaction Type]
+                      ,[Transaction Name]
+                      ,[Requestor]
+                      ,[Submitted Date]
+                      ,[Last Updated]
+                      ,[Current Stage]
+                      ,[Current PIC]
+                      ,[Status]
+                      ,[Aging (Days)]
+                      ,[SLA Status]
+                FROM [SP_TRANSACTIONS].[dbo].[all_transactions_list]
+                WHERE [Current PIC] = ? OR [Requestor] = ?
+                ORDER BY [Last Updated] DESC
+            """
+            cursor.execute(query, (current_user, current_user))
+            columns = [col[0] for col in cursor.description]
+            rows = cursor.fetchall()
+            result = []
+            for row in rows:
+                row_dict = dict(zip(columns, row))
+                for date_col in ['Submitted Date', 'Last Updated']:
+                    if date_col in row_dict and row_dict[date_col] is not None:
+                        try:
+                            row_dict[date_col] = row_dict[date_col].strftime('%Y-%m-%d')
+                        except Exception:
+                            # leave as-is if not a datetime
+                            pass
+                result.append(row_dict)
+            cursor.close()
+            return result
+    except odbc.Error as e:
+        print(f"Database query error in display_current_user_responsibilities: {e}")
+        return []
+    except Exception as e:
+        print(f"Unexpected error in display_current_user_responsibilities: {e}")
+        return []
+
 @contextmanager
 def get_db_connection():
     """

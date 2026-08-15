@@ -141,29 +141,54 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // page load
 function initializeApp() {
-    loadAllTransactionsList(); // Load all transactions list from API
-    loadSLAInformationDetails(); // Load SLA information details from API
-    loadWorkflowProgress(); // Load workflow progress from API
-    loadDistinctStages(); // Load distinct stages from API
-    loadDistinctTransactionTypes(); // Load distinct transaction types from API
-    loadDistinctCurrentPICs(); // Load distinct current PICs from API
-    refreshCriticalCount(); // Load critical count from backend
-    refreshWarningCount(); // Load warning count from backend
-    refreshNormalCount(); // Load normal count from backend
-    refreshForApprovalCount(); // Load for approval count from backend
-    refreshPendingCount(); // Load pending count from backend
-    refreshForAdditionalInputCount(); // Load for additional input count from backend
-    refreshCompletedCount(); // Load completed count from backend
-    setupEventListeners();
-    updateCurrentTime();
-    setInterval(updateCurrentTime, 1000);
-    startCriticalCountPolling();
-    startWarningCountPolling();
-    startNormalCountPolling();
-    startForApprovalCountPolling();
-    startPendingCountPolling();
-    startForAdditionalInputCountPolling();
-    startCompletedCountPolling();
+    loadMyResponsibilities()  // Load current user's responsibilities from API
+    .then(hasData => {
+        loadSLAInformationDetails();
+        loadWorkflowProgress();
+        loadDistinctStages();
+        loadDistinctTransactionTypes();
+        loadDistinctCurrentPICs();
+        refreshCriticalCount();
+        refreshWarningCount();
+        refreshNormalCount();
+        refreshForApprovalCount();
+        refreshPendingCount();
+        refreshForAdditionalInputCount();
+        refreshCompletedCount();
+        setupEventListeners();
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+        startCriticalCountPolling();
+        startWarningCountPolling();
+        startNormalCountPolling();
+        startForApprovalCountPolling();
+        startPendingCountPolling();
+        startForAdditionalInputCountPolling();
+        startCompletedCountPolling();
+    });
+    // loadAllTransactionsList(); // Load all transactions list from API
+    // loadSLAInformationDetails(); // Load SLA information details from API
+    // loadWorkflowProgress(); // Load workflow progress from API
+    // loadDistinctStages(); // Load distinct stages from API
+    // loadDistinctTransactionTypes(); // Load distinct transaction types from API
+    // loadDistinctCurrentPICs(); // Load distinct current PICs from API
+    // refreshCriticalCount(); // Load critical count from backend
+    // refreshWarningCount(); // Load warning count from backend
+    // refreshNormalCount(); // Load normal count from backend
+    // refreshForApprovalCount(); // Load for approval count from backend
+    // refreshPendingCount(); // Load pending count from backend
+    // refreshForAdditionalInputCount(); // Load for additional input count from backend
+    // refreshCompletedCount(); // Load completed count from backend
+    // setupEventListeners();
+    // updateCurrentTime();
+    // setInterval(updateCurrentTime, 1000);
+    // startCriticalCountPolling();
+    // startWarningCountPolling();
+    // startNormalCountPolling();
+    // startForApprovalCountPolling();
+    // startPendingCountPolling();
+    // startForAdditionalInputCountPolling();
+    // startCompletedCountPolling();
 }
 
 async function fetchCurrentUser() {
@@ -340,6 +365,76 @@ document.addEventListener('DOMContentLoaded', async () => {
 //     }
 
 // });
+
+async function loadMyResponsibilities() {
+    try {
+        const res = await fetch('/api/my-responsibilities', { credentials: 'same-origin' });
+        if (!res.ok) {
+            console.warn('No responsibilities or not authenticated', res.status);
+            // fallback
+            await loadAllTransactionsList();
+            return false;
+        }
+        const data = await res.json();
+        if (!data.success || !Array.isArray(data.responsibilities) || data.responsibilities.length === 0) {
+            currentTransactions = [];
+            filteredTransactions = [];
+            applyFilters();
+            updateDashboardSummary();
+            updateTransactionCountMetric();
+            return false;
+
+        }
+
+        // Map DB rows to frontend transaction shape
+        const mappedTransactions = data.responsibilities.map(t => ({
+            id: t['Transaction Name'] || 'N/A',
+            transactionType: t['Transaction Type'] || 'N/A',
+            transactionName: t['Transaction Name'] || 'N/A',
+            currentStage: t['Current Stage'] || 'TBD',
+            currentPIC: t['Current PIC'] || '',
+            status: (t['Status'] || 'pending').toLowerCase().trim().replace(/\s+/g, '-'),
+            agingDays: t['Aging Days'] || 0,
+            agingLevel: t['Aging Level'] || 'normal'.toLowerCase().trim(),
+            submittedDate: t['Submitted Date'] || 'N/A',
+            lastUpdated: t['Last Updated'] || 'N/A',
+            requestor: t['Requestor'] || 'N/A',
+
+        }));
+
+        currentTransactions = mappedTransactions;
+        filteredTransactions = mappedTransactions;
+
+        applyFilters();
+        updateDashboardSummary();
+        updateTransactionCountMetric();
+
+        return true;
+
+        console.log('Responsibilities:', data);
+        // render data into the page here
+    } catch (err) {
+        console.error('Failed to load responsibilities, falling back to all transactions', err);
+        await loadAllTransactionsList();
+        return false;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadMyResponsibilities();
+});
+
+async function loadDashboardForCurrentUser() {
+  // get current user (optional)
+  const cu = await fetch('/api/current-user', { credentials: 'same-origin' }).then(r => r.ok ? r.json() : null);
+  // or directly get responsibilities
+  const res = await fetch('/api/my-responsibilities', { credentials: 'same-origin' });
+  if (!res.ok) return; // not authenticated or error
+  const data = await res.json();
+  // data.responsibilities -> render to dashboard table
+  console.log('Responsibilities for', cu && cu.user && cu.user.username, data.responsibilities);
+}
+document.addEventListener('DOMContentLoaded', loadDashboardForCurrentUser);
 
 async function loadDistinctCurrentPICs() {
     try {
