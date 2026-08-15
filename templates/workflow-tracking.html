@@ -37,10 +37,10 @@
             <button class="nav-tab active" data-tab="workflow">
                 <i class="fas fa-stream"></i> Workflow Tracking
             </button>
-            <button class="nav-tab" onclick="window.location.href='escalation.html'">
+            <button class="nav-tab" type="button" onclick="window.location.href='{{ url_for('escalation') }}'">;
                 <i class="fas fa-bell"></i> Escalation
             </button>
-            <button class="nav-tab" onclick="window.location.href='reports.html'"> <!--data-tab="reports"-->
+            <button class="nav-tab" type="button" onclick="window.location.href='{{ url_for('reports') }}'">
                 <i class="fas fa-file-alt"></i> Reports
             </button>
         </nav>

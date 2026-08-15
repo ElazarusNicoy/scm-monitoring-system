@@ -59,6 +59,14 @@ def index():
 def workflow_tracking():
     return render_template('workflow-tracking.html')
 
+@app.route('/escalation')
+def escalation():
+    return render_template('escalation.html')
+
+@app.route('/reports')
+def reports():
+    return render_template('reports.html')
+
 # @app.route('/script.js')
 # def serve_script():
 #     """Serve the JavaScript file."""

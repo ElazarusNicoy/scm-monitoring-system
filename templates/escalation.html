@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCM Monitoring System - Escalation</title>
-    <link rel="stylesheet" href="static/css/escalation.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/escalation.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 </head>
@@ -25,13 +25,13 @@
 
         <!-- Navigation -->
         <nav class="nav-tabs">
-            <button class="nav-tab" onclick="window.location.href='workflow-tracking.html'">
+            <button class="nav-tab" type="button" onclick="window.location.href='{{ url_for('workflow_tracking') }}'">
                 <i class="fas fa-stream"></i> Workflow Tracking
             </button>
             <button class="nav-tab active">
                 <i class="fas fa-bell"></i> Escalation
             </button>
-            <button class="nav-tab" onclick="window.location.href='reports.html'"> 
+            <button class="nav-tab" type="button" onclick="window.location.href='{{ url_for('reports') }}'">
                 <i class="fas fa-file-alt"></i> Reports
             </button>
         </nav>
@@ -216,6 +216,6 @@
         </div>
     </div>
 
-    <script src="static/js/escalation.js"></script>
+    <script src="{{ url_for('static', filename='js/escalation.js') }}"></script>
 </body>
 </html>
