@@ -166,29 +166,6 @@ function initializeApp() {
         startForAdditionalInputCountPolling();
         startCompletedCountPolling();
     });
-    // loadAllTransactionsList(); // Load all transactions list from API
-    // loadSLAInformationDetails(); // Load SLA information details from API
-    // loadWorkflowProgress(); // Load workflow progress from API
-    // loadDistinctStages(); // Load distinct stages from API
-    // loadDistinctTransactionTypes(); // Load distinct transaction types from API
-    // loadDistinctCurrentPICs(); // Load distinct current PICs from API
-    // refreshCriticalCount(); // Load critical count from backend
-    // refreshWarningCount(); // Load warning count from backend
-    // refreshNormalCount(); // Load normal count from backend
-    // refreshForApprovalCount(); // Load for approval count from backend
-    // refreshPendingCount(); // Load pending count from backend
-    // refreshForAdditionalInputCount(); // Load for additional input count from backend
-    // refreshCompletedCount(); // Load completed count from backend
-    // setupEventListeners();
-    // updateCurrentTime();
-    // setInterval(updateCurrentTime, 1000);
-    // startCriticalCountPolling();
-    // startWarningCountPolling();
-    // startNormalCountPolling();
-    // startForApprovalCountPolling();
-    // startPendingCountPolling();
-    // startForAdditionalInputCountPolling();
-    // startCompletedCountPolling();
 }
 
 async function fetchCurrentUser() {
@@ -205,26 +182,99 @@ async function fetchCurrentUser() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    const userNameElement = document.getElementById('userName');
-    const userAvatarEl = document.getElementById('userAvatar');
-    const userMenu = document.getElementById('userMenu');
-    const userSummary = document.getElementById('userSummary');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const profileBtn = document.getElementById('profileBtn');
+(function setupUserProfile() {
+    async function init() {
+        const userDropdown = document.getElementById('userDropdown');
+        const userSummary = document.getElementById('userSummary');
+        const userMenu = document.getElementById('userMenu');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const profileBtn = document.getElementById('profileBtn');
+        const userNameElement = document.getElementById('userName');
+        const userAvatarEl = document.getElementById('userAvatar');
 
-    if (!userNameElement || !userAvatarEl) return;
+        if (!userSummary || !userMenu) {
+            console.warn('User profile elements not found');
+            return;
+        }
 
-    const user = await fetchCurrentUser();
-    if (user && user.username) {
-        // const name = user.username;
-        userNameElement.textContent = user.username;
-        userAvatarEl.textContent = user.username.charAt(0).toUpperCase();
-    } else {
-        userNameElement.textContent = '';
-        userAvatarEl.textContent = '';
+        // Populate name/avatar
+        try {
+            const user = await fetchCurrentUser();
+            if (user && user.username) {
+                if (userNameElement) userNameElement.textContent = user.username;
+                if (userAvatarEl) userAvatarEl.textContent = user.username.charAt(0).toUpperCase();
+            }
+        } catch (err) {
+            console.warn('Could not load current user:', err);
+        }
+
+        const toggleMenu = (show) => {
+            userMenu.classList.toggle('hidden', !show);
+            userSummary.setAttribute('aria-expanded', String(show));
+            userMenu.setAttribute('aria-hidden', String(!show));
+        };
+
+        userSummary.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMenu(userMenu.classList.contains('hidden'));
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!userDropdown || !userDropdown.contains(e.target)) toggleMenu(false);
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') toggleMenu(false);
+        });
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+                } catch (_) {}
+                window.location.href = '/';
+            });
+        }
+
+        if (profileBtn) {
+            profileBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('Profile functionality will be implemented soon.');
+                toggleMenu(false);
+            });
+        }
     }
 
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const userDropdown = document.getElementById('userDropdown');
+    const userSummary = document.getElementById('userSummary');
+    const userMenu = document.getElementById('userMenu');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const profileBtn = document.getElementById('profileBtn');
+    const userNameElement = document.getElementById('userName');
+    const userAvatarEl = document.getElementById('userAvatar');
+
+    // Populate profile if elements exist
+    const user = await fetchCurrentUser();
+    if (userNameElement && userAvatarEl) {
+        if (user && user.username) {
+            userNameElement.textContent = user.username;
+            userAvatarEl.textContent = user.username.charAt(0).toUpperCase();
+        } else {
+            userNameElement.textContent = '';
+            userAvatarEl.textContent = '';
+        }
+    }
+
+    // Menu toggle helper
     const toggleMenu = (show) => {
         if (!userMenu || !userSummary) return;
         if (show) {
@@ -238,133 +288,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    // Toggle on click
     if (userSummary) {
         userSummary.addEventListener('click', (e) => {
             e.stopPropagation();
-            toggleMenu(!userMenu.classList.contains('hidden'));
+            toggleMenu(!userMenu?.classList.contains('hidden'));
         });
     }
 
+    // Close when clicking outside
     document.addEventListener('click', (e) => {
         if (!userDropdown || !userDropdown.contains(e.target)) {
             toggleMenu(false);
         }
     });
 
+    // Keyboard: Escape closes menu
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') toggleMenu(false);
+    });
+
+    // Logout handler: call API then redirect to login page
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             try {
                 await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
             } catch (err) {
-                console.error('Logout error:', err);
+                console.warn('Logout request failed:', err);
             }
             window.location.href = '/';
         });
+    }
 
-        if (profileBtn) {
-            profileBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                alert('Profile functionality will be implemented soon.');
-                toggleMenu(false);
-            });
-        }
+    // Profile placeholder
+    if (profileBtn) {
+        profileBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Profile functionality will be implemented soon.');
+            toggleMenu(false);
+        });
     }
 });
-
-
-// }
-
-//     // userNameElement.textContent = 'Guest';
-//     // userAvatarEl.textContent = 'G';
-//     // const userMenu = document.getElementById('userMenu');
-//     // const userSummary = document.getElementById('userSummary');
-//     // const logoutBtn = document.getElementById('logoutBtn');
-//     // const profileBtn = document.getElementById('profileBtn');
-
-//     let user = window.currentUser || null;
-
-//     if (!user) {
-//         try {
-//             const res = await fetch('/api/current-user');
-//             if (res.ok) {
-//                 const data = await res.json();
-//                 user = data.user || null;
-//         }
-//     } catch (err) {
-//         console.error('Error fetching current user:', err);
-//     }
-// }
-
-// // const name = (user && user.username) ? user.username : 'Guest'; 
-// // userNameElement.textContent = name;
-// // userAvatarEl.textContent = name.charAt(0).toUpperCase();
-
-// document.addEventListener('DOMContentLoaded', () => {
-//     populateUserProfile();
-// });
-
-// const toggleMenu = (show) => {
-//     if (show) {
-//         userMenu.classList.remove('hidden');
-//         userSummary.setAttribute('aria-expanded', 'true');
-//         userMenu.setAttribute('aria-hidden', 'false');
-//     } else {
-//         userMenu.classList.add('hidden');
-//         userSummary.setAttribute('aria-expanded', 'false');
-//         userMenu.setAttribute('aria-hidden', 'true');
-//     }
-// };
-// userSummary.addEventListener('click', (e) => {
-//     toggleMenu(!userMenu.classList.contains('hidden'));
-// });
-
-// document.addEventListener('click', (e) => {
-//     if (!document.getElementById('userDropdown').contains(e.target)) {
-//         toggleMenu(false);
-//     }
-// });
-
-// logoutBtn.addEventListener('click', (e) => {
-//     e.preventDefault();
-//     window.location.href = '/';
-// });
-
-// profileBtn.addEventListener('click', (e) => {
-//     e.preventDefault();
-//     alert('Profile functionality will be implemented soon.');
-//     toggleMenu(false);
-// });
-
-// document.getElementById('loginForm').addEventListener('submit', async function (e) {
-//     e.preventDefault();
-//     const username = document.getElementById('username').value.trim();
-//     const password = document.getElementById('password').value;
-
-//     try {
-//         const res = await fetch('/api/login', {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify({ username, password }),
-//             credentials: 'same-origin'
-//         });
-
-//         if (res.ok) {
-//             const data = await res.json();
-//             if (data.success) {
-                
-//                 window.location.href = '/workflow-tracking';
-//                 return;
-//             }
-//         }
-//         const err = await res.json().catch(() => ({}));
-//         alert(err.message || 'Invalid credentials.');
-//     } catch (err) {
-//         console.error(err);
-//         alert('Unable to contact server.');
-//     }
-
-// });
 
 async function loadMyResponsibilities() {
     try {

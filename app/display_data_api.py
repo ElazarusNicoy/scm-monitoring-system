@@ -67,6 +67,10 @@ def escalation():
 def reports():
     return render_template('reports.html')
 
+@app.route('/api/logout', methods=['POST'])
+def api_logout():
+    session.pop('user', None)
+    return jsonify({'success': True})
 
 @app.route('/api/login', methods=['POST'])
 def login():
