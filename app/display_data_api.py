@@ -67,15 +67,6 @@ def escalation():
 def reports():
     return render_template('reports.html')
 
-# @app.route('/script.js')
-# def serve_script():
-#     """Serve the JavaScript file."""
-#     return send_from_directory(BASE_DIR, 'script.js', mimetype='application/javascript')
-
-# @app.route('/styles.css')
-# def serve_styles():
-#     """Serve the CSS file."""
-#     return send_from_directory(BASE_DIR, 'styles.css', mimetype='text/css')
 
 @app.route('/api/login', methods=['POST'])
 def login():
