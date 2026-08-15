@@ -33,11 +33,16 @@ function makeTxKey(t) {
 async function loadEscalationData() {
     try {
         const [transRes, stageRes, typeRes, picRes] = await Promise.all([
-            fetch('http://localhost:5000/api/escalation-transactions'),
-            fetch('http://localhost:5000/api/distinct-stages'),
-            fetch('http://localhost:5000/api/distinct-transaction-types'),
-            fetch('http://localhost:5000/api/distinct-current-pics-warning-critical')
+            fetch('/api/escalation-transactions', { credentials: 'same-origin' }),
+            fetch('/api/distinct-stages', { credentials: 'same-origin' }),
+            fetch('/api/distinct-transaction-types', { credentials: 'same-origin' }),
+            fetch('/api/distinct-current-pics-warning-critical', { credentials: 'same-origin' })
         ]);
+
+        if ([transRes, stageRes, typeRes, picRes].some(r => r.status === 401)) {
+            window.location.href = '/';
+            return;
+        }
 
         const transData = await transRes.json();
         const stageData = await stageRes.json();
@@ -866,3 +871,87 @@ function setupEventListeners() {
         });
     });
 }
+
+// ─── User Profile (copied from script.js) ─────────────────────
+async function fetchCurrentUser() {
+    try {
+        const res = await fetch('/api/current-user', { credentials: 'same-origin' });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return (data.success && data.user && data.user.username) ? data.user : null;
+    } catch (err) {
+        console.error('fetchCurrentUser error:', err);
+        return null;
+    }
+}
+
+(function setupUserProfile() {
+    async function init() {
+        const userDropdown = document.getElementById('userDropdown');
+        const userSummary = document.getElementById('userSummary');
+        const userMenu = document.getElementById('userMenu');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const profileBtn = document.getElementById('profileBtn');
+        const userNameElement = document.getElementById('userName');
+        const userAvatarEl = document.getElementById('userAvatar');
+
+        if (!userSummary || !userMenu) {
+            console.warn('User profile elements not found');
+            return;
+        }
+
+        // Populate name/avatar
+        try {
+            const user = await fetchCurrentUser();
+            if (user && user.username) {
+                if (userNameElement) userNameElement.textContent = user.username;
+                if (userAvatarEl) userAvatarEl.textContent = user.username.charAt(0).toUpperCase();
+            }
+        } catch (err) {
+            console.warn('Could not load current user:', err);
+        }
+
+        const toggleMenu = (show) => {
+            userMenu.classList.toggle('hidden', !show);
+            userSummary.setAttribute('aria-expanded', String(show));
+            userMenu.setAttribute('aria-hidden', String(!show));
+        };
+
+        userSummary.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMenu(userMenu.classList.contains('hidden'));
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!userDropdown || !userDropdown.contains(e.target)) toggleMenu(false);
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') toggleMenu(false);
+        });
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+                } catch (_) {}
+                window.location.href = '/';
+            });
+        }
+
+        if (profileBtn) {
+            profileBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('Profile functionality will be implemented soon.');
+                toggleMenu(false);
+            });
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();

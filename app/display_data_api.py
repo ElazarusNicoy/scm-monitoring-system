@@ -34,7 +34,8 @@ from app.db_connection import (
     get_transactions_newly_aged,
     log_escalation_email,
     authenticate_user,
-    display_current_user_responsibilities
+    display_current_user_responsibilities,
+    get_escalation_transactions_for_user
     )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -105,6 +106,18 @@ def get_my_responsibilities():
     try:
         rows = display_current_user_responsibilities(current_user)
         return jsonify({'success': True, 'responsibilities': rows, 'count': len(rows)})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/escalation-transactions')
+def get_escalation_transactions_endpoint():
+    """Returns Warning/Critical transactions for the logged-in user only."""
+    user = session.get('user')
+    if not user:
+        return jsonify({'success': False, 'message': 'Not authenticated'}), 401
+    try:
+        transactions = get_escalation_transactions_for_user(user.get('username'))
+        return jsonify({'success': True, 'escalationTransactions': transactions})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
@@ -371,18 +384,18 @@ def get_distinct_current_pics_warning_critical():
             'error': str(e)
         }), 500
     
-@app.route('/api/escalation-transactions')
-def get_escalation_transactions_endpoint():
-    """Returns only Warning and Critical transactions for the Escalation module."""
-    try:
-        transactions = get_escalation_transactions()
-        return jsonify({
-            'success': True,
-            'escalationTransactions': transactions,
-            'count': len(transactions)
-        })
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+# @app.route('/api/escalation-transactions')
+# def get_escalation_transactions_endpoint():
+#     """Returns only Warning and Critical transactions for the Escalation module."""
+#     try:
+#         transactions = get_escalation_transactions()
+#         return jsonify({
+#             'success': True,
+#             'escalationTransactions': transactions,
+#             'count': len(transactions)
+#         })
+#     except Exception as e:
+#         return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/send-followup-email', methods=['POST'])

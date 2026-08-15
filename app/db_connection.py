@@ -99,6 +99,46 @@ def display_current_user_responsibilities(current_user):
         print(f"Unexpected error in display_current_user_responsibilities: {e}")
         return []
 
+# ...existing code...
+def get_escalation_transactions_for_user(current_user):
+    """Warning/Critical transactions where user is Current PIC or Requestor."""
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            query = """
+                SELECT [Transaction Type]
+                    ,[Transaction Name]
+                    ,[Requestor]
+                    ,[Submitted Date]
+                    ,[Last Updated]
+                    ,[Current Stage]
+                    ,[Current PIC]
+                    ,[Status]
+                    ,[Aging (Days)]
+                    ,[SLA Status]
+                FROM [SP_TRANSACTIONS].[dbo].[all_transactions_list]
+                WHERE [SLA Status] IN ('Warning', 'Critical')
+                  AND ([Current PIC] = ? OR [Requestor] = ?)
+                ORDER BY [Aging (Days)] DESC
+            """
+            cursor.execute(query, (current_user, current_user))
+            columns = [col[0] for col in cursor.description]
+            result = []
+            for row in cursor.fetchall():
+                row_dict = dict(zip(columns, row))
+                for date_col in ['Submitted Date', 'Last Updated']:
+                    if row_dict.get(date_col) is not None:
+                        try:
+                            row_dict[date_col] = row_dict[date_col].strftime('%Y-%m-%d')
+                        except Exception:
+                            pass
+                result.append(row_dict)
+            cursor.close()
+            return result
+    except Exception as e:
+        print(f"Error in get_escalation_transactions_for_user: {e}")
+        return []
+
 @contextmanager
 def get_db_connection():
     """

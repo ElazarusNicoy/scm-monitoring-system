@@ -359,12 +359,13 @@ async function loadMyResponsibilities() {
             currentStage: t['Current Stage'] || 'TBD',
             currentPIC: t['Current PIC'] || '',
             status: (t['Status'] || 'pending').toLowerCase().trim().replace(/\s+/g, '-'),
-            agingDays: t['Aging Days'] || 0,
-            agingLevel: t['Aging Level'] || 'normal'.toLowerCase().trim(),
+            agingDays: t['Aging (Days)'] || 0,
+                agingLevel: (t['SLA Status'] || 'normal')
+                    .toLowerCase()
+                    .trim(),
             submittedDate: t['Submitted Date'] || 'N/A',
             lastUpdated: t['Last Updated'] || 'N/A',
             requestor: t['Requestor'] || 'N/A',
-
         }));
 
         currentTransactions = mappedTransactions;
